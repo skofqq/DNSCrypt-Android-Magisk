@@ -3,9 +3,14 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- One solid shape, no colour and no gradients: the system recolours it. -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M54,26.4L79.8,35.6L79.8,55.8C79.8,66.9 68.7,76.1 54,81.6C39.3,76.1 28.2,66.9 28.2,55.8L28.2,35.6zM37.4,50.3L57.7,50.3L57.7,43.9L70.6,54L57.7,64.1L57.7,57.7L37.4,57.7z" />
+    <!-- Scaled down so the shield keeps a margin inside the launcher mask. -->
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.84" android:scaleY="0.84">
+    <!-- Themed icon (Android 13+): one colour, the system tints it. -->
+    <path android:pathData="M54,25 L79,33.5 V52 C79,65.5 68.5,76 54,83 C39.5,76 29,65.5 29,52 V33.5 Z" android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineJoin="round" />
+    <group android:translateY="-1">
+        <path android:pathData="M38.5,47.5 V60.5 H41 C45.5,60.5 47,57.5 47,54 C47,50.5 45.5,47.5 41,47.5 Z" android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M51,60.5 V47.5 L58,60.5 V47.5" android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M70,49.6 C69.2,48.2 67.8,47.5 66,47.5 C63.6,47.5 62,48.9 62,50.8 C62,54.6 70,53.2 70,57.2 C70,59.2 68.4,60.5 66,60.5 C64.2,60.5 62.8,59.8 62,58.4" android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    </group>
+    </group>
 </vector>
