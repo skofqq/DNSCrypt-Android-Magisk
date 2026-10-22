@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -232,14 +234,22 @@ fun ActionPill(
             .padding(horizontal = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text,
-            color = tint.fg.copy(alpha = if (enabled) 1f else 0.45f),
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        PillText(text, tint.fg.copy(alpha = if (enabled) 1f else 0.45f))
     }
+}
+
+/**
+ * One line that shrinks to fit instead of ending in "…": three pills in a row have
+ * room for "Restart" but not for "Перезапустить" or "Neu starten" at full size.
+ */
+@Composable
+private fun PillText(text: String, color: Color) {
+    BasicText(
+        text,
+        style = MaterialTheme.typography.bodyLarge.copy(color = color, fontWeight = FontWeight.SemiBold),
+        maxLines = 1,
+        autoSize = TextAutoSize.StepBased(minFontSize = 11.sp, maxFontSize = 16.sp),
+    )
 }
 
 /** Solid accent button, the primary action of a sheet or card. */
@@ -261,7 +271,7 @@ fun PrimaryPill(
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, color = contentColor, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        PillText(text, contentColor)
     }
 }
 

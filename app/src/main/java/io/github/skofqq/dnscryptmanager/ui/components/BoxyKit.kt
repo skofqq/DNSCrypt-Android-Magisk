@@ -1,6 +1,8 @@
 package io.github.skofqq.dnscryptmanager.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -449,8 +451,11 @@ fun PendingBar(
         modifier
             .fillMaxWidth()
             .padding(horizontal = PageInset, vertical = 8.dp)
+            // Floats over cards of the same colour: the shadow and hairline keep it apart.
+            .shadow(16.dp, RoundedCornerShape(26.dp))
             .clip(RoundedCornerShape(26.dp))
             .background(Boxy.colors.card)
+            .border(1.dp, Boxy.colors.outline, RoundedCornerShape(26.dp))
             .padding(10.dp),
     ) {
         Text(
