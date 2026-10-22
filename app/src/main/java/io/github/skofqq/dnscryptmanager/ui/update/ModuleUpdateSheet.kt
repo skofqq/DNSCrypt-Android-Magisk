@@ -23,6 +23,7 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -114,14 +115,15 @@ fun ModuleUpdateSheet(
     onReboot: () -> Unit,
     onOpenUrl: (String) -> Unit,
 ) {
-    // A half-finished install must not be swiped away by accident.
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { !state.busy },
-    )
+    // A half-finished install must not be swiped away by accident. Gestures and back are
+    // switched off instead of vetoing state changes: a veto also blocked the sheet from
+    // re-settling when its content changed height, and it slid off-screen mid-download.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = { if (!state.busy) onDismiss() },
         sheetState = sheetState,
+        sheetGesturesEnabled = !state.busy,
+        properties = ModalBottomSheetProperties(shouldDismissOnBackPress = !state.busy),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         containerColor = Boxy.colors.page,
         contentColor = Boxy.colors.text,
@@ -203,6 +205,7 @@ fun ModuleUpdateSheet(
 
                 UpdatePhase.DOWNLOADING -> {
                     VersionsGroup(state)
+                    Changelog(state, onOpenUrl)
                     SheetGroup {
                         Text(
                             text = if (state.progress >= 0f) {
@@ -223,6 +226,7 @@ fun ModuleUpdateSheet(
                 }
 
                 UpdatePhase.INSTALLING -> {
+                    VersionsGroup(state)
                     SheetGroup {
                         Text(
                             stringResource(R.string.update_installing),
