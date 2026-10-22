@@ -37,6 +37,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.skofqq.dnscryptmanager.R
+import androidx.compose.animation.animateContentSize
+import androidx.compose.runtime.saveable.rememberSaveable
+import io.github.skofqq.dnscryptmanager.data.ActiveServer
+import io.github.skofqq.dnscryptmanager.ui.components.BoxyDialog
+import io.github.skofqq.dnscryptmanager.ui.components.LocalBarPadding
+import io.github.skofqq.dnscryptmanager.ui.components.PageInset
+import io.github.skofqq.dnscryptmanager.ui.servers.rttTint
 import io.github.skofqq.dnscryptmanager.ui.components.ActionPill
 import io.github.skofqq.dnscryptmanager.ui.components.Badge
 import io.github.skofqq.dnscryptmanager.ui.components.BoxyCard
@@ -82,12 +89,14 @@ fun StatusScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = PageInset),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
+            Spacer(Modifier.height(0.dp))
             HeroCard(
                 status = status,
                 phase = phase,
+                activeServer = uiState.activeServer,
                 uptimeSeconds = ready.uptimeSeconds,
                 busyAction = uiState.busyAction,
                 boxHandover = uiState.boxDetected == true && !status.rulesV4,
@@ -109,12 +118,6 @@ fun StatusScreen(
                 ModuleUpdateCard(updateState, onOpenUpdate)
             }
 
-            BoxyCard {
-                CardTitle(stringResource(R.string.status_details))
-                Spacer(Modifier.height(6.dp))
-                StatusDetails(status = status, uptimeSeconds = ready.uptimeSeconds)
-            }
-
             DnsCheckCard(
                 port = status.port,
                 probing = uiState.probing,
@@ -123,25 +126,36 @@ fun StatusScreen(
                 onModuleTest = onModuleTest,
             )
 
-            Spacer(Modifier.height(16.dp))
+            var expanded by rememberSaveable { mutableStateOf(false) }
+            BoxyCard(modifier = Modifier.animateContentSize()) {
+                CardTitle(stringResource(R.string.status_details))
+                Spacer(Modifier.height(6.dp))
+                StatusDetails(status = status, uptimeSeconds = ready.uptimeSeconds, expanded = expanded)
+                Spacer(Modifier.height(8.dp))
+                ActionPill(
+                    stringResource(if (expanded) R.string.status_less_details else R.string.status_more_details),
+                    Tints.gray,
+                    enabled = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { expanded = !expanded },
+                )
+            }
+
+            Spacer(Modifier.height(LocalBarPadding.current))
         }
     }
 
     if (confirmStop) {
-        AlertDialog(
-            onDismissRequest = { confirmStop = false },
-            title = { Text(stringResource(R.string.confirm_stop_title)) },
-            text = { Text(stringResource(R.string.confirm_stop_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmStop = false
-                    onAction(ProxyAction.STOP)
-                }) { Text(stringResource(R.string.action_stop)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmStop = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
+        BoxyDialog(
+            title = stringResource(R.string.confirm_stop_title),
+            text = stringResource(R.string.confirm_stop_message),
+            onDismiss = { confirmStop = false },
+            dismissText = stringResource(R.string.action_cancel),
+            confirmText = stringResource(R.string.action_stop),
+            confirmTint = Tints.red,
+            onConfirm = {
+                confirmStop = false
+                onAction(ProxyAction.STOP)
             },
         )
     }
@@ -155,6 +169,7 @@ fun StatusScreen(
 private fun HeroCard(
     status: ModuleStatus,
     phase: ProxyPhase,
+    activeServer: ActiveServer?,
     uptimeSeconds: Long?,
     busyAction: ProxyAction?,
     boxHandover: Boolean,
@@ -186,6 +201,7 @@ private fun HeroCard(
                 val chip = when {
                     phase == ProxyPhase.RUNNING && uptimeSeconds != null ->
                         stringResource(R.string.hero_uptime, formatUptime(uptimeSeconds))
+                    phase == ProxyPhase.STOPPED -> stringResource(R.string.hero_tap_start)
                     else -> stringResource(R.string.label_pid) + " " + (status.pid?.toString() ?: "—")
                 }
                 Text(
@@ -224,6 +240,38 @@ private fun HeroCard(
                 )
                 MiniRow(stringResource(R.string.hero_port), status.port.toString())
                 MiniRow(stringResource(R.string.hero_module), status.versionOrNull ?: "—")
+            }
+        }
+
+        // The resolver the proxy settled on: too long for the side panel, so a full-width strip.
+        if (activeServer != null && running) {
+            Spacer(Modifier.height(12.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(colors.surface2)
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.hero_server),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.text2,
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    activeServer.name,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = colors.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                activeServer.rttMs?.let {
+                    Spacer(Modifier.width(8.dp))
+                    Badge(stringResource(R.string.servers_rtt_short, it), rttTint(it))
+                }
             }
         }
 
@@ -347,37 +395,16 @@ private fun BoxConflictCard(onOpenConflicts: () -> Unit) {
     }
 }
 
+/** The four facts people look for first; the rest folds under "More details". */
 @Composable
-private fun StatusDetails(status: ModuleStatus, uptimeSeconds: Long?) {
+private fun StatusDetails(status: ModuleStatus, uptimeSeconds: Long?, expanded: Boolean) {
     val unknown = stringResource(R.string.value_unknown)
+    val error = Tints.red.fg
     InfoRow(
         label = stringResource(R.string.label_uptime),
         value = uptimeSeconds?.let { formatUptime(it) } ?: unknown,
     )
-    InfoRow(
-        label = stringResource(R.string.label_version),
-        value = status.versionOrNull ?: unknown,
-    )
-    InfoRow(label = stringResource(R.string.label_port), value = status.port.toString())
-    InfoRow(
-        label = stringResource(R.string.label_port6),
-        value = status.port6?.toString() ?: unknown,
-    )
-    InfoRow(
-        label = stringResource(R.string.label_rules),
-        value = stringResource(
-            if (status.rulesV4) R.string.value_present else R.string.value_absent
-        ),
-        valueColor = if (status.rulesV4) {
-            MaterialTheme.colorScheme.onSurface
-        } else {
-            MaterialTheme.colorScheme.error
-        },
-    )
-    InfoRow(
-        label = stringResource(R.string.label_ipv6),
-        value = stringResource(ipv6Label(status.redirectIpv6)),
-    )
+    InfoRow(label = stringResource(R.string.label_version), value = status.versionOrNull ?: unknown)
     // Only modules from 2.4.2 on report where IPv6 queries actually go.
     status.ipv6Dns?.let { dns ->
         InfoRow(
@@ -389,33 +416,32 @@ private fun StatusDetails(status: ModuleStatus, uptimeSeconds: Long?) {
                     Ipv6Dns.BYPASS -> R.string.ipv6_dns_bypass
                 }
             ),
-            valueColor = if (dns == Ipv6Dns.BYPASS) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
+            valueColor = if (dns == Ipv6Dns.BYPASS) error else Boxy.colors.text,
         )
     }
+    InfoRow(label = stringResource(R.string.label_private_dns), value = status.privateDns ?: unknown)
+    if (!expanded) return
+
+    InfoRow(label = stringResource(R.string.label_port), value = status.port.toString())
+    InfoRow(label = stringResource(R.string.label_port6), value = status.port6?.toString() ?: unknown)
+    InfoRow(
+        label = stringResource(R.string.label_rules),
+        value = stringResource(if (status.rulesV4) R.string.value_present else R.string.value_absent),
+        valueColor = if (status.rulesV4) Boxy.colors.text else error,
+    )
+    InfoRow(label = stringResource(R.string.label_ipv6), value = stringResource(ipv6Label(status.redirectIpv6)))
     InfoRow(
         label = stringResource(R.string.label_tether),
-        value = stringResource(
-            if (status.tetherRedirect) R.string.value_on else R.string.value_off
-        ),
-    )
-    InfoRow(
-        label = stringResource(R.string.label_private_dns),
-        value = status.privateDns ?: unknown,
+        value = stringResource(if (status.tetherRedirect) R.string.value_on else R.string.value_off),
     )
     InfoRow(label = stringResource(R.string.label_pid), value = status.pid?.toString() ?: unknown)
-    InfoRow(
-        label = stringResource(R.string.label_supervisor),
-        value = status.supervisorPid?.toString() ?: unknown,
-    )
+    InfoRow(label = stringResource(R.string.label_supervisor), value = status.supervisorPid?.toString() ?: unknown)
     InfoRow(
         label = stringResource(R.string.label_config),
         value = status.config.substringAfterLast('/').ifBlank { unknown },
     )
 }
+
 
 @Composable
 private fun DnsCheckCard(
@@ -434,24 +460,27 @@ private fun DnsCheckCard(
             color = Boxy.colors.text2,
         )
         Spacer(Modifier.height(14.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ActionPill(
-                stringResource(R.string.dns_check_run),
-                Tints.blue,
-                enabled = !probing,
-                modifier = Modifier.width(140.dp),
-                onClick = onProbe,
-            )
-            Spacer(Modifier.size(16.dp))
-            if (probing) {
-                androidx.compose.material3.LoadingIndicator()
-            } else if (probe != null) {
-                ProbeText(probe)
-            }
+        // Same tray as the hero's Start / Stop / Restart, so both cards read alike.
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(22.dp))
+                .background(Boxy.colors.surface2.copy(alpha = 0.6f))
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ActionPill(stringResource(R.string.dns_check_run), Tints.blue, !probing, Modifier.weight(1f), onProbe)
+            ActionPill(stringResource(R.string.dns_check_self_test), Tints.teal, true, Modifier.weight(1f), onModuleTest)
         }
-        Spacer(Modifier.height(8.dp))
-        TextButton(onClick = onModuleTest) {
-            Text(stringResource(R.string.dns_check_module_test))
+        if (probing || probe != null) {
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (probing) {
+                    androidx.compose.material3.LoadingIndicator(Modifier.size(32.dp))
+                } else if (probe != null) {
+                    ProbeText(probe)
+                }
+            }
         }
     }
 }

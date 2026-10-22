@@ -2,20 +2,28 @@ package io.github.skofqq.dnscryptmanager.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.provider.MediaStore
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,15 +31,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.core.net.toUri
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,14 +54,14 @@ import io.github.skofqq.dnscryptmanager.ui.components.BarItem
 import io.github.skofqq.dnscryptmanager.ui.components.BottomBar
 import io.github.skofqq.dnscryptmanager.ui.components.GateScreen
 import io.github.skofqq.dnscryptmanager.ui.components.HeaderAction
+import io.github.skofqq.dnscryptmanager.ui.components.LocalBarPadding
 import io.github.skofqq.dnscryptmanager.ui.components.PageHeader
-import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
-import io.github.skofqq.dnscryptmanager.ui.update.ModuleUpdateSheet
+import io.github.skofqq.dnscryptmanager.ui.components.TopFade
 import io.github.skofqq.dnscryptmanager.ui.config.ConfigEvent
 import io.github.skofqq.dnscryptmanager.ui.config.ConfigScreen
 import io.github.skofqq.dnscryptmanager.ui.config.ConfigViewModel
-import io.github.skofqq.dnscryptmanager.ui.logs.LogsScreen
 import io.github.skofqq.dnscryptmanager.ui.logs.LogTab
+import io.github.skofqq.dnscryptmanager.ui.logs.LogsScreen
 import io.github.skofqq.dnscryptmanager.ui.logs.LogsViewModel
 import io.github.skofqq.dnscryptmanager.ui.servers.ServersScreen
 import io.github.skofqq.dnscryptmanager.ui.servers.ServersViewModel
@@ -59,16 +69,23 @@ import io.github.skofqq.dnscryptmanager.ui.settings.SettingsScreen
 import io.github.skofqq.dnscryptmanager.ui.settings.SettingsViewModel
 import io.github.skofqq.dnscryptmanager.ui.status.StatusScreen
 import io.github.skofqq.dnscryptmanager.ui.status.StatusViewModel
+import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
+import io.github.skofqq.dnscryptmanager.ui.update.ModuleUpdateSheet
 import io.github.skofqq.dnscryptmanager.ui.update.ModuleUpdateViewModel
 import kotlinx.coroutines.launch
 
-enum class Destination(val labelRes: Int, val iconRes: Int, val titleRes: Int, val subtitleRes: Int) {
-    STATUS(R.string.nav_status, R.drawable.ic_shield, R.string.page_status_title, R.string.page_status_sub),
-    SERVERS(R.string.nav_servers, R.drawable.ic_dns, R.string.nav_servers, R.string.page_servers_sub),
-    SETTINGS(R.string.nav_settings, R.drawable.ic_tune, R.string.nav_settings, R.string.page_settings_sub),
-    CONFIG(R.string.nav_config, R.drawable.ic_article, R.string.nav_config, R.string.page_config_sub),
-    LOGS(R.string.nav_logs, R.drawable.ic_terminal, R.string.nav_logs, R.string.page_logs_sub),
+/** The three tabs of the bottom bar, as in Boxy: home, settings, log. */
+enum class Destination(val labelRes: Int, val iconRes: Int) {
+    STATUS(R.string.nav_status, R.drawable.ic_shield),
+    SETTINGS(R.string.nav_settings, R.drawable.ic_tune),
+    LOGS(R.string.nav_logs, R.drawable.ic_terminal),
 }
+
+/** Pages opened from Settings, shown full screen with a back pill and no bottom bar. */
+enum class SubPage { SERVERS, CONFIG }
+
+/** Height of the floating bar plus its margins, without the system navigation bar. */
+private val BarHeight = 68.dp + 6.dp + 10.dp
 
 @Composable
 fun AppRoot() {
@@ -78,6 +95,7 @@ fun AppRoot() {
     val statusState by statusViewModel.uiState.collectAsStateWithLifecycle()
 
     var destination by rememberSaveable { mutableStateOf(Destination.STATUS) }
+    var subPage by rememberSaveable { mutableStateOf<SubPage?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -134,240 +152,314 @@ fun AppRoot() {
         )
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Boxy.colors.page,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            if (!gated) {
+    BackHandler(enabled = subPage != null) { subPage = null }
+
+    val navBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    // Content runs under the floating bar; this is how far its last item must clear it.
+    val barPadding = if (subPage == null) BarHeight + navBar + 16.dp else navBar + 16.dp
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Boxy.colors.page),
+    ) {
+        if (gated) {
+            GateScreen(
+                state = statusState.state,
+                onRetry = statusViewModel::retryRoot,
+                onOpenReleases = { context.openUrl(ModuleContract.RELEASES_URL) },
+                modifier = Modifier.statusBarsPadding(),
+            )
+            return@Box
+        }
+
+        CompositionLocalProvider(LocalBarPadding provides barPadding) {
+            AnimatedContent(
+                targetState = subPage,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "subPage",
+                modifier = Modifier.fillMaxSize().statusBarsPadding(),
+            ) { page ->
+                when (page) {
+                    SubPage.SERVERS -> {
+                        val serversViewModel: ServersViewModel = viewModel(factory = factory)
+                        val serversState by serversViewModel.uiState.collectAsStateWithLifecycle()
+                        val appliedText = stringResource(R.string.servers_applied)
+
+                        LaunchedEffect(serversViewModel) {
+                            serversViewModel.messages.collect {
+                                snackbarHostState.showSnackbar(resolve(it))
+                            }
+                        }
+                        LaunchedEffect(serversViewModel) {
+                            serversViewModel.applied.collect {
+                                haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                                snackbarHostState.showSnackbar(appliedText)
+                                statusViewModel.refresh()
+                            }
+                        }
+
+                        ServersScreen(
+                            uiState = serversState,
+                            supported = serversSupported,
+                            onBack = { subPage = null },
+                            onQuery = serversViewModel::setQuery,
+                            onSetAuto = serversViewModel::setDraftAuto,
+                            onToggleProtocol = serversViewModel::toggleProtocol,
+                            onToggleDnssec = serversViewModel::toggleDnssec,
+                            onToggleNoLog = serversViewModel::toggleNoLog,
+                            onToggleNoFilter = serversViewModel::toggleNoFilter,
+                            onAdd = serversViewModel::addServer,
+                            onRemove = serversViewModel::removeServer,
+                            onFocus = serversViewModel::focusServer,
+                            onMove = serversViewModel::moveFocused,
+                            onDiscard = serversViewModel::discard,
+                            onApply = serversViewModel::apply,
+                            onRefresh = { serversViewModel.load(force = true) },
+                            onOpenReleases = { context.openUrl(ModuleContract.RELEASES_URL) },
+                        )
+                    }
+
+                    SubPage.CONFIG -> {
+                        val configViewModel: ConfigViewModel = viewModel(factory = factory)
+                        val configState by configViewModel.uiState.collectAsStateWithLifecycle()
+                        val savedText = stringResource(R.string.config_saved)
+                        val emptyText = stringResource(R.string.config_invalid_empty)
+                        val listenText = stringResource(R.string.config_invalid_listen)
+                        val restoredText = stringResource(R.string.backup_restored)
+                        val backupFormat = stringResource(R.string.backup_created, PLACEHOLDER)
+
+                        LaunchedEffect(configViewModel) {
+                            configViewModel.events.collect { event ->
+                                val message = when (event) {
+                                    is ConfigEvent.Saved -> savedText
+                                    is ConfigEvent.InvalidEmpty -> emptyText
+                                    is ConfigEvent.InvalidListen -> listenText
+                                    is ConfigEvent.Restored -> restoredText
+                                    is ConfigEvent.BackupCreated -> backupFormat.format(event.name)
+                                    is ConfigEvent.Failed -> resolve(event.message)
+                                }
+                                snackbarHostState.showSnackbar(message)
+                                statusViewModel.refresh()
+                            }
+                        }
+
+                        ConfigScreen(
+                            uiState = configState,
+                            onBack = { subPage = null },
+                            onTextChanged = configViewModel::onTextChanged,
+                            onSave = configViewModel::saveAndRestart,
+                            onBackup = configViewModel::createBackup,
+                            onRestore = configViewModel::restore,
+                            mirrorSupported = mirrorSupported,
+                            onExport = configViewModel::exportConfig,
+                            onImport = configViewModel::importConfig,
+                        )
+                    }
+
+                    null -> AnimatedContent(
+                        targetState = destination,
+                        transitionSpec = { fadeIn() togetherWith fadeOut() },
+                        label = "destination",
+                        modifier = Modifier.fillMaxSize(),
+                    ) { current ->
+                        when (current) {
+                            Destination.STATUS -> TabPage(
+                                title = stringResource(R.string.page_status_title),
+                                subtitle = stringResource(R.string.page_status_sub),
+                                actions = {
+                                    HeaderAction(
+                                        icon = painterResource(R.drawable.ic_refresh),
+                                        contentDescription = stringResource(R.string.action_refresh),
+                                        onClick = { statusViewModel.refresh(showSpinner = true) },
+                                    )
+                                    HeaderAction(
+                                        icon = painterResource(R.drawable.ic_system_update),
+                                        contentDescription = stringResource(R.string.update_row_title),
+                                        tint = if (updateState.updateAvailable) Boxy.colors.accent else Boxy.colors.text,
+                                        dot = updateState.updateAvailable,
+                                        onClick = { updateSheet = true },
+                                    )
+                                },
+                            ) {
+                                LifecycleResumeEffect(Unit) {
+                                    statusViewModel.startPolling()
+                                    onPauseOrDispose { statusViewModel.stopPolling() }
+                                }
+                                StatusScreen(
+                                    uiState = statusState,
+                                    onRefresh = { statusViewModel.refresh(showSpinner = true) },
+                                    onAction = statusViewModel::run,
+                                    onProbe = statusViewModel::probe,
+                                    onModuleTest = statusViewModel::runModuleTest,
+                                    onOpenLogs = { destination = Destination.LOGS },
+                                    onOpenConflicts = {
+                                        pendingLogTab = LogTab.CONFLICTS
+                                        destination = Destination.LOGS
+                                    },
+                                    updateState = updateState,
+                                    onOpenUpdate = { updateSheet = true },
+                                )
+                            }
+
+                            Destination.SETTINGS -> {
+                                val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
+                                val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+                                val appSettings by settingsViewModel.appSettings.collectAsStateWithLifecycle()
+                                val appliedMessage = stringResource(R.string.settings_applied)
+                                val resetDoneText = stringResource(R.string.settings_reset_done)
+
+                                LaunchedEffect(settingsViewModel) {
+                                    settingsViewModel.messages.collect {
+                                        snackbarHostState.showSnackbar(resolve(it))
+                                    }
+                                }
+
+                                val chosen = readyStatus?.serverSelection.orEmpty()
+                                TabPage(
+                                    title = stringResource(R.string.nav_settings),
+                                    subtitle = stringResource(R.string.page_settings_sub),
+                                    actions = {
+                                        HeaderAction(
+                                            icon = painterResource(R.drawable.ic_system_update),
+                                            contentDescription = stringResource(R.string.update_row_title),
+                                            tint = if (updateState.updateAvailable) Boxy.colors.accent else Boxy.colors.text,
+                                            dot = updateState.updateAvailable,
+                                            onClick = { updateSheet = true },
+                                        )
+                                    },
+                                ) {
+                                    SettingsScreen(
+                                        uiState = settingsState,
+                                        appSettings = appSettings,
+                                        serversSupported = serversSupported,
+                                        serversSummary = if (chosen.isEmpty()) {
+                                            stringResource(R.string.servers_mode_auto)
+                                        } else {
+                                            pluralStringResource(R.plurals.servers_chosen_count, chosen.size, chosen.size)
+                                        },
+                                        advancedSupported = conflictsSupported,
+                                        runGidSupported = runGidSupported,
+                                        mirrorSupported = mirrorSupported,
+                                        resetSupported = resetSupported,
+                                        autostartSupported = autostartSupported,
+                                        onOpenServers = { subPage = SubPage.SERVERS },
+                                        onOpenConfig = { subPage = SubPage.CONFIG },
+                                        onReset = {
+                                            settingsViewModel.resetToDefaults {
+                                                scope.launch { snackbarHostState.showSnackbar(resetDoneText) }
+                                                statusViewModel.refresh()
+                                            }
+                                        },
+                                        onEdit = settingsViewModel::edit,
+                                        onDiscard = settingsViewModel::discardEdits,
+                                        onApply = {
+                                            settingsViewModel.applyAndRestart {
+                                                scope.launch { snackbarHostState.showSnackbar(appliedMessage) }
+                                                statusViewModel.refresh()
+                                            }
+                                        },
+                                        onThemeMode = settingsViewModel::setThemeMode,
+                                        onDynamicColor = settingsViewModel::setDynamicColor,
+                                        onPollInterval = settingsViewModel::setPollInterval,
+                                        updateState = updateState,
+                                        onOpenUpdate = { updateSheet = true },
+                                    )
+                                }
+                            }
+
+                            Destination.LOGS -> {
+                                val logsViewModel: LogsViewModel = viewModel(factory = factory)
+                                val logsState by logsViewModel.uiState.collectAsStateWithLifecycle()
+                                val copiedMessage = stringResource(R.string.logs_copied)
+                                val savedFormat = stringResource(R.string.logs_saved, PLACEHOLDER)
+                                val saveFailed = stringResource(R.string.logs_save_failed)
+                                val shareTitle = stringResource(R.string.logs_share_title)
+
+                                LaunchedEffect(pendingLogTab) {
+                                    pendingLogTab?.let {
+                                        logsViewModel.selectTab(it)
+                                        pendingLogTab = null
+                                    }
+                                }
+
+                                LogsScreen(
+                                    uiState = logsState,
+                                    conflictsSupported = conflictsSupported,
+                                    onSelectTab = logsViewModel::selectTab,
+                                    onQuery = logsViewModel::setQuery,
+                                    onLevel = logsViewModel::setLevel,
+                                    onLineCount = logsViewModel::setLineCount,
+                                    onFollow = logsViewModel::setFollow,
+                                    onWrap = logsViewModel::setWrap,
+                                    onOnlyMatches = logsViewModel::setOnlyMatches,
+                                    onRefresh = { logsViewModel.refresh() },
+                                    onLiveRefresh = { logsViewModel.refresh(silent = true) },
+                                    onCopy = {
+                                        context.copyToClipboard(logsViewModel.currentText())
+                                        scope.launch { snackbarHostState.showSnackbar(copiedMessage) }
+                                    },
+                                    onShare = { context.shareText(logsViewModel.currentText(), shareTitle) },
+                                    onSave = {
+                                        val name = logsViewModel.exportFileName()
+                                        val ok = context.saveToDownloads(name, logsViewModel.currentText())
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(if (ok) savedFormat.format(name) else saveFailed)
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (subPage == null) {
                 val items = Destination.entries.map {
                     BarItem(stringResource(it.labelRes), painterResource(it.iconRes))
                 }
                 Box(
                     Modifier
+                        .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(top = 6.dp, bottom = 10.dp),
+                        .padding(bottom = navBar + 10.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     BottomBar(
                         items = items,
                         selected = destination.ordinal,
                         onSelect = { destination = Destination.entries[it] },
-                    )
-                }
-            }
-        },
-    ) { padding ->
-        if (gated) {
-            GateScreen(
-                state = statusState.state,
-                onRetry = statusViewModel::retryRoot,
-                onOpenReleases = { context.openUrl(ModuleContract.RELEASES_URL) },
-                modifier = Modifier.padding(padding),
-            )
-            return@Scaffold
-        }
-
-        Column(Modifier.padding(padding)) {
-        PageHeader(
-            title = stringResource(destination.titleRes),
-            subtitle = stringResource(destination.subtitleRes),
-        ) {
-            if (destination == Destination.STATUS) {
-                HeaderAction(
-                    icon = painterResource(R.drawable.ic_refresh),
-                    contentDescription = stringResource(R.string.action_refresh),
-                    onClick = { statusViewModel.refresh(showSpinner = true) },
-                )
-            }
-            if (destination == Destination.STATUS || destination == Destination.SETTINGS) {
-                HeaderAction(
-                    icon = painterResource(R.drawable.ic_system_update),
-                    contentDescription = stringResource(R.string.update_row_title),
-                    tint = if (updateState.updateAvailable) Boxy.colors.accent else Boxy.colors.text,
-                    onClick = { updateSheet = true },
-                )
-            }
-        }
-        AnimatedContent(
-            targetState = destination,
-            label = "destination",
-            modifier = Modifier.weight(1f),
-        ) { current ->
-            when (current) {
-                Destination.STATUS -> {
-                    LifecycleResumeEffect(Unit) {
-                        statusViewModel.startPolling()
-                        onPauseOrDispose { statusViewModel.stopPolling() }
-                    }
-                    StatusScreen(
-                        uiState = statusState,
-                        onRefresh = { statusViewModel.refresh(showSpinner = true) },
-                        onAction = statusViewModel::run,
-                        onProbe = statusViewModel::probe,
-                        onModuleTest = statusViewModel::runModuleTest,
-                        onOpenLogs = { destination = Destination.LOGS },
-                        onOpenConflicts = {
-                            pendingLogTab = LogTab.CONFLICTS
-                            destination = Destination.LOGS
-                        },
-                        updateState = updateState,
-                        onOpenUpdate = { updateSheet = true },
-                    )
-                }
-
-                Destination.SERVERS -> {
-                    val serversViewModel: ServersViewModel = viewModel(factory = factory)
-                    val serversState by serversViewModel.uiState.collectAsStateWithLifecycle()
-                    val appliedText = stringResource(R.string.servers_applied)
-
-                    LaunchedEffect(serversViewModel) {
-                        serversViewModel.messages.collect {
-                            snackbarHostState.showSnackbar(resolve(it))
-                        }
-                    }
-                    LaunchedEffect(serversViewModel) {
-                        serversViewModel.applied.collect {
-                            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                            snackbarHostState.showSnackbar(appliedText)
-                            statusViewModel.refresh()
-                        }
-                    }
-
-                    ServersScreen(
-                        uiState = serversState,
-                        supported = serversSupported,
-                        onQuery = serversViewModel::setQuery,
-                        onSetAuto = serversViewModel::setDraftAuto,
-                        onToggleProtocol = serversViewModel::toggleProtocol,
-                        onToggleDnssec = serversViewModel::toggleDnssec,
-                        onToggleNoLog = serversViewModel::toggleNoLog,
-                        onToggleNoFilter = serversViewModel::toggleNoFilter,
-                        onAdd = serversViewModel::addServer,
-                        onRemove = serversViewModel::removeServer,
-                        onFocus = serversViewModel::focusServer,
-                        onMove = serversViewModel::moveFocused,
-                        onDiscard = serversViewModel::discard,
-                        onApply = serversViewModel::apply,
-                        onRefresh = { serversViewModel.load(force = true) },
-                        onOpenReleases = { context.openUrl(ModuleContract.RELEASES_URL) },
-                    )
-                }
-
-                Destination.SETTINGS -> {
-                    val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
-                    val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-                    val appSettings by settingsViewModel.appSettings.collectAsStateWithLifecycle()
-                    val appliedMessage = stringResource(R.string.settings_applied)
-                    val resetDoneText = stringResource(R.string.settings_reset_done)
-
-                    LaunchedEffect(settingsViewModel) {
-                        settingsViewModel.messages.collect {
-                            snackbarHostState.showSnackbar(resolve(it))
-                        }
-                    }
-
-                    SettingsScreen(
-                        uiState = settingsState,
-                        appSettings = appSettings,
-                        advancedSupported = conflictsSupported,
-                        runGidSupported = runGidSupported,
-                        mirrorSupported = mirrorSupported,
-                        resetSupported = resetSupported,
-                        autostartSupported = autostartSupported,
-                        onReset = {
-                            settingsViewModel.resetToDefaults {
-                                scope.launch { snackbarHostState.showSnackbar(resetDoneText) }
-                                statusViewModel.refresh()
-                            }
-                        },
-                        onEdit = settingsViewModel::edit,
-                        onDiscard = settingsViewModel::discardEdits,
-                        onApply = {
-                            settingsViewModel.applyAndRestart {
-                                scope.launch { snackbarHostState.showSnackbar(appliedMessage) }
-                                statusViewModel.refresh()
-                            }
-                        },
-                        onThemeMode = settingsViewModel::setThemeMode,
-                        onDynamicColor = settingsViewModel::setDynamicColor,
-                        onPollInterval = settingsViewModel::setPollInterval,
-                        updateState = updateState,
-                        onOpenUpdate = { updateSheet = true },
-                    )
-                }
-
-                Destination.CONFIG -> {
-                    val configViewModel: ConfigViewModel = viewModel(factory = factory)
-                    val configState by configViewModel.uiState.collectAsStateWithLifecycle()
-                    val savedText = stringResource(R.string.config_saved)
-                    val emptyText = stringResource(R.string.config_invalid_empty)
-                    val listenText = stringResource(R.string.config_invalid_listen)
-                    val restoredText = stringResource(R.string.backup_restored)
-                    val backupFormat = stringResource(R.string.backup_created, PLACEHOLDER)
-
-                    LaunchedEffect(configViewModel) {
-                        configViewModel.events.collect { event ->
-                            val message = when (event) {
-                                is ConfigEvent.Saved -> savedText
-                                is ConfigEvent.InvalidEmpty -> emptyText
-                                is ConfigEvent.InvalidListen -> listenText
-                                is ConfigEvent.Restored -> restoredText
-                                is ConfigEvent.BackupCreated -> backupFormat.format(event.name)
-                                is ConfigEvent.Failed -> resolve(event.message)
-                            }
-                            snackbarHostState.showSnackbar(message)
-                            statusViewModel.refresh()
-                        }
-                    }
-
-                    ConfigScreen(
-                        uiState = configState,
-                        onTextChanged = configViewModel::onTextChanged,
-                        onSave = configViewModel::saveAndRestart,
-                        onBackup = configViewModel::createBackup,
-                        onRestore = configViewModel::restore,
-                        mirrorSupported = mirrorSupported,
-                        onExport = configViewModel::exportConfig,
-                        onImport = configViewModel::importConfig,
-                    )
-                }
-
-                Destination.LOGS -> {
-                    val logsViewModel: LogsViewModel = viewModel(factory = factory)
-                    val logsState by logsViewModel.uiState.collectAsStateWithLifecycle()
-                    val copiedMessage = stringResource(R.string.logs_copied)
-                    val shareTitle = stringResource(R.string.logs_share_title)
-
-                    LaunchedEffect(pendingLogTab) {
-                        pendingLogTab?.let {
-                            logsViewModel.selectTab(it)
-                            pendingLogTab = null
-                        }
-                    }
-
-                    LogsScreen(
-                        uiState = logsState,
-                        conflictsSupported = conflictsSupported,
-                        onSelectTab = logsViewModel::selectTab,
-                        onQuery = logsViewModel::setQuery,
-                        onFollow = logsViewModel::setFollow,
-                        onRefresh = logsViewModel::refresh,
-                        onCopy = {
-                            context.copyToClipboard(logsViewModel.currentText())
-                            scope.launch { snackbarHostState.showSnackbar(copiedMessage) }
-                        },
-                        onShare = { context.shareText(logsViewModel.currentText(), shareTitle) },
+                        modifier = Modifier.fillMaxWidth(0.80f),
                     )
                 }
             }
         }
+
+        SnackbarHost(
+            snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = barPadding),
+        )
+    }
+}
+
+/** A tab: the large page title with round actions, then content that scrolls under a soft fade. */
+@Composable
+private fun TabPage(
+    title: String,
+    subtitle: String?,
+    actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    Column(Modifier.fillMaxSize()) {
+        PageHeader(title = title, subtitle = subtitle, actions = actions)
+        Box(Modifier.weight(1f)) {
+            content()
+            TopFade()
         }
     }
 }
 
-/** The %1s slot of backup_created, kept out of the format call itself. */
+/** The %1s slot of a format string, kept out of the format call itself. */
 private const val PLACEHOLDER = "%1" + "$" + "s"
 
 private fun Context.openUrl(url: String) {
@@ -389,3 +481,14 @@ private fun Context.shareText(text: String, title: String) {
     }
     runCatching { startActivity(Intent.createChooser(intent, title).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }
+
+/** Writes [text] to Downloads through MediaStore: no storage permission needed from Android 10 on. */
+private fun Context.saveToDownloads(name: String, text: String): Boolean = runCatching {
+    val values = ContentValues().apply {
+        put(MediaStore.Downloads.DISPLAY_NAME, name)
+        put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+    }
+    val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return false
+    contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) } ?: return false
+    true
+}.getOrDefault(false)

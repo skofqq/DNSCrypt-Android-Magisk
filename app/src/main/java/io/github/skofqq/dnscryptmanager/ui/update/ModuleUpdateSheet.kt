@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.skofqq.dnscryptmanager.R
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
@@ -165,9 +167,15 @@ fun ModuleUpdateSheet(
 
                 UpdatePhase.UP_TO_DATE -> {
                     VersionsGroup(state)
+                    val installed = state.installed
+                    val release = state.release
                     NoticeCard(
                         title = stringResource(R.string.update_latest),
-                        body = stringResource(R.string.update_install_note),
+                        body = if (installed != null && release != null && installed.versionCode > release.versionCode) {
+                            stringResource(R.string.update_newer_than_release, installed.version, release.version)
+                        } else {
+                            stringResource(R.string.update_checked_now, installed?.version.orEmpty())
+                        },
                         tint = Tints.green,
                         icon = painterResource(R.drawable.ic_shield),
                     )
@@ -182,22 +190,34 @@ fun ModuleUpdateSheet(
                 UpdatePhase.AVAILABLE, UpdatePhase.INSTALL_FAILED -> {
                     VersionsGroup(state)
                     Changelog(state, onOpenUrl)
+                    // A package for another module or without our ABI fails the same way every time.
+                    val hopeless = state.phase == UpdatePhase.INSTALL_FAILED &&
+                        (state.error is UpdateError.MissingBinary || state.error is UpdateError.WrongModule)
                     if (state.phase == UpdatePhase.INSTALL_FAILED) {
-                        ErrorNotice(state.error)
+                        ErrorNotice(state.error, hint = if (hopeless) stringResource(R.string.update_cannot_install_here) else null)
                         InstallLog(state.log)
+                    } else {
+                        SheetGroup {
+                            Text(
+                                stringResource(R.string.update_install_note),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Boxy.colors.text2,
+                            )
+                        }
                     }
-                    Text(
-                        stringResource(R.string.update_install_note),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Boxy.colors.text2,
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                    )
                     SheetButtons(
                         primary = stringResource(
-                            if (state.phase == UpdatePhase.INSTALL_FAILED) R.string.update_retry
-                            else R.string.update_install
+                            when {
+                                hopeless -> R.string.update_open_release
+                                state.phase == UpdatePhase.INSTALL_FAILED -> R.string.update_retry
+                                else -> R.string.update_install
+                            }
                         ),
-                        onPrimary = onInstall,
+                        onPrimary = if (hopeless) {
+                            { onOpenUrl(releasePage(state.release?.zipUrl)) }
+                        } else {
+                            onInstall
+                        },
                         secondary = stringResource(R.string.update_later),
                         onSecondary = onDismiss,
                     )
@@ -278,29 +298,50 @@ private fun SheetGroup(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 private fun VersionsGroup(state: ModuleUpdateUiState) {
     val release = state.release
+    val installed = state.installed
+    // The badge sits next to the label, so every value keeps the same right edge.
+    val (badgeText, badgeTint) = when {
+        release == null -> null to null
+        state.updateAvailable -> stringResource(R.string.update_badge_new) to Tints.green
+        installed != null && installed.versionCode > release.versionCode ->
+            stringResource(R.string.update_badge_newer) to Tints.purple
+        else -> stringResource(R.string.update_badge_latest) to Tints.gray
+    }
     SheetGroup {
         InfoRow(
             label = stringResource(R.string.update_installed_version),
-            value = state.installed?.version ?: stringResource(R.string.value_unknown),
+            value = installed?.version ?: stringResource(R.string.value_unknown),
         )
         if (release != null) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                InfoRow(
-                    label = stringResource(R.string.update_latest_version),
-                    value = release.version,
-                    valueColor = if (state.updateAvailable) Tints.green.fg else Boxy.colors.text,
-                    modifier = Modifier.weight(1f),
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.update_latest_version),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Boxy.colors.text2,
                 )
-                Spacer(Modifier.width(8.dp))
-                if (state.updateAvailable) {
-                    Badge(stringResource(R.string.update_badge_new), Tints.green)
-                } else {
-                    Badge(stringResource(R.string.update_badge_latest), Tints.gray)
+                if (badgeText != null && badgeTint != null) {
+                    Spacer(Modifier.width(8.dp))
+                    Badge(badgeText, badgeTint)
                 }
+                Spacer(Modifier.weight(1f))
+                Text(
+                    release.version,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = if (state.updateAvailable) Tints.green.fg else Boxy.colors.text,
+                )
             }
             InfoRow(label = stringResource(R.string.update_version_code), value = release.versionCode.toString())
         }
     }
+}
+
+/** `…/releases/download/<tag>/<file>` → `…/releases/tag/<tag>`; the releases list otherwise. */
+private fun releasePage(zipUrl: String?): String {
+    val marker = "/releases/download/"
+    if (zipUrl == null || marker !in zipUrl) return ModuleContract.RELEASES_URL
+    val base = zipUrl.substringBefore(marker)
+    val tag = zipUrl.substringAfter(marker).substringBefore('/')
+    return "$base/releases/tag/$tag"
 }
 
 @Composable
@@ -316,11 +357,15 @@ private fun Changelog(state: ModuleUpdateUiState, onOpenUrl: (String) -> Unit) {
         )
         state.changelog?.let { text ->
             Spacer(Modifier.height(6.dp))
+            val strong = Boxy.colors.text
+            val codeBackground = Boxy.colors.surface2
+            val rendered = remember(text, strong, codeBackground) { renderChangelog(text, strong, codeBackground) }
             Text(
-                text = text,
+                text = rendered,
                 style = MaterialTheme.typography.bodySmall,
                 color = Boxy.colors.text2,
                 maxLines = if (expanded) Int.MAX_VALUE else CHANGELOG_PREVIEW_LINES,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.clickable { expanded = !expanded },
             )
         }
@@ -392,10 +437,10 @@ private fun InstallLog(lines: List<String>) {
 }
 
 @Composable
-private fun ErrorNotice(error: UpdateError?) {
+private fun ErrorNotice(error: UpdateError?, hint: String? = null) {
     NoticeCard(
         title = stringResource(R.string.update_error_title),
-        body = errorMessage(error),
+        body = listOfNotNull(errorMessage(error), hint).joinToString("\n"),
         tint = Tints.red,
         icon = painterResource(R.drawable.ic_warning),
     )

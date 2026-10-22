@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
 import io.github.skofqq.dnscryptmanager.ui.theme.Tint
+import io.github.skofqq.dnscryptmanager.ui.theme.Tints
 
 /** Label on the left, value on the right: the densest readable form for status data. */
 @Composable
@@ -112,7 +113,7 @@ fun PageHeader(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 10.dp),
+        modifier.fillMaxWidth().padding(start = TextInset, end = PageInset, top = 12.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -133,17 +134,31 @@ fun HeaderAction(
     contentDescription: String?,
     tint: Color = Boxy.colors.text,
     enabled: Boolean = true,
+    /** Small green dot in the corner, for "something new here". */
+    dot: Boolean = false,
     onClick: () -> Unit,
 ) {
-    Box(
-        Modifier
-            .size(44.dp)
-            .clip(RoundedCornerShape(50))
-            .background(Boxy.colors.card)
-            .clickable(enabled = enabled, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(icon, contentDescription, Modifier.size(22.dp), tint = tint.copy(alpha = if (enabled) 1f else 0.4f))
+    Box(Modifier.size(44.dp)) {
+        Box(
+            Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(50))
+                .background(Boxy.colors.card)
+                .clickable(enabled = enabled, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, contentDescription, Modifier.size(22.dp), tint = tint.copy(alpha = if (enabled) 1f else 0.4f))
+        }
+        if (dot) {
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 6.dp, end = 6.dp)
+                    .size(10.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(Tints.green.fg),
+            )
+        }
     }
 }
 
@@ -155,7 +170,7 @@ fun BoxyCard(
     modifier: Modifier = Modifier,
     color: Color = Boxy.colors.card,
     onClick: (() -> Unit)? = null,
-    contentPadding: Dp = 18.dp,
+    contentPadding: Dp = CardInset,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -234,7 +249,7 @@ fun PrimaryPill(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     color: Color = Boxy.colors.accent,
-    contentColor: Color = Color.White,
+    contentColor: Color = onAccent(),
     onClick: () -> Unit,
 ) {
     Box(

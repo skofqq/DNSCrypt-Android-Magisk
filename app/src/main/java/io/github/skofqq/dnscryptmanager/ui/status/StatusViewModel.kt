@@ -3,6 +3,7 @@ package io.github.skofqq.dnscryptmanager.ui.status
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.skofqq.dnscryptmanager.data.AppPreferences
+import io.github.skofqq.dnscryptmanager.data.ActiveServer
 import io.github.skofqq.dnscryptmanager.data.AppSettings
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.ModuleRepository
@@ -32,6 +33,8 @@ data class StatusUiState(
     val probe: ProbeResult? = null,
     /** null while unknown or when the module is too old to answer `conflicts`. */
     val boxDetected: Boolean? = null,
+    /** The resolver dnscrypt-proxy settled on, from its log; null until it has said. */
+    val activeServer: ActiveServer? = null,
 )
 
 class StatusViewModel(
@@ -65,7 +68,19 @@ class StatusViewModel(
             val state = repository.loadState()
             _uiState.update { it.copy(state = state, refreshing = false) }
             checkConflicts(state)
+            loadActiveServer(state)
         }
+    }
+
+    /** Reads the "lowest initial latency" log line; servers support arrived in 2.1.18-r2. */
+    private suspend fun loadActiveServer(state: ModuleState) {
+        val ready = state as? ModuleState.Ready ?: return
+        if (!ready.status.supportsServers || !ready.status.running) {
+            _uiState.update { it.copy(activeServer = null) }
+            return
+        }
+        val line = repository.serversActive().getOrNull()?.takeIf { it.isSuccess }?.out?.trim()
+        _uiState.update { it.copy(activeServer = line?.let(ActiveServer::parse)) }
     }
 
     /**

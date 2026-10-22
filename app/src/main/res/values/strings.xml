@@ -306,4 +306,69 @@
     <string name="update_latest_version">Latest</string>
     <string name="update_install_log">Installer output</string>
     <string name="update_error_title">Update did not go through</string>
+
+    <!-- Sub-pages, Settings rows, dialogs -->
+    <string name="action_back">Back</string>
+    <string name="action_ok">OK</string>
+    <string name="config_size_kb">%1$d KB</string>
+    <string name="config_error_title">Config problem</string>
+    <string name="servers_title">DNSCrypt servers</string>
+    <string name="servers_now">Now: %1$s</string>
+    <string name="servers_rtt_short">%1$d ms</string>
+    <plurals name="servers_chosen_count">
+        <item quantity="one">%1$d server chosen</item>
+        <item quantity="other">%1$d servers chosen</item>
+    </plurals>
+    <string name="settings_error_title">Settings could not be read</string>
+    <string name="settings_proxy_header">Proxy</string>
+    <string name="settings_proxy_sub">Servers and the dnscrypt-proxy config</string>
+    <string name="settings_config_row">Config file</string>
+    <string name="settings_needs_module">Needs module %1$s or newer</string>
+    <string name="settings_module_sub">Interception, IPv6 and autostart</string>
+    <string name="settings_advanced_sub">Only needed next to box_for_magisk</string>
+    <string name="settings_app_sub">Theme, colours and refresh</string>
+    <string name="settings_about_sub">Module version and updates</string>
+    <string name="setting_autostart_short">Start the proxy after a reboot</string>
+    <string name="setting_redirect_ipv4_short">Send IPv4 DNS through the proxy</string>
+    <string name="setting_tether_short">Also for devices on your hotspot</string>
+    <string name="setting_private_dns_short">Private DNS (DoT) bypasses port 53 interception</string>
+    <string name="ipv6_redirect_desc">Always redirect IPv6 DNS, even if the kernel looks unable to.</string>
+    <string name="ipv6_off_desc">Leave IPv6 DNS alone.</string>
+    <string name="run_gid_default_desc">The proxy runs with its own group.</string>
+
+    <!-- Logs, Status tiles, update sheet -->
+    <string name="logs_live">Live</string>
+    <string name="logs_copy_all">Copy all</string>
+    <string name="logs_save">Save to Downloads</string>
+    <string name="logs_wrap">Wrap lines</string>
+    <string name="logs_only_matches">Only matching lines</string>
+    <string name="logs_chip_module">Module</string>
+    <string name="logs_chip_proxy">Proxy</string>
+    <string name="logs_last_n">Last %1$d</string>
+    <string name="logs_latest">↓ Latest</string>
+    <string name="logs_error_title">Cannot read the log</string>
+    <string name="logs_empty_title">Nothing here yet</string>
+    <string name="logs_filtered_out">No lines match the level or search filter.</string>
+    <string name="logs_empty_module">module.log is empty: the module writes to it at boot and on every start, stop and restart.</string>
+    <string name="logs_empty_proxy">dnscrypt-proxy.log is empty: the proxy has not started yet, or its log is turned off in the config.</string>
+    <string name="logs_level_all">All levels</string>
+    <string name="logs_level_info">Info and above</string>
+    <string name="logs_level_warning">Warnings and errors</string>
+    <string name="logs_level_error">Errors only</string>
+    <string name="logs_saved">Saved to Downloads: %1$s</string>
+    <string name="logs_save_failed">Could not save the file</string>
+    <string name="hero_server">Server</string>
+    <string name="hero_tap_start">Tap Start to run</string>
+    <string name="dns_check_self_test">Self-test</string>
+    <string name="tile_server">Server</string>
+    <string name="tile_uptime">Uptime</string>
+    <string name="tile_ipv6">IPv6 DNS</string>
+    <string name="tile_private_dns">Private DNS</string>
+    <string name="status_more_details">More details</string>
+    <string name="status_less_details">Fewer details</string>
+    <string name="update_badge_newer">NEWER</string>
+    <string name="update_newer_than_release">%1$s is newer than the published %2$s.</string>
+    <string name="update_checked_now">Checked just now · %1$s installed</string>
+    <string name="update_open_release">Open release page</string>
+    <string name="update_cannot_install_here">This package cannot be installed on this device, so trying again will not help.</string>
 </resources>

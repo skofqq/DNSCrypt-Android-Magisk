@@ -1,5 +1,6 @@
 package io.github.skofqq.dnscryptmanager.ui.config
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,24 +9,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -37,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -44,11 +46,25 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import io.github.skofqq.dnscryptmanager.R
 import io.github.skofqq.dnscryptmanager.data.ConfigBackup
+import io.github.skofqq.dnscryptmanager.ui.components.ActionPill
+import io.github.skofqq.dnscryptmanager.ui.components.BoxyDialog
+import io.github.skofqq.dnscryptmanager.ui.components.HeaderAction
+import io.github.skofqq.dnscryptmanager.ui.components.NoticeCard
+import io.github.skofqq.dnscryptmanager.ui.components.PageInset
+import io.github.skofqq.dnscryptmanager.ui.components.SearchField
+import io.github.skofqq.dnscryptmanager.ui.components.SubPageHeader
+import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
 import io.github.skofqq.dnscryptmanager.ui.theme.MonospaceTextStyle
+import io.github.skofqq.dnscryptmanager.ui.theme.Tints
 
+/**
+ * The config editor, a sub-page of Settings. Save, search and the backup tools sit in
+ * the header like Boxy's editor, so nothing floats over the text.
+ */
 @Composable
 fun ConfigScreen(
     uiState: ConfigUiState,
+    onBack: () -> Unit,
     onTextChanged: (String) -> Unit,
     onSave: () -> Unit,
     onBackup: () -> Unit,
@@ -58,14 +74,11 @@ fun ConfigScreen(
     onImport: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (uiState.loading) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
-        return
-    }
-
     var field by remember(uiState.loadToken) {
         mutableStateOf(TextFieldValue(uiState.text))
     }
+    var searchOpen by remember { mutableStateOf(false) }
+    var menuOpen by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     var matchIndex by remember { mutableIntStateOf(0) }
     var showBackups by remember { mutableStateOf(false) }
@@ -74,116 +87,145 @@ fun ConfigScreen(
     val matches = remember(field.text, query) {
         if (query.length < 2) emptyList() else findMatches(field.text, query)
     }
+    val sizeKb = (uiState.text.toByteArray().size + 512) / 1024
+    val subtitle = buildString {
+        append(stringResource(R.string.config_title))
+        if (!uiState.loading) append(" · ").append(stringResource(R.string.config_size_kb, sizeKb))
+        if (uiState.dirty) append(" · ").append(stringResource(R.string.config_unsaved))
+    }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.config_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
+    Column(modifier = modifier.fillMaxSize()) {
+        SubPageHeader(
+            title = stringResource(R.string.nav_config),
+            subtitle = subtitle,
+            onBack = onBack,
+        ) {
+            HeaderAction(
+                icon = painterResource(R.drawable.ic_search),
+                contentDescription = stringResource(R.string.config_search_hint),
+                tint = if (searchOpen) Boxy.colors.accent else Boxy.colors.text,
+                onClick = {
+                    searchOpen = !searchOpen
+                    if (!searchOpen) query = ""
+                },
+            )
+            HeaderAction(
+                icon = painterResource(R.drawable.ic_save),
+                contentDescription = stringResource(R.string.config_save_restart),
+                tint = if (uiState.dirty) Boxy.colors.accent else Boxy.colors.text,
+                enabled = !uiState.busy && !uiState.loading,
+                onClick = onSave,
+            )
+            Box {
+                HeaderAction(
+                    icon = painterResource(R.drawable.ic_more_vert),
+                    contentDescription = stringResource(R.string.action_more),
+                    enabled = !uiState.busy && !uiState.loading,
+                    onClick = { menuOpen = true },
                 )
-                if (uiState.dirty) {
-                    Text(
-                        text = stringResource(R.string.config_unsaved),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
+                DropdownMenu(
+                    expanded = menuOpen,
+                    onDismissRequest = { menuOpen = false },
+                    shape = RoundedCornerShape(20.dp),
+                    containerColor = Boxy.colors.card,
+                ) {
+                    MenuItem(R.drawable.ic_backup, stringResource(R.string.config_create_backup)) {
+                        menuOpen = false
+                        onBackup()
+                    }
+                    MenuItem(R.drawable.ic_restore, stringResource(R.string.config_backups)) {
+                        menuOpen = false
+                        showBackups = true
+                    }
+                    // Since module 2.3 there is no shared-storage copy to exchange with.
+                    if (mirrorSupported) {
+                        MenuItem(R.drawable.ic_upload, stringResource(R.string.config_export)) {
+                            menuOpen = false
+                            onExport()
+                        }
+                        MenuItem(R.drawable.ic_download, stringResource(R.string.config_import)) {
+                            menuOpen = false
+                            onImport()
+                        }
+                    }
                 }
             }
+        }
 
-            SearchBar(
-                query = query,
-                matches = matches.size,
-                matchIndex = matchIndex,
-                onQuery = {
-                    query = it
-                    matchIndex = 0
-                },
-                onJump = { forward ->
-                    if (matches.isNotEmpty()) {
-                        matchIndex = (matchIndex + if (forward) 1 else matches.size - 1) % matches.size
+        if (uiState.loading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
+            return@Column
+        }
+
+        if (searchOpen) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = PageInset).padding(bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SearchField(
+                    query = query,
+                    hint = stringResource(R.string.config_search_hint),
+                    onQuery = {
+                        query = it
+                        matchIndex = 0
+                    },
+                    modifier = Modifier.weight(1f),
+                    trailingText = when {
+                        query.length < 2 -> null
+                        matches.isEmpty() -> stringResource(R.string.config_no_matches)
+                        else -> stringResource(R.string.config_match_count, matchIndex + 1, matches.size)
+                    },
+                )
+                if (query.length >= 2) {
+                    JumpButton(R.drawable.ic_arrow_up, R.string.action_previous_match, matches.isNotEmpty()) {
+                        matchIndex = (matchIndex + matches.size - 1) % matches.size
                         val start = matches[matchIndex]
                         field = field.copy(selection = TextRange(start, start + query.length))
                     }
-                },
-            )
-
-            if (uiState.busy) {
-                LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    JumpButton(R.drawable.ic_arrow_down, R.string.action_next_match, matches.isNotEmpty()) {
+                        matchIndex = (matchIndex + 1) % matches.size
+                        val start = matches[matchIndex]
+                        field = field.copy(selection = TextRange(start, start + query.length))
+                    }
+                }
             }
+        }
 
-            if (uiState.error != null) {
-                Text(
-                    text = stringResource(R.string.error_prefix, uiState.error),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                )
-            }
+        if (uiState.busy) {
+            LinearWavyProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = PageInset, vertical = 4.dp))
+        }
 
-            TextField(
-                value = field,
-                onValueChange = {
-                    field = it
-                    onTextChanged(it.text)
-                },
-                textStyle = MonospaceTextStyle.copy(color = MaterialTheme.colorScheme.onSurface),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                ),
+        if (uiState.error != null) {
+            NoticeCard(
+                title = stringResource(R.string.config_error_title),
+                body = uiState.error,
+                tint = Tints.red,
+                icon = painterResource(R.drawable.ic_warning),
+                modifier = Modifier.padding(horizontal = PageInset).padding(bottom = 10.dp),
             )
         }
 
-        HorizontalFloatingToolbar(
-            expanded = true,
+        TextField(
+            value = field,
+            onValueChange = {
+                field = it
+                onTextChanged(it.text)
+            },
+            textStyle = MonospaceTextStyle.copy(color = Boxy.colors.text),
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp),
-        ) {
-            FilledIconButton(onClick = onSave, enabled = !uiState.busy) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_save),
-                    contentDescription = stringResource(R.string.config_save_restart),
-                )
-            }
-            IconButton(onClick = onBackup, enabled = !uiState.busy) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_backup),
-                    contentDescription = stringResource(R.string.config_create_backup),
-                )
-            }
-            IconButton(onClick = { showBackups = true }, enabled = !uiState.busy) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_restore),
-                    contentDescription = stringResource(R.string.config_backups),
-                )
-            }
-            // Since module 2.3 there is no shared-storage copy to exchange with.
-            if (mirrorSupported) {
-                IconButton(onClick = onExport, enabled = !uiState.busy) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_article),
-                        contentDescription = stringResource(R.string.config_export),
-                    )
-                }
-                IconButton(onClick = onImport, enabled = !uiState.busy) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_terminal),
-                        contentDescription = stringResource(R.string.config_import),
-                    )
-                }
-            }
-        }
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = PageInset)
+                .navigationBarsPadding()
+                .padding(bottom = 12.dp)
+                .clip(RoundedCornerShape(24.dp)),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Boxy.colors.card,
+                unfocusedContainerColor = Boxy.colors.card,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+        )
     }
 
     if (showBackups) {
@@ -195,82 +237,35 @@ fun ConfigScreen(
     }
 
     pendingRestore?.let { backup ->
-        AlertDialog(
-            onDismissRequest = { pendingRestore = null },
-            title = { Text(stringResource(R.string.confirm_restore_title)) },
-            text = { Text(stringResource(R.string.confirm_restore_message, backup.name)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    pendingRestore = null
-                    showBackups = false
-                    onRestore(backup)
-                }) { Text(stringResource(R.string.action_restore)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingRestore = null }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
+        BoxyDialog(
+            title = stringResource(R.string.confirm_restore_title),
+            text = stringResource(R.string.confirm_restore_message, backup.name),
+            onDismiss = { pendingRestore = null },
+            dismissText = stringResource(R.string.action_cancel),
+            confirmText = stringResource(R.string.action_restore),
+            confirmTint = Tints.amber,
+            onConfirm = {
+                pendingRestore = null
+                showBackups = false
+                onRestore(backup)
             },
         )
     }
 }
 
 @Composable
-private fun SearchBar(
-    query: String,
-    matches: Int,
-    matchIndex: Int,
-    onQuery: (String) -> Unit,
-    onJump: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = onQuery,
-            singleLine = true,
-            label = { Text(stringResource(R.string.config_search_hint)) },
-            leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null) },
-            trailingIcon = {
-                if (query.isNotEmpty()) {
-                    IconButton(onClick = { onQuery("") }) {
-                        Icon(
-                            painterResource(R.drawable.ic_close),
-                            contentDescription = stringResource(R.string.action_clear),
-                        )
-                    }
-                }
-            },
-            modifier = Modifier.weight(1f),
-        )
-        if (query.length >= 2) {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = if (matches == 0) {
-                    stringResource(R.string.config_no_matches)
-                } else {
-                    stringResource(R.string.config_match_count, matchIndex + 1, matches)
-                },
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            IconButton(onClick = { onJump(false) }, enabled = matches > 0) {
-                Icon(
-                    painterResource(R.drawable.ic_arrow_up),
-                    contentDescription = stringResource(R.string.action_previous_match),
-                )
-            }
-            IconButton(onClick = { onJump(true) }, enabled = matches > 0) {
-                Icon(
-                    painterResource(R.drawable.ic_arrow_down),
-                    contentDescription = stringResource(R.string.action_next_match),
-                )
-            }
-        }
+private fun MenuItem(icon: Int, text: String, onClick: () -> Unit) {
+    DropdownMenuItem(
+        text = { Text(text, color = Boxy.colors.text) },
+        leadingIcon = { Icon(painterResource(icon), null, tint = Boxy.colors.text) },
+        onClick = onClick,
+    )
+}
+
+@Composable
+private fun JumpButton(icon: Int, description: Int, enabled: Boolean, onClick: () -> Unit) {
+    IconButton(onClick = onClick, enabled = enabled) {
+        Icon(painterResource(icon), contentDescription = stringResource(description), tint = Boxy.colors.text)
     }
 }
 
@@ -282,49 +277,57 @@ private fun BackupSheet(
     onPick: (ConfigBackup) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        containerColor = Boxy.colors.page,
+        contentColor = Boxy.colors.text,
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp).navigationBarsPadding().padding(bottom = 16.dp)) {
             Text(
                 text = stringResource(R.string.backups_title),
                 style = MaterialTheme.typography.titleLarge,
+                color = Boxy.colors.text,
             )
             Spacer(Modifier.height(12.dp))
             if (backups.isEmpty()) {
                 Text(
                     text = stringResource(R.string.backups_empty),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 32.dp),
+                    color = Boxy.colors.text2,
+                    modifier = Modifier.padding(bottom = 16.dp),
                 )
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(bottom = 32.dp),
-                ) {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(backups, key = { it.path }) { backup ->
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Boxy.colors.card)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = backup.name,
-                                    style = MonospaceTextStyle,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
+                                Text(text = backup.name, style = MonospaceTextStyle, color = Boxy.colors.text)
                                 if (backup.isPending) {
                                     Text(
                                         text = stringResource(R.string.backup_pending),
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.tertiary,
+                                        color = Tints.amber.fg,
                                     )
                                 }
                             }
-                            TextButton(onClick = { onPick(backup) }) {
-                                Text(stringResource(R.string.action_restore))
-                            }
+                            Spacer(Modifier.width(8.dp))
+                            ActionPill(
+                                stringResource(R.string.action_restore),
+                                Tints.blue,
+                                enabled = true,
+                                modifier = Modifier.width(120.dp),
+                                onClick = { onPick(backup) },
+                            )
                         }
-                        HorizontalDivider()
                     }
                 }
             }
