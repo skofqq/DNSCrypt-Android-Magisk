@@ -285,4 +285,37 @@
     <string name="setting_language">Тіл</string>
     <string name="language_system">Жүйедегідей</string>
     <string name="status_manual_stop_hint">Қолмен тоқтатылды — өзіңіз қоспайынша жүктелгенде іске қосылмайды.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">DNS тексеру</string>
+    <string name="dnscheck_running">Сұраулар қайда кетіп жатқаны тексерілуде…</string>
+    <string name="dnscheck_verdict_proxy_title">Сұраулар DNSCrypt арқылы өтеді</string>
+    <string name="dnscheck_verdict_proxy_body">Сіздің атыңыздан сұраған резолверлер провайдерге тиесілі емес. Жауаптар мына серверлердің бірінен келеді: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">Прокси DNS-ті ұстап тұр</string>
+    <string name="dnscheck_verdict_active_body">Сұраулар төмендегі серверлердің біріне кетеді. Интернет қандай резолверлерді көретінін білу үшін ағып кету тестін іске қосыңыз.</string>
+    <string name="dnscheck_verdict_leak_title">Ағып кету: провайдер сұрауларды көреді</string>
+    <string name="dnscheck_verdict_leak_body">Кейбір атаулар проксиді айналып, %1$s арқылы шешілді.</string>
+    <string name="dnscheck_verdict_stopped_title">Прокси DNS-ті өңдемейді</string>
+    <string name="dnscheck_verdict_stopped_body">Сұраулар желінің DNS-іне барады: %1$s. Тесттегі резолверлер — осы желінің жоғарғы серверлері.</string>
+    <string name="dnscheck_verdict_box_body">Қазір DNS-ті box_for_magisk өңдейді.</string>
+    <string name="dnscheck_servers_title">Прокси серверлері</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: сұраулар %3$d тірі сервердің ең жылдам %2$d-не барады.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: сұраулар %1$d тірі сервердің кез келгеніне барады.</string>
+    <string name="dnscheck_in_use">ҚОЛДАНЫЛУДА</string>
+    <string name="dnscheck_show_fastest">Ең жылдамдарын көрсету</string>
+    <string name="dnscheck_no_servers">Серверлер тізімі әлі жоқ: прокси тоқтатылған немесе әлі іске қосылуда.</string>
+    <string name="dnscheck_network_title">Желі DNS-і</string>
+    <string name="dnscheck_network_none">Желі DNS серверлерін хабарламайды.</string>
+    <string name="dnscheck_private_dns_off">Жеке DNS: өшірулі</string>
+    <string name="dnscheck_private_dns_auto">Жеке DNS: автоматты (әдепкі)</string>
+    <string name="dnscheck_private_dns_active"> · қолданылуда, 53-портты айналып өтеді</string>
+    <string name="dnscheck_private_dns_inactive"> · бұл желіде қолданылмайды</string>
+    <string name="dnscheck_private_dns_host">Жеке DNS: %1$s</string>
+    <string name="dnscheck_leak_title">Интернет не көреді</string>
+    <string name="dnscheck_leak_note">10 тест атауын шешіп, bash.ws-тен олар үшін қандай резолверлер келгенін сұрайды. bash.ws сыртқы IP-іңізді біледі.</string>
+    <string name="dnscheck_leak_run">Ағып кету тесті</string>
+    <string name="dnscheck_leak_running">Тест атаулары шешілуде…</string>
+    <string name="dnscheck_leak_public">Сіздің мекенжайыңыз</string>
+    <string name="dnscheck_leak_none">bash.ws бірде-бір резолверді көрмеді. Қайталап көріңіз.</string>
+    <string name="dnscheck_leak_error">Тест сәтсіз: %1$s</string>
+    <string name="dnscheck_close">Жабу</string>
 </resources>

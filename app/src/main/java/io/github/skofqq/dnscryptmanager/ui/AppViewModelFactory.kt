@@ -31,6 +31,9 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
             modelClass.isAssignableFrom(ServersViewModel::class.java) ->
                 ServersViewModel(container.repository)
 
+            modelClass.isAssignableFrom(io.github.skofqq.dnscryptmanager.ui.status.DnsCheckViewModel::class.java) ->
+                io.github.skofqq.dnscryptmanager.ui.status.DnsCheckViewModel(container.repository, container.appContext)
+
             modelClass.isAssignableFrom(ModuleUpdateViewModel::class.java) ->
                 ModuleUpdateViewModel(container.updater)
 

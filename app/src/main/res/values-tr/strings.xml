@@ -285,4 +285,37 @@
     <string name="setting_language">Dil</string>
     <string name="language_system">Sistem dili</string>
     <string name="status_manual_stop_hint">Elle durduruldu; siz başlatana kadar açılışta çalışmaz.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">DNS testi</string>
+    <string name="dnscheck_running">Sorguların nereye gittiği denetleniyor…</string>
+    <string name="dnscheck_verdict_proxy_title">Sorgular DNSCrypt üzerinden gidiyor</string>
+    <string name="dnscheck_verdict_proxy_body">Sizin adınıza soran çözümleyiciler sağlayıcınıza ait değil. Yanıtlar şunlardan birinden geliyor: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">Proxy DNS\'i yakalıyor</string>
+    <string name="dnscheck_verdict_active_body">Sorgular aşağıdaki sunuculardan birine gidiyor. İnternetin hangi çözümleyicileri gördüğünü görmek için sızıntı testini çalıştırın.</string>
+    <string name="dnscheck_verdict_leak_title">Sızıntı: sağlayıcınız sorguları görüyor</string>
+    <string name="dnscheck_verdict_leak_body">Bazı adlar proxy atlanarak %1$s üzerinden çözüldü.</string>
+    <string name="dnscheck_verdict_stopped_title">Proxy DNS\'i işlemiyor</string>
+    <string name="dnscheck_verdict_stopped_body">Sorgular ağın DNS\'ine gidiyor: %1$s. Testteki çözümleyiciler bu ağın üst sunucularıdır.</string>
+    <string name="dnscheck_verdict_box_body">DNS\'i şu anda box_for_magisk işliyor.</string>
+    <string name="dnscheck_servers_title">Proxy sunucuları</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: sorgular %3$d canlı sunucunun en hızlı %2$d tanesine gider.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: sorgular %1$d canlı sunucudan herhangi birine gider.</string>
+    <string name="dnscheck_in_use">KULLANIMDA</string>
+    <string name="dnscheck_show_fastest">En hızlıları göster</string>
+    <string name="dnscheck_no_servers">Henüz sunucu listesi yok: proxy durduruldu ya da hâlâ başlıyor.</string>
+    <string name="dnscheck_network_title">Ağ DNS\'i</string>
+    <string name="dnscheck_network_none">Ağ DNS sunucusu bildirmiyor.</string>
+    <string name="dnscheck_private_dns_off">Özel DNS: kapalı</string>
+    <string name="dnscheck_private_dns_auto">Özel DNS: otomatik (varsayılan)</string>
+    <string name="dnscheck_private_dns_active"> · kullanımda, 53 numaralı portu atlar</string>
+    <string name="dnscheck_private_dns_inactive"> · bu ağda kullanılmıyor</string>
+    <string name="dnscheck_private_dns_host">Özel DNS: %1$s</string>
+    <string name="dnscheck_leak_title">İnternetin gördüğü</string>
+    <string name="dnscheck_leak_note">10 test adını çözer ve bash.ws\'e bunlar için hangi çözümleyicilerin geldiğini sorar. bash.ws genel IP\'nizi öğrenir.</string>
+    <string name="dnscheck_leak_run">Sızıntı testi</string>
+    <string name="dnscheck_leak_running">Test adları çözülüyor…</string>
+    <string name="dnscheck_leak_public">Adresiniz</string>
+    <string name="dnscheck_leak_none">bash.ws hiç çözümleyici görmedi. Tekrar deneyin.</string>
+    <string name="dnscheck_leak_error">Test başarısız: %1$s</string>
+    <string name="dnscheck_close">Kapat</string>
 </resources>

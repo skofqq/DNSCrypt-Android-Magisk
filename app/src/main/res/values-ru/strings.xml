@@ -353,4 +353,37 @@
     <string name="setting_language">Язык</string>
     <string name="language_system">Как в системе</string>
     <string name="status_manual_stop_hint">Остановлен вручную — не запустится при загрузке, пока вы его не запустите.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">Проверка DNS</string>
+    <string name="dnscheck_running">Проверяю, куда идут запросы…</string>
+    <string name="dnscheck_verdict_proxy_title">Запросы идут через DNSCrypt</string>
+    <string name="dnscheck_verdict_proxy_body">Резолверы, которые спрашивали от вашего имени, не принадлежат провайдеру. Ответы приходят от одного из: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">Прокси перехватывает DNS</string>
+    <string name="dnscheck_verdict_active_body">Запросы уходят на один из серверов ниже. Запустите тест на утечку, чтобы увидеть, какие резолверы видит интернет.</string>
+    <string name="dnscheck_verdict_leak_title">Утечка: провайдер видит запросы</string>
+    <string name="dnscheck_verdict_leak_body">Часть имён резолвилась мимо прокси, через %1$s.</string>
+    <string name="dnscheck_verdict_stopped_title">Прокси не обрабатывает DNS</string>
+    <string name="dnscheck_verdict_stopped_body">Запросы идут на DNS сети: %1$s. Резолверы в тесте на утечку — это вышестоящие серверы этой сети.</string>
+    <string name="dnscheck_verdict_box_body">Сейчас DNS обрабатывает box_for_magisk.</string>
+    <string name="dnscheck_servers_title">Серверы прокси</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: запросы идут на %2$d самых быстрых из %3$d живых серверов.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: запросы идут на любой из %1$d живых серверов.</string>
+    <string name="dnscheck_in_use">ИСПОЛЬЗУЕТСЯ</string>
+    <string name="dnscheck_show_fastest">Показать самые быстрые</string>
+    <string name="dnscheck_no_servers">Списка серверов пока нет: прокси остановлен или ещё запускается.</string>
+    <string name="dnscheck_network_title">DNS сети</string>
+    <string name="dnscheck_network_none">Сеть не сообщает DNS-серверов.</string>
+    <string name="dnscheck_private_dns_off">Частный DNS: выключен</string>
+    <string name="dnscheck_private_dns_auto">Частный DNS: автоматически (по умолчанию)</string>
+    <string name="dnscheck_private_dns_active"> · используется, идёт мимо порта 53</string>
+    <string name="dnscheck_private_dns_inactive"> · в этой сети не используется</string>
+    <string name="dnscheck_private_dns_host">Частный DNS: %1$s</string>
+    <string name="dnscheck_leak_title">Что видит интернет</string>
+    <string name="dnscheck_leak_note">Резолвит 10 тестовых имён и спрашивает у bash.ws, какие резолверы за ними приходили. bash.ws при этом узнаёт ваш внешний IP.</string>
+    <string name="dnscheck_leak_run">Тест на утечку</string>
+    <string name="dnscheck_leak_running">Резолвлю тестовые имена…</string>
+    <string name="dnscheck_leak_public">Ваш адрес</string>
+    <string name="dnscheck_leak_none">bash.ws не увидел ни одного резолвера. Попробуйте ещё раз.</string>
+    <string name="dnscheck_leak_error">Тест не удался: %1$s</string>
+    <string name="dnscheck_close">Закрыть</string>
 </resources>

@@ -152,6 +152,18 @@ fun AppRoot() {
         )
     }
 
+    // The Check button opens the DNS check sheet; the view model outlives the sheet so a
+    // finished leak test is still there when it is opened again.
+    val dnsCheckViewModel: io.github.skofqq.dnscryptmanager.ui.status.DnsCheckViewModel = viewModel(factory = factory)
+    val dnsCheck by dnsCheckViewModel.state.collectAsStateWithLifecycle()
+    if (dnsCheck.open && !gated) {
+        io.github.skofqq.dnscryptmanager.ui.status.DnsCheckSheet(
+            state = dnsCheck,
+            onDismiss = dnsCheckViewModel::close,
+            onLeakTest = dnsCheckViewModel::runLeakTest,
+        )
+    }
+
     BackHandler(enabled = subPage != null) { subPage = null }
 
     val navBar = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -290,7 +302,7 @@ fun AppRoot() {
                                     uiState = statusState,
                                     onRefresh = { statusViewModel.refresh(showSpinner = true) },
                                     onAction = statusViewModel::run,
-                                    onProbe = statusViewModel::probe,
+                                    onProbe = { readyStatus?.let(dnsCheckViewModel::open) },
                                     onModuleTest = statusViewModel::runModuleTest,
                                     onOpenLogs = { destination = Destination.LOGS },
                                     onOpenConflicts = {

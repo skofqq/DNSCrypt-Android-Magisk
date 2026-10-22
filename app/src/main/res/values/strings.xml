@@ -346,4 +346,37 @@
     <string name="setting_language">Language</string>
     <string name="language_system">System default</string>
     <string name="status_manual_stop_hint">Stopped by hand — it will not start on boot until you start it.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">DNS check</string>
+    <string name="dnscheck_running">Checking where queries go…</string>
+    <string name="dnscheck_verdict_proxy_title">Queries go through DNSCrypt</string>
+    <string name="dnscheck_verdict_proxy_body">The resolvers that asked on your behalf are not your provider\'s. Answers come from one of: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">The proxy intercepts DNS</string>
+    <string name="dnscheck_verdict_active_body">Queries go to one of the servers below. Run the leak test to see which resolvers the internet saw.</string>
+    <string name="dnscheck_verdict_leak_title">Leak: your provider sees queries</string>
+    <string name="dnscheck_verdict_leak_body">Some names were resolved past the proxy, by %1$s.</string>
+    <string name="dnscheck_verdict_stopped_title">The proxy is not handling DNS</string>
+    <string name="dnscheck_verdict_stopped_body">Queries go to the network\'s DNS: %1$s. The resolvers the leak test shows are that network\'s upstream.</string>
+    <string name="dnscheck_verdict_box_body">box_for_magisk handles DNS right now.</string>
+    <string name="dnscheck_servers_title">Proxy servers</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: queries go to the %2$d fastest of %3$d live servers.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: queries go to any of the %1$d live servers.</string>
+    <string name="dnscheck_in_use">IN USE</string>
+    <string name="dnscheck_show_fastest">Show the fastest</string>
+    <string name="dnscheck_no_servers">No server list yet: the proxy is stopped or still starting.</string>
+    <string name="dnscheck_network_title">Network DNS</string>
+    <string name="dnscheck_network_none">The network reports no DNS servers.</string>
+    <string name="dnscheck_private_dns_off">Private DNS: off</string>
+    <string name="dnscheck_private_dns_auto">Private DNS: automatic (default)</string>
+    <string name="dnscheck_private_dns_active"> · in use, bypasses port 53</string>
+    <string name="dnscheck_private_dns_inactive"> · not used on this network</string>
+    <string name="dnscheck_private_dns_host">Private DNS: %1$s</string>
+    <string name="dnscheck_leak_title">Seen from the internet</string>
+    <string name="dnscheck_leak_note">Resolves 10 test names and asks bash.ws which resolvers came asking for them. This shares your public IP with bash.ws.</string>
+    <string name="dnscheck_leak_run">Run leak test</string>
+    <string name="dnscheck_leak_running">Resolving test names…</string>
+    <string name="dnscheck_leak_public">Your address</string>
+    <string name="dnscheck_leak_none">bash.ws saw no resolvers. Try again.</string>
+    <string name="dnscheck_leak_error">Leak test failed: %1$s</string>
+    <string name="dnscheck_close">Close</string>
 </resources>

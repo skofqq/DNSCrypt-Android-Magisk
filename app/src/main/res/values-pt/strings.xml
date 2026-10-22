@@ -289,4 +289,37 @@
     <string name="setting_language">Idioma</string>
     <string name="language_system">Idioma do sistema</string>
     <string name="status_manual_stop_hint">Parado manualmente: não arranca no boot até o iniciar.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">Verificação de DNS</string>
+    <string name="dnscheck_running">A verificar para onde vão as consultas…</string>
+    <string name="dnscheck_verdict_proxy_title">As consultas passam pelo DNSCrypt</string>
+    <string name="dnscheck_verdict_proxy_body">Os resolvers que perguntaram por si não são do seu fornecedor. As respostas vêm de um de: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">O proxy interceta o DNS</string>
+    <string name="dnscheck_verdict_active_body">As consultas vão para um dos servidores abaixo. Faça o teste de fugas para ver que resolvers a internet viu.</string>
+    <string name="dnscheck_verdict_leak_title">Fuga: o fornecedor vê as consultas</string>
+    <string name="dnscheck_verdict_leak_body">Alguns nomes foram resolvidos fora do proxy, por %1$s.</string>
+    <string name="dnscheck_verdict_stopped_title">O proxy não trata o DNS</string>
+    <string name="dnscheck_verdict_stopped_body">As consultas vão para o DNS da rede: %1$s. Os resolvers do teste são os servidores a montante dessa rede.</string>
+    <string name="dnscheck_verdict_box_body">Neste momento o DNS é tratado pelo box_for_magisk.</string>
+    <string name="dnscheck_servers_title">Servidores do proxy</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: as consultas vão para os %2$d mais rápidos de %3$d servidores ativos.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: as consultas vão para qualquer um dos %1$d servidores ativos.</string>
+    <string name="dnscheck_in_use">EM USO</string>
+    <string name="dnscheck_show_fastest">Mostrar os mais rápidos</string>
+    <string name="dnscheck_no_servers">Ainda sem lista de servidores: o proxy está parado ou a arrancar.</string>
+    <string name="dnscheck_network_title">DNS da rede</string>
+    <string name="dnscheck_network_none">A rede não indica servidores DNS.</string>
+    <string name="dnscheck_private_dns_off">DNS privado: desligado</string>
+    <string name="dnscheck_private_dns_auto">DNS privado: automático (predefinido)</string>
+    <string name="dnscheck_private_dns_active"> · em uso, contorna a porta 53</string>
+    <string name="dnscheck_private_dns_inactive"> · não é usado nesta rede</string>
+    <string name="dnscheck_private_dns_host">DNS privado: %1$s</string>
+    <string name="dnscheck_leak_title">O que a internet vê</string>
+    <string name="dnscheck_leak_note">Resolve 10 nomes de teste e pergunta ao bash.ws que resolvers os pediram. O bash.ws fica a saber o seu IP público.</string>
+    <string name="dnscheck_leak_run">Teste de fugas</string>
+    <string name="dnscheck_leak_running">A resolver nomes de teste…</string>
+    <string name="dnscheck_leak_public">O seu endereço</string>
+    <string name="dnscheck_leak_none">O bash.ws não viu nenhum resolver. Tente de novo.</string>
+    <string name="dnscheck_leak_error">O teste falhou: %1$s</string>
+    <string name="dnscheck_close">Fechar</string>
 </resources>

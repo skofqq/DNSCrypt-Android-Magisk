@@ -12,6 +12,7 @@ import io.github.skofqq.dnscryptmanager.root.RootShell
  * would cost more than it saves.
  */
 class AppContainer(context: Context) {
+    val appContext: Context = context.applicationContext
     val preferences: AppPreferences = AppPreferences(context)
     val rootShell: RootShell = RootShell()
     val repository: ModuleRepository = ModuleRepository(rootShell, context.cacheDir)

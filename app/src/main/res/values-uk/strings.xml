@@ -293,4 +293,37 @@
     <string name="setting_language">Мова</string>
     <string name="language_system">Як у системі</string>
     <string name="status_manual_stop_hint">Зупинено вручну — не запуститься під час завантаження, доки ви його не запустите.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">Перевірка DNS</string>
+    <string name="dnscheck_running">Перевіряю, куди йдуть запити…</string>
+    <string name="dnscheck_verdict_proxy_title">Запити йдуть через DNSCrypt</string>
+    <string name="dnscheck_verdict_proxy_body">Резолвери, що питали від вашого імені, не належать провайдеру. Відповіді надходять від одного з: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">Проксі перехоплює DNS</string>
+    <string name="dnscheck_verdict_active_body">Запити йдуть на один із серверів нижче. Запустіть тест на витік, щоб побачити, які резолвери бачить інтернет.</string>
+    <string name="dnscheck_verdict_leak_title">Витік: провайдер бачить запити</string>
+    <string name="dnscheck_verdict_leak_body">Частина імен резолвилася в обхід проксі, через %1$s.</string>
+    <string name="dnscheck_verdict_stopped_title">Проксі не обробляє DNS</string>
+    <string name="dnscheck_verdict_stopped_body">Запити йдуть на DNS мережі: %1$s. Резолвери в тесті на витік — це вищі сервери цієї мережі.</string>
+    <string name="dnscheck_verdict_box_body">Зараз DNS обробляє box_for_magisk.</string>
+    <string name="dnscheck_servers_title">Сервери проксі</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: запити йдуть на %2$d найшвидших із %3$d живих серверів.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: запити йдуть на будь-який із %1$d живих серверів.</string>
+    <string name="dnscheck_in_use">ВИКОРИСТОВУЄТЬСЯ</string>
+    <string name="dnscheck_show_fastest">Показати найшвидші</string>
+    <string name="dnscheck_no_servers">Списку серверів ще немає: проксі зупинено або він ще запускається.</string>
+    <string name="dnscheck_network_title">DNS мережі</string>
+    <string name="dnscheck_network_none">Мережа не повідомляє DNS-серверів.</string>
+    <string name="dnscheck_private_dns_off">Приватний DNS: вимкнено</string>
+    <string name="dnscheck_private_dns_auto">Приватний DNS: автоматично (за замовчуванням)</string>
+    <string name="dnscheck_private_dns_active"> · використовується, іде повз порт 53</string>
+    <string name="dnscheck_private_dns_inactive"> · у цій мережі не використовується</string>
+    <string name="dnscheck_private_dns_host">Приватний DNS: %1$s</string>
+    <string name="dnscheck_leak_title">Що бачить інтернет</string>
+    <string name="dnscheck_leak_note">Резолвить 10 тестових імен і питає bash.ws, які резолвери по них приходили. bash.ws при цьому дізнається ваш зовнішній IP.</string>
+    <string name="dnscheck_leak_run">Тест на витік</string>
+    <string name="dnscheck_leak_running">Резолвлю тестові імена…</string>
+    <string name="dnscheck_leak_public">Ваша адреса</string>
+    <string name="dnscheck_leak_none">bash.ws не побачив жодного резолвера. Спробуйте ще раз.</string>
+    <string name="dnscheck_leak_error">Тест не вдався: %1$s</string>
+    <string name="dnscheck_close">Закрити</string>
 </resources>

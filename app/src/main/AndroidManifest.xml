@@ -3,6 +3,8 @@
 
     <!-- Only used to talk to the proxy on 127.0.0.1. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The DNS check reads which DNS servers the active network hands out. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".App"

@@ -87,3 +87,40 @@ class BoxAndManualStopTest {
         assertFalse(old.manualStop)
     }
 }
+
+class DnsCheckParsingTest {
+
+    @Test
+    fun `servers live json and the log fallback agree`() {
+        val json = io.github.skofqq.dnscryptmanager.data.LiveServers.parseJson(
+            """{"strategy":"p2","live":172,"servers":[{"name":"cs-finland","proto":"DNSCrypt","rtt":28},{"name":"a","proto":"DoH","rtt":21}]}"""
+        )!!
+        assertEquals(listOf("a", "cs-finland"), json.servers.map { it.name })
+        assertEquals(2, json.inUseCount)
+        assertEquals(172, json.liveCount)
+
+        val log = listOf(
+            "[2026-10-22 22:00:00] [NOTICE] [old] OK (DNSCrypt) - rtt: 5ms",
+            "[2026-10-22 22:11:09] [NOTICE] dnscrypt-proxy 2.1.18",
+            "[2026-10-22 22:11:10] [NOTICE] [dct-de] OK (DNSCrypt) - rtt: 345ms",
+            "[2026-10-22 22:11:10] [NOTICE] [x] OK (DoH) - rtt: 40ms",
+            "[2026-10-22 22:11:10] [NOTICE] [x] OK (DoH) - rtt: 30ms - additional certificate",
+        )
+        val parsed = io.github.skofqq.dnscryptmanager.data.LiveServers.parse(log, "lb_strategy = 'first'\n")
+        assertEquals(listOf("x", "dct-de"), parsed.servers.map { it.name })
+        assertEquals(30, parsed.servers.first().rttMs)
+        assertEquals(1, parsed.inUseCount)
+    }
+
+    @Test
+    fun `leak verdict flags the own ASN and the network DNS`() {
+        val report = io.github.skofqq.dnscryptmanager.data.LeakTest.parse(
+            """[{"ip":"1.1.1.1","country":"ru","asn":"AS64500 Example ISP","type":"ip"},{"ip":"9.9.9.9","country":"de","asn":"AS3214 xTom","type":"dns"}]"""
+        )
+        val clean = io.github.skofqq.dnscryptmanager.data.LeakTest.verdict(report, proxyActive = true, networkDns = listOf("10.0.2.3"))
+        assertEquals(io.github.skofqq.dnscryptmanager.data.DnsVerdict.THROUGH_PROXY, clean)
+        val leak = io.github.skofqq.dnscryptmanager.data.LeakTest.verdict(report, proxyActive = true, networkDns = listOf("9.9.9.9"))
+        assertEquals(io.github.skofqq.dnscryptmanager.data.DnsVerdict.LEAK, leak)
+        assertEquals("🇩🇪", report.resolvers.first().flag)
+    }
+}

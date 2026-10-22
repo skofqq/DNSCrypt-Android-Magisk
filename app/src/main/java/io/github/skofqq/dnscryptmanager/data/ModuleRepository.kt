@@ -138,6 +138,9 @@ class ModuleRepository(
     /** Which server the proxy settled on, as one line from its log. */
     suspend fun serversActive(): Result<ShellOutput> = ctl("servers", "active")
 
+    /** The servers of the current run as one JSON line (module 2.4.1+); rc 1 without a log. */
+    suspend fun serversLive(): Result<ShellOutput> = ctl("servers", "live")
+
     suspend fun serversAuto(): Result<ShellOutput> = ctl("servers", "auto")
 
     /**
