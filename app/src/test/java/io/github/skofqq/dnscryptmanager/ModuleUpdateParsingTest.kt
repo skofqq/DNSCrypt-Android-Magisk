@@ -34,8 +34,9 @@ class ModuleUpdateParsingTest {
 
         val stopped = StatusParser.parse("""{"running":false,"ipv6_dns":"bypass"}""").getOrThrow()
         assertFalse(stopped.ipv6Bypass)
+        assertNull(stopped.ipv6Dns)
 
-        assertEquals(Ipv6Dns.BLOCKED, StatusParser.parse("""{"ipv6_dns":"blocked"}""").getOrThrow().ipv6Dns)
+        assertEquals(Ipv6Dns.BLOCKED, StatusParser.parse("""{"running":true,"ipv6_dns":"blocked"}""").getOrThrow().ipv6Dns)
         assertNull(StatusParser.parse("""{"ipv6_dns":"something-new"}""").getOrThrow().ipv6Dns)
     }
 

@@ -78,8 +78,8 @@ data class ModuleStatus(
     val port6: Int?
         get() = (port6Raw as? JsonPrimitive)?.contentOrNull?.trim()?.toIntOrNull()
 
-    /** Null when the module is too old to say. */
-    val ipv6Dns: Ipv6Dns? get() = Ipv6Dns.parse(ipv6DnsRaw)
+    /** Null when the module is too old to say, and while the proxy is down: then nothing is redirected anyway. */
+    val ipv6Dns: Ipv6Dns? get() = if (running) Ipv6Dns.parse(ipv6DnsRaw) else null
 
     /**
      * IPv6 DNS goes around the proxy: running is not the same as protected. Seen on
