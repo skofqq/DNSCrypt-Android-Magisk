@@ -16,7 +16,6 @@
     <string name="action_refresh">Обновить</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_more">Ещё</string>
-    <string name="action_copy">Скопировать</string>
     <string name="action_share">Поделиться</string>
     <string name="action_search">Поиск</string>
     <string name="action_clear">Очистить</string>
@@ -76,7 +75,6 @@
 
     <string name="dns_check_title">Проверка DNS</string>
     <string name="dns_check_subtitle">Отправляет один A-запрос для %1$s на 127.0.0.1:%2$d. Без root.</string>
-    <string name="dns_check_module_test">Проверка модуля</string>
     <string name="dns_check_run">Проверить</string>
     <string name="dns_check_answered">Ответ получен · %1$d мс</string>
     <string name="dns_check_empty">Ответ получен, записей нет · %1$d мс</string>
@@ -90,13 +88,10 @@
     <string name="settings_restart_note">Настройки модуля применяются только после перезапуска.</string>
 
     <string name="setting_redirect_ipv4">Перехват IPv4 DNS</string>
-    <string name="setting_redirect_ipv4_desc">Основной режим: DNS-трафик IPv4 идёт через локальный прокси.</string>
     <string name="setting_redirect_ipv6">IPv6 DNS</string>
     <string name="setting_redirect_ipv6_desc">Авто перехватывает, только если ядро умеет ip6tables nat.</string>
     <string name="setting_tether">Перехват DNS хотспота</string>
-    <string name="setting_tether_desc">Запросы устройств из вашей точки доступа тоже пойдут через прокси. По умолчанию выключено: вмешательство в раздачу раньше ломало Wi-Fi.</string>
     <string name="setting_private_dns">Отключать Private DNS</string>
-    <string name="setting_private_dns_desc">Системный Private DNS ходит по DoT мимо порта 53, и модуль его не перехватит.</string>
     <string name="setting_mirror">Копия конфига</string>
     <string name="setting_mirror_desc">Держать копию конфига на внутренней памяти для правки.</string>
     <string name="setting_restart_delay">Потолок паузы перезапуска</string>
@@ -118,7 +113,6 @@
     <string name="setting_dynamic_color">Цвета системы</string>
     <string name="setting_dynamic_color_desc">Палитра берётся из обоев.</string>
     <string name="setting_poll">Интервал опроса</string>
-    <string name="setting_poll_desc">Как часто экран состояния перечитывает модуль, пока он открыт.</string>
 
     <!-- Конфиг -->
     <string name="config_title">dnscrypt-proxy.toml</string>
@@ -147,7 +141,6 @@
     <string name="logs_tab_module">module.log</string>
     <string name="logs_tab_proxy">dnscrypt-proxy.log</string>
     <string name="logs_tab_rules">Правила</string>
-    <string name="logs_autoscroll">Следить</string>
     <string name="logs_empty">Показывать нечего.</string>
     <string name="logs_copied">Скопировано в буфер обмена</string>
     <plurals name="logs_lines">
@@ -157,12 +150,6 @@
         <item quantity="other">Последние %1$d строк</item>
     </plurals>
     <string name="logs_share_title">Поделиться журналом</string>
-    <plurals name="logs_matches">
-        <item quantity="one">%1$d совпадение</item>
-        <item quantity="few">%1$d совпадения</item>
-        <item quantity="many">%1$d совпадений</item>
-        <item quantity="other">%1$d совпадений</item>
-    </plurals>
 
     <!-- Ошибки -->
     <string name="error_prefix">Ошибка: %1$s</string>
@@ -175,13 +162,11 @@
     <string name="servers_mode_auto">Автоподбор</string>
     <string name="servers_mode_manual">Выбранные вручную</string>
     <string name="servers_auto_explained">Прокси сам выбирает серверы по фильтрам require_dnssec, require_nolog и require_nofilter из конфига.</string>
-    <string name="servers_active_title">Текущий сервер</string>
-    <string name="servers_active_hint">Эта строка появляется в журнале прокси только после успешного старта.</string>
     <string name="servers_search_label">Поиск по имени или описанию</string>
     <string name="servers_found">%1$d из %2$d</string>
     <string name="servers_selected_title">Выбранные</string>
     <string name="servers_selected_empty">Ничего не выбрано. Пустой список равнозначен автоподбору.</string>
-    <string name="servers_order_hint">Порядок важен: прокси пробует их сверху вниз. Нажмите на чип, потом на стрелки.</string>
+    <string name="servers_order_hint">Порядок важен: прокси пробует их сверху вниз.</string>
     <string name="servers_move_up">Выше</string>
     <string name="servers_move_down">Ниже</string>
     <string name="servers_unknown_chip">Нет в списке</string>
@@ -228,13 +213,11 @@
     <string name="run_gid_custom_label">GID или имя группы</string>
     <string name="run_gid_invalid">Только цифры либо имя группы из букв и подчёркиваний.</string>
     <string name="servers_applied">Список серверов применён, прокси перезапущен</string>
-    <string name="servers_more_results">Показаны первые %1$d из %2$d — уточните запрос</string>
     <string name="settings_reset">Сбросить к умолчаниям</string>
     <string name="settings_reset_title">Сбросить настройки модуля?</string>
     <string name="settings_reset_message">Все настройки модуля вернутся к значениям из поставки. Прежние сохранятся рядом с module.conf в файл .bak. Прокси перезапустится.</string>
     <string name="settings_reset_done">Настройки сброшены, прокси перезапущен</string>
     <string name="setting_autostart">Запуск при загрузке</string>
-    <string name="setting_autostart_desc">Выключенным модуль остаётся установленным, но спящим: после перезагрузки ничего не поднимает и правил не ставит. Запустить можно вручную — отсюда или плиткой в шторке.</string>
 
     <!-- IPv6 DNS, модуль сообщает с 2.4.2 -->
     <string name="label_ipv6_dns">IPv6 DNS</string>
@@ -245,13 +228,6 @@
     <string name="status_ipv6_bypass_body">Ядро не умеет перенаправлять IPv6, поэтому запросы к IPv6-резолверу сети не шифруются и не фильтруются. Обновите модуль: новые версии в такой ситуации блокируют IPv6 DNS, и система переходит на IPv4.</string>
 
     <!-- Текущий сервер -->
-    <string name="servers_active_rtt">rtt %1$d мс</string>
-    <plurals name="servers_active_live">
-        <item quantity="one">%1$d рабочий сервер</item>
-        <item quantity="few">%1$d рабочих сервера</item>
-        <item quantity="many">%1$d рабочих серверов</item>
-        <item quantity="other">%1$d рабочих серверов</item>
-    </plurals>
 
     <!-- Обновление модуля -->
     <string name="settings_about_header">О модуле</string>
@@ -264,7 +240,6 @@
     <string name="update_latest">Установлена последняя версия</string>
     <string name="update_check_again">Проверить ещё раз</string>
     <string name="update_retry">Повторить</string>
-    <string name="update_available">Доступно обновление</string>
     <string name="update_version_code">versionCode</string>
     <string name="update_whats_new">Что нового</string>
     <string name="update_open_changelog">Полный список изменений</string>
@@ -290,9 +265,7 @@
 
     <!-- Boxy-style page headers and cards -->
     <string name="page_status_sub">Статус и проверка</string>
-    <string name="page_servers_sub">Резолверы прокси</string>
     <string name="page_settings_sub">Модуль и приложение</string>
-    <string name="page_logs_sub">Журналы прокси и модуля</string>
     <string name="status_service">Статус сервиса</string>
     <string name="status_details">Подробности</string>
     <string name="hero_ipv4">IPv4</string>
@@ -336,7 +309,7 @@
     <string name="settings_needs_module">Нужен модуль %1$s или новее</string>
     <string name="settings_module_sub">Перехват, IPv6 и автозапуск</string>
     <string name="settings_advanced_sub">Нужно только рядом с box_for_magisk</string>
-    <string name="settings_app_sub">Тема, цвета и обновление</string>
+    <string name="settings_app_sub">Тема, язык и обновление</string>
     <string name="settings_about_sub">Версия модуля и обновления</string>
     <string name="setting_autostart_short">Запускать прокси после перезагрузки</string>
     <string name="setting_redirect_ipv4_short">Отправлять IPv4 DNS через прокси</string>
@@ -370,10 +343,6 @@
     <string name="hero_server">Сервер</string>
     <string name="hero_tap_start">Нажмите «Старт»</string>
     <string name="dns_check_self_test">Самопроверка</string>
-    <string name="tile_server">Сервер</string>
-    <string name="tile_uptime">Аптайм</string>
-    <string name="tile_ipv6">IPv6 DNS</string>
-    <string name="tile_private_dns">Частный DNS</string>
     <string name="status_more_details">Подробнее</string>
     <string name="status_less_details">Свернуть</string>
     <string name="update_badge_newer">НОВЕЕ</string>
@@ -381,4 +350,6 @@
     <string name="update_checked_now">Проверено только что · установлена %1$s</string>
     <string name="update_open_release">Открыть страницу релиза</string>
     <string name="update_cannot_install_here">Этот пакет нельзя установить на это устройство, повтор не поможет.</string>
+    <string name="setting_language">Язык</string>
+    <string name="language_system">Как в системе</string>
 </resources>

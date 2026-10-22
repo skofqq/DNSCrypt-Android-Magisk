@@ -16,7 +16,6 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_more">More</string>
-    <string name="action_copy">Copy</string>
     <string name="action_share">Share</string>
     <string name="action_search">Search</string>
     <string name="action_clear">Clear</string>
@@ -76,7 +75,6 @@
 
     <string name="dns_check_title">DNS check</string>
     <string name="dns_check_subtitle">Sends one A query for %1$s to 127.0.0.1:%2$d. No root involved.</string>
-    <string name="dns_check_module_test">Module self-test</string>
     <string name="dns_check_run">Check</string>
     <string name="dns_check_answered">Answer received · %1$d ms</string>
     <string name="dns_check_empty">Answer received, no records · %1$d ms</string>
@@ -90,13 +88,10 @@
     <string name="settings_restart_note">Module settings only take effect after a restart.</string>
 
     <string name="setting_redirect_ipv4">Redirect IPv4 DNS</string>
-    <string name="setting_redirect_ipv4_desc">The main mode: sends IPv4 DNS traffic through the local proxy.</string>
     <string name="setting_redirect_ipv6">IPv6 DNS</string>
     <string name="setting_redirect_ipv6_desc">Auto only redirects when the kernel can do ip6tables nat.</string>
     <string name="setting_tether">Redirect hotspot DNS</string>
-    <string name="setting_tether_desc">Also sends queries from devices on your hotspot through the proxy. Off by default: touching tethering has broken Wi-Fi sharing in the past.</string>
     <string name="setting_private_dns">Turn off Private DNS</string>
-    <string name="setting_private_dns_desc">System Private DNS goes over DoT and bypasses port 53, so the module cannot intercept it.</string>
     <string name="setting_mirror">Mirror the config</string>
     <string name="setting_mirror_desc">Keeps a copy of the config in internal storage for editing.</string>
     <string name="setting_restart_delay">Restart delay cap</string>
@@ -116,7 +111,6 @@
     <string name="setting_dynamic_color">System colors</string>
     <string name="setting_dynamic_color_desc">Takes the palette from your wallpaper.</string>
     <string name="setting_poll">Refresh interval</string>
-    <string name="setting_poll_desc">How often the status screen re-reads the module while it is open.</string>
 
     <!-- Config screen -->
     <string name="config_title">dnscrypt-proxy.toml</string>
@@ -145,7 +139,6 @@
     <string name="logs_tab_module">module.log</string>
     <string name="logs_tab_proxy">dnscrypt-proxy.log</string>
     <string name="logs_tab_rules">Rules</string>
-    <string name="logs_autoscroll">Follow</string>
     <string name="logs_empty">Nothing to show.</string>
     <string name="logs_copied">Copied to clipboard</string>
     <plurals name="logs_lines">
@@ -153,10 +146,6 @@
         <item quantity="other">Last %1$d lines</item>
     </plurals>
     <string name="logs_share_title">Share log</string>
-    <plurals name="logs_matches">
-        <item quantity="one">%1$d match</item>
-        <item quantity="other">%1$d matches</item>
-    </plurals>
 
     <!-- Errors -->
     <string name="error_prefix">Error: %1$s</string>
@@ -169,13 +158,11 @@
     <string name="servers_mode_auto">Automatic</string>
     <string name="servers_mode_manual">Chosen by hand</string>
     <string name="servers_auto_explained">The proxy picks servers itself, using the require_dnssec, require_nolog and require_nofilter filters from the config.</string>
-    <string name="servers_active_title">Current server</string>
-    <string name="servers_active_hint">This line appears in the proxy log only after a successful start.</string>
     <string name="servers_search_label">Search by name or description</string>
     <string name="servers_found">%1$d of %2$d</string>
     <string name="servers_selected_title">Chosen</string>
     <string name="servers_selected_empty">Nothing chosen. An empty list means the same as automatic.</string>
-    <string name="servers_order_hint">Order matters: the proxy tries them top to bottom. Tap a chip, then use the arrows.</string>
+    <string name="servers_order_hint">Order matters: the proxy tries them top to bottom.</string>
     <string name="servers_move_up">Move earlier</string>
     <string name="servers_move_down">Move later</string>
     <string name="servers_unknown_chip">Not in the list</string>
@@ -220,13 +207,11 @@
     <string name="run_gid_custom_label">GID or group name</string>
     <string name="run_gid_invalid">Digits only, or a group name of letters and underscores.</string>
     <string name="servers_applied">Server list applied, proxy restarted</string>
-    <string name="servers_more_results">First %1$d of %2$d — narrow the search</string>
     <string name="settings_reset">Reset to defaults</string>
     <string name="settings_reset_title">Reset module settings?</string>
     <string name="settings_reset_message">Every module setting goes back to the value the module ships with. The current ones are saved next to module.conf as a .bak first. The proxy restarts.</string>
     <string name="settings_reset_done">Settings reset to defaults, proxy restarted</string>
     <string name="setting_autostart">Start at boot</string>
-    <string name="setting_autostart_desc">Off keeps the module installed but asleep: after a reboot it starts nothing and installs no intercept rules. You can still start it by hand here or from the quick settings tile.</string>
 
     <!-- IPv6 DNS, reported by the module from 2.4.2 on -->
     <string name="label_ipv6_dns">IPv6 DNS</string>
@@ -237,11 +222,6 @@
     <string name="status_ipv6_bypass_body">This kernel cannot redirect IPv6, so queries to the network\'s IPv6 resolver are neither encrypted nor filtered. Update the module: newer versions block IPv6 DNS here so the system falls back to IPv4.</string>
 
     <!-- Current server -->
-    <string name="servers_active_rtt">rtt %1$d ms</string>
-    <plurals name="servers_active_live">
-        <item quantity="one">%1$d live server</item>
-        <item quantity="other">%1$d live servers</item>
-    </plurals>
 
     <!-- Module update -->
     <string name="settings_about_header">About</string>
@@ -254,7 +234,6 @@
     <string name="update_latest">You have the latest version</string>
     <string name="update_check_again">Check again</string>
     <string name="update_retry">Try again</string>
-    <string name="update_available">Update available</string>
     <string name="update_version_code">versionCode</string>
     <string name="update_whats_new">What\'s new</string>
     <string name="update_open_changelog">Full changelog</string>
@@ -281,10 +260,7 @@
     <!-- Boxy-style page headers and cards -->
     <string name="page_status_title" translatable="false">DNSCrypt</string>
     <string name="page_status_sub">Status and checks</string>
-    <string name="page_servers_sub">Resolvers the proxy uses</string>
     <string name="page_settings_sub">Module and app</string>
-    <string name="page_config_sub" translatable="false">dnscrypt-proxy.toml</string>
-    <string name="page_logs_sub">Proxy and module logs</string>
     <string name="status_service">Service status</string>
     <string name="status_details">Details</string>
     <string name="hero_ipv4">IPv4</string>
@@ -326,7 +302,7 @@
     <string name="settings_needs_module">Needs module %1$s or newer</string>
     <string name="settings_module_sub">Interception, IPv6 and autostart</string>
     <string name="settings_advanced_sub">Only needed next to box_for_magisk</string>
-    <string name="settings_app_sub">Theme, colours and refresh</string>
+    <string name="settings_app_sub">Theme, language and refresh</string>
     <string name="settings_about_sub">Module version and updates</string>
     <string name="setting_autostart_short">Start the proxy after a reboot</string>
     <string name="setting_redirect_ipv4_short">Send IPv4 DNS through the proxy</string>
@@ -360,10 +336,6 @@
     <string name="hero_server">Server</string>
     <string name="hero_tap_start">Tap Start to run</string>
     <string name="dns_check_self_test">Self-test</string>
-    <string name="tile_server">Server</string>
-    <string name="tile_uptime">Uptime</string>
-    <string name="tile_ipv6">IPv6 DNS</string>
-    <string name="tile_private_dns">Private DNS</string>
     <string name="status_more_details">More details</string>
     <string name="status_less_details">Fewer details</string>
     <string name="update_badge_newer">NEWER</string>
@@ -371,4 +343,6 @@
     <string name="update_checked_now">Checked just now · %1$s installed</string>
     <string name="update_open_release">Open release page</string>
     <string name="update_cannot_install_here">This package cannot be installed on this device, so trying again will not help.</string>
+    <string name="setting_language">Language</string>
+    <string name="language_system">System default</string>
 </resources>

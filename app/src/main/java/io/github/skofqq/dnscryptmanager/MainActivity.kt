@@ -1,6 +1,8 @@
 package io.github.skofqq.dnscryptmanager
 
+import android.content.Context
 import android.os.Bundle
+import io.github.skofqq.dnscryptmanager.data.AppLanguage
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +16,10 @@ import io.github.skofqq.dnscryptmanager.ui.AppRoot
 import io.github.skofqq.dnscryptmanager.ui.theme.DnsCryptTheme
 
 class MainActivity : ComponentActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

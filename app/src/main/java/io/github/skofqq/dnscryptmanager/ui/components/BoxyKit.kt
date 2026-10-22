@@ -241,7 +241,9 @@ fun BoxyChip(
             .clip(RoundedCornerShape(50))
             .background(if (active) color.copy(alpha = 0.16f) else Boxy.colors.card)
             .clickable(onClick = onClick)
-            .padding(start = 14.dp, end = if (trailing != null) 8.dp else 14.dp, top = 8.dp, bottom = 8.dp),
+            // Fixed height: chips with and without the trailing arrow line up in one row.
+            .height(40.dp)
+            .padding(start = 14.dp, end = if (trailing != null) 8.dp else 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

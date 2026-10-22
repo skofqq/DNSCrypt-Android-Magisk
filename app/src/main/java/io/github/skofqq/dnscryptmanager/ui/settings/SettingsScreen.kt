@@ -30,6 +30,9 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.skofqq.dnscryptmanager.R
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
+import io.github.skofqq.dnscryptmanager.data.AppLanguage
 import io.github.skofqq.dnscryptmanager.data.AppSettings
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.ModuleSettings
@@ -52,7 +55,7 @@ import io.github.skofqq.dnscryptmanager.ui.update.ModuleVersionRow
 import kotlin.math.roundToInt
 
 /** Which of the value dialogs is open; one at a time. */
-private enum class SettingDialog { IPV6, RESTART_DELAY, RUN_GID, RUN_GID_CUSTOM, THEME, POLL, RESET }
+private enum class SettingDialog { IPV6, RESTART_DELAY, RUN_GID, RUN_GID_CUSTOM, THEME, LANGUAGE, POLL, RESET }
 
 /**
  * Settings in Boxy's layout: titled cards with icon rows. Choices open a dialog instead
@@ -84,6 +87,10 @@ fun SettingsScreen(
 ) {
     var dialog by remember { mutableStateOf<SettingDialog?>(null) }
     val barPadding = LocalBarPadding.current
+    val context = LocalContext.current
+    val activity = context as? Activity
+    // Read once per composition; changing it recreates the activity anyway.
+    val language = remember { AppLanguage.current(context) }
 
     Box(modifier = modifier.fillMaxSize()) {
         if (uiState.loading) {
@@ -240,6 +247,13 @@ fun SettingsScreen(
                         subtitle = stringResource(themeLabel(appSettings.themeMode)),
                         onClick = { dialog = SettingDialog.THEME },
                     )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_translate),
+                        title = stringResource(R.string.setting_language),
+                        subtitle = AppLanguage.OPTIONS.firstOrNull { it.tag == language }?.nativeName
+                            ?: stringResource(R.string.language_system),
+                        onClick = { dialog = SettingDialog.LANGUAGE },
+                    )
                     SwitchRow(
                         icon = painterResource(R.drawable.ic_wallpaper),
                         title = stringResource(R.string.setting_dynamic_color),
@@ -326,6 +340,15 @@ fun SettingsScreen(
         SettingDialog.RUN_GID_CUSTOM -> RunGidCustomDialog(
             initial = uiState.text(ModuleSettings.RUN_GID, "").takeIf { it != ModuleSettings.RUN_GID_NET_ADMIN }.orEmpty(),
             onConfirm = { onEdit(ModuleSettings.RUN_GID, it) },
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.LANGUAGE -> ChoiceDialog(
+            title = stringResource(R.string.setting_language),
+            choices = listOf(Choice("", stringResource(R.string.language_system))) +
+                AppLanguage.OPTIONS.map { Choice(it.tag, it.nativeName) },
+            selected = language,
+            onSelect = { tag -> activity?.let { AppLanguage.set(it, tag) } },
             onDismiss = { dialog = null },
         )
 
