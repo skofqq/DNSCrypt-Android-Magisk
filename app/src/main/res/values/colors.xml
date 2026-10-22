@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Only used for the window background before Compose draws. -->
-    <color name="window_background">#FAFDFD</color>
+    <color name="window_background">#F1F0F7</color>
     <color name="ic_launcher_background">#00363A</color>
 </resources>

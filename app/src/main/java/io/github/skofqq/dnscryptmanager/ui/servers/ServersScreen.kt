@@ -54,8 +54,16 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import io.github.skofqq.dnscryptmanager.R
 import io.github.skofqq.dnscryptmanager.data.ActiveServer
+import io.github.skofqq.dnscryptmanager.ui.components.BoxyCard
+import io.github.skofqq.dnscryptmanager.ui.components.CardTitle
+import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
+import io.github.skofqq.dnscryptmanager.ui.theme.Tints
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.ResolverEntry
 import io.github.skofqq.dnscryptmanager.data.StampProtocol
@@ -223,32 +231,39 @@ private fun UnsupportedNotice(onOpenReleases: () -> Unit, modifier: Modifier) {
 
 @Composable
 private fun ActiveServerCard(active: String?) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.servers_active_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
+    val parsed = active?.let { ActiveServer.parse(it) }
+    // Boxy's latency colours: green is fast, amber is usable, red is slow.
+    val rttTint = parsed?.rttMs?.let {
+        when {
+            it < 100 -> Tints.green
+            it < 300 -> Tints.amber
+            else -> Tints.red
+        }
+    }
+    BoxyCard {
+        Column {
+            CardTitle(
+                stringResource(R.string.servers_active_title),
+                badge = parsed?.rttMs?.let { stringResource(R.string.servers_active_rtt, it) },
+                tint = rttTint,
             )
-            Spacer(Modifier.height(4.dp))
-            val parsed = active?.let { ActiveServer.parse(it) }
+            Spacer(Modifier.height(8.dp))
             if (parsed != null) {
                 Text(
                     text = parsed.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                    color = Boxy.colors.text,
                 )
-                val details = listOfNotNull(
-                    parsed.rttMs?.let { stringResource(R.string.servers_active_rtt, it) },
-                    parsed.liveServers?.let {
-                        pluralStringResource(R.plurals.servers_active_live, it, it)
-                    },
-                )
-                if (details.isNotEmpty()) {
+                parsed.liveServers?.let {
+                    Spacer(Modifier.height(10.dp))
                     Text(
-                        text = details.joinToString(" · "),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = pluralStringResource(R.plurals.servers_active_live, it, it),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Boxy.colors.surface2)
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Boxy.colors.text,
                     )
                 }
             } else {

@@ -74,25 +74,9 @@ fun SettingsScreen(
     onDynamicColor: (Boolean) -> Unit,
     onPollInterval: (Int) -> Unit,
     updateState: ModuleUpdateUiState,
-    onCheckUpdate: () -> Unit,
-    onInstallUpdate: () -> Unit,
-    onReboot: () -> Unit,
-    onOpenUrl: (String) -> Unit,
+    onOpenUpdate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var updateSheet by remember { mutableStateOf(false) }
-
-    if (updateSheet) {
-        ModuleUpdateSheet(
-            state = updateState,
-            onDismiss = { updateSheet = false },
-            onCheck = onCheckUpdate,
-            onInstall = onInstallUpdate,
-            onReboot = onReboot,
-            onOpenUrl = onOpenUrl,
-        )
-    }
-
     Box(modifier = modifier.fillMaxSize()) {
         if (uiState.loading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
@@ -273,7 +257,7 @@ fun SettingsScreen(
             item {
                 Card {
                     Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                        ModuleVersionRow(state = updateState, onClick = { updateSheet = true })
+                        ModuleVersionRow(state = updateState, onClick = onOpenUpdate)
                     }
                 }
             }

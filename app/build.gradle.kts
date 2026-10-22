@@ -30,6 +30,12 @@ android {
         versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // One universal APK. The app has no native code of its own; the few .so files
+        // from AndroidX ship for every ABI and stay that way, whatever a library adds later.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+        }
     }
 
     signingConfigs {

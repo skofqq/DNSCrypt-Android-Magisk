@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import io.github.skofqq.dnscryptmanager.R
+import io.github.skofqq.dnscryptmanager.ui.theme.Tint
+import io.github.skofqq.dnscryptmanager.ui.theme.Tints
 
 /** The three states the proxy can be in, as far as the user is concerned. */
 enum class ProxyPhase { RUNNING, STOPPED, RESTARTING }
@@ -111,25 +113,21 @@ fun ProxyPhaseBadge(
 }
 
 @Composable
-fun phaseColor(phase: ProxyPhase): Color = when (phase) {
-    ProxyPhase.RUNNING -> MaterialTheme.colorScheme.primary
-    ProxyPhase.STOPPED -> MaterialTheme.colorScheme.error
-    ProxyPhase.RESTARTING -> MaterialTheme.colorScheme.tertiary
+fun phaseColor(phase: ProxyPhase): Color = phaseTint(phase).fg
+
+/** Boxy's status colours: green running, red stopped, amber in between. */
+@Composable
+fun phaseTint(phase: ProxyPhase): Tint = when (phase) {
+    ProxyPhase.RUNNING -> Tints.green
+    ProxyPhase.STOPPED -> Tints.red
+    ProxyPhase.RESTARTING -> Tints.amber
 }
 
 @Composable
-fun phaseContainerColor(phase: ProxyPhase): Color = when (phase) {
-    ProxyPhase.RUNNING -> MaterialTheme.colorScheme.primaryContainer
-    ProxyPhase.STOPPED -> MaterialTheme.colorScheme.errorContainer
-    ProxyPhase.RESTARTING -> MaterialTheme.colorScheme.tertiaryContainer
-}
+fun phaseContainerColor(phase: ProxyPhase): Color = phaseTint(phase).bg
 
 @Composable
-fun phaseContentColor(phase: ProxyPhase): Color = when (phase) {
-    ProxyPhase.RUNNING -> MaterialTheme.colorScheme.onPrimaryContainer
-    ProxyPhase.STOPPED -> MaterialTheme.colorScheme.onErrorContainer
-    ProxyPhase.RESTARTING -> MaterialTheme.colorScheme.onTertiaryContainer
-}
+fun phaseContentColor(phase: ProxyPhase): Color = phaseTint(phase).fg
 
 private fun polygonFor(phase: ProxyPhase): RoundedPolygon = when (phase) {
     ProxyPhase.RUNNING -> androidx.compose.material3.MaterialShapes.Cookie9Sided

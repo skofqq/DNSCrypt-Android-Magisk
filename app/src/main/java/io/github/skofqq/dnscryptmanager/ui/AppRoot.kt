@@ -5,11 +5,12 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -22,7 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -37,7 +40,13 @@ import io.github.skofqq.dnscryptmanager.appContainer
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.ModuleState
 import io.github.skofqq.dnscryptmanager.data.UiMessage
+import io.github.skofqq.dnscryptmanager.ui.components.BarItem
+import io.github.skofqq.dnscryptmanager.ui.components.BottomBar
 import io.github.skofqq.dnscryptmanager.ui.components.GateScreen
+import io.github.skofqq.dnscryptmanager.ui.components.HeaderAction
+import io.github.skofqq.dnscryptmanager.ui.components.PageHeader
+import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
+import io.github.skofqq.dnscryptmanager.ui.update.ModuleUpdateSheet
 import io.github.skofqq.dnscryptmanager.ui.config.ConfigEvent
 import io.github.skofqq.dnscryptmanager.ui.config.ConfigScreen
 import io.github.skofqq.dnscryptmanager.ui.config.ConfigViewModel
@@ -53,12 +62,12 @@ import io.github.skofqq.dnscryptmanager.ui.status.StatusViewModel
 import io.github.skofqq.dnscryptmanager.ui.update.ModuleUpdateViewModel
 import kotlinx.coroutines.launch
 
-enum class Destination(val labelRes: Int, val iconRes: Int) {
-    STATUS(R.string.nav_status, R.drawable.ic_shield),
-    SERVERS(R.string.nav_servers, R.drawable.ic_dns),
-    SETTINGS(R.string.nav_settings, R.drawable.ic_tune),
-    CONFIG(R.string.nav_config, R.drawable.ic_article),
-    LOGS(R.string.nav_logs, R.drawable.ic_terminal),
+enum class Destination(val labelRes: Int, val iconRes: Int, val titleRes: Int, val subtitleRes: Int) {
+    STATUS(R.string.nav_status, R.drawable.ic_shield, R.string.page_status_title, R.string.page_status_sub),
+    SERVERS(R.string.nav_servers, R.drawable.ic_dns, R.string.nav_servers, R.string.page_servers_sub),
+    SETTINGS(R.string.nav_settings, R.drawable.ic_tune, R.string.nav_settings, R.string.page_settings_sub),
+    CONFIG(R.string.nav_config, R.drawable.ic_article, R.string.nav_config, R.string.page_config_sub),
+    LOGS(R.string.nav_logs, R.drawable.ic_terminal, R.string.nav_logs, R.string.page_logs_sub),
 }
 
 @Composable
@@ -109,25 +118,43 @@ fun AppRoot() {
     val autostartSupported = readyStatus?.supportsAutostart == true
     var pendingLogTab by remember { mutableStateOf<LogTab?>(null) }
 
+    // Activity-scoped, so the Status card and the Settings row share one check.
+    val updateViewModel: ModuleUpdateViewModel = viewModel(factory = factory)
+    val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
+    var updateSheet by rememberSaveable { mutableStateOf(false) }
+
+    if (updateSheet && !gated) {
+        ModuleUpdateSheet(
+            state = updateState,
+            onDismiss = { updateSheet = false },
+            onCheck = updateViewModel::check,
+            onInstall = updateViewModel::install,
+            onReboot = updateViewModel::reboot,
+            onOpenUrl = { context.openUrl(it) },
+        )
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = Boxy.colors.page,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (!gated) {
-                NavigationBar {
-                    Destination.entries.forEach { entry ->
-                        NavigationBarItem(
-                            selected = destination == entry,
-                            onClick = { destination = entry },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(entry.iconRes),
-                                    contentDescription = null,
-                                )
-                            },
-                            label = { Text(stringResource(entry.labelRes)) },
-                        )
-                    }
+                val items = Destination.entries.map {
+                    BarItem(stringResource(it.labelRes), painterResource(it.iconRes))
+                }
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(top = 6.dp, bottom = 10.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    BottomBar(
+                        items = items,
+                        selected = destination.ordinal,
+                        onSelect = { destination = Destination.entries[it] },
+                    )
                 }
             }
         },
@@ -142,10 +169,31 @@ fun AppRoot() {
             return@Scaffold
         }
 
+        Column(Modifier.padding(padding)) {
+        PageHeader(
+            title = stringResource(destination.titleRes),
+            subtitle = stringResource(destination.subtitleRes),
+        ) {
+            if (destination == Destination.STATUS) {
+                HeaderAction(
+                    icon = painterResource(R.drawable.ic_refresh),
+                    contentDescription = stringResource(R.string.action_refresh),
+                    onClick = { statusViewModel.refresh(showSpinner = true) },
+                )
+            }
+            if (destination == Destination.STATUS || destination == Destination.SETTINGS) {
+                HeaderAction(
+                    icon = painterResource(R.drawable.ic_system_update),
+                    contentDescription = stringResource(R.string.update_row_title),
+                    tint = if (updateState.updateAvailable) Boxy.colors.accent else Boxy.colors.text,
+                    onClick = { updateSheet = true },
+                )
+            }
+        }
         AnimatedContent(
             targetState = destination,
             label = "destination",
-            modifier = Modifier.padding(padding),
+            modifier = Modifier.weight(1f),
         ) { current ->
             when (current) {
                 Destination.STATUS -> {
@@ -164,6 +212,8 @@ fun AppRoot() {
                             pendingLogTab = LogTab.CONFLICTS
                             destination = Destination.LOGS
                         },
+                        updateState = updateState,
+                        onOpenUpdate = { updateSheet = true },
                     )
                 }
 
@@ -209,8 +259,6 @@ fun AppRoot() {
                     val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
                     val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
                     val appSettings by settingsViewModel.appSettings.collectAsStateWithLifecycle()
-                    val updateViewModel: ModuleUpdateViewModel = viewModel(factory = factory)
-                    val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
                     val appliedMessage = stringResource(R.string.settings_applied)
                     val resetDoneText = stringResource(R.string.settings_reset_done)
 
@@ -246,10 +294,7 @@ fun AppRoot() {
                         onDynamicColor = settingsViewModel::setDynamicColor,
                         onPollInterval = settingsViewModel::setPollInterval,
                         updateState = updateState,
-                        onCheckUpdate = updateViewModel::check,
-                        onInstallUpdate = updateViewModel::install,
-                        onReboot = updateViewModel::reboot,
-                        onOpenUrl = { context.openUrl(it) },
+                        onOpenUpdate = { updateSheet = true },
                     )
                 }
 
@@ -317,6 +362,7 @@ fun AppRoot() {
                     )
                 }
             }
+        }
         }
     }
 }

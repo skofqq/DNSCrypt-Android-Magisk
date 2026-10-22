@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
  */
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val dynamicColor: Boolean = true,
+    val dynamicColor: Boolean = false,
     val pollIntervalSeconds: Int = DEFAULT_POLL_SECONDS,
 ) {
     companion object {
@@ -37,7 +37,7 @@ class AppPreferences(context: Context) {
             themeMode = prefs[KEY_THEME]?.let { stored ->
                 ThemeMode.entries.firstOrNull { it.name == stored }
             } ?: ThemeMode.SYSTEM,
-            dynamicColor = prefs[KEY_DYNAMIC] ?: true,
+            dynamicColor = prefs[KEY_DYNAMIC] ?: false,
             pollIntervalSeconds = prefs[KEY_POLL] ?: AppSettings.DEFAULT_POLL_SECONDS,
         )
     }

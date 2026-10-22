@@ -1,6 +1,7 @@
 package io.github.skofqq.dnscryptmanager.ui.status
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,16 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,10 +28,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.skofqq.dnscryptmanager.R
+import io.github.skofqq.dnscryptmanager.ui.components.ActionPill
+import io.github.skofqq.dnscryptmanager.ui.components.Badge
+import io.github.skofqq.dnscryptmanager.ui.components.BoxyCard
+import io.github.skofqq.dnscryptmanager.ui.components.CardTitle
+import io.github.skofqq.dnscryptmanager.ui.components.NoticeCard
+import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
+import io.github.skofqq.dnscryptmanager.ui.theme.Tints
+import io.github.skofqq.dnscryptmanager.ui.update.ModuleUpdateUiState
+import io.github.skofqq.dnscryptmanager.ui.update.UpdatePhase
 import io.github.skofqq.dnscryptmanager.data.Ipv6Dns
 import io.github.skofqq.dnscryptmanager.data.ModuleState
 import io.github.skofqq.dnscryptmanager.data.ModuleStatus
@@ -43,7 +53,6 @@ import io.github.skofqq.dnscryptmanager.dns.DnsProbe
 import io.github.skofqq.dnscryptmanager.dns.ProbeResult
 import io.github.skofqq.dnscryptmanager.ui.components.InfoRow
 import io.github.skofqq.dnscryptmanager.ui.components.ProxyPhase
-import io.github.skofqq.dnscryptmanager.ui.components.ProxyPhaseBadge
 import io.github.skofqq.dnscryptmanager.ui.components.phaseColor
 
 @Composable
@@ -55,6 +64,8 @@ fun StatusScreen(
     onModuleTest: () -> Unit,
     onOpenLogs: () -> Unit,
     onOpenConflicts: () -> Unit,
+    updateState: ModuleUpdateUiState,
+    onOpenUpdate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val ready = uiState.state as? ModuleState.Ready ?: return
@@ -74,65 +85,17 @@ fun StatusScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Spacer(Modifier.height(4.dp))
-
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    ProxyPhaseBadge(phase = phase)
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(phase.titleRes()),
-                        style = MaterialTheme.typography.displaySmall,
-                        color = phaseColor(phase),
-                    )
-                    if (!status.ipv6Bypass) {
-                        Text(
-                            text = stringResource(phase.hintRes()),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    if (phase == ProxyPhase.RESTARTING) {
-                        TextButton(onClick = onOpenLogs) {
-                            Text(stringResource(R.string.status_open_logs))
-                        }
-                    }
-                    // Intercept handed to box on purpose: this is a working setup, not a fault.
-                    if (uiState.boxDetected == true && !status.rulesV4) {
-                        Text(
-                            text = stringResource(R.string.status_box_handover),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.secondary,
-                        )
-                    }
-
-                    Spacer(Modifier.height(20.dp))
-
-                    ProxyActions(
-                        phase = phase,
-                        busyAction = uiState.busyAction,
-                        onStart = { onAction(ProxyAction.START) },
-                        onStop = { confirmStop = true },
-                        onRestart = { onAction(ProxyAction.RESTART) },
-                    )
-
-                    AnimatedVisibility(visible = uiState.busyAction != null) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Spacer(Modifier.height(16.dp))
-                            LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(R.string.working),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
+            HeroCard(
+                status = status,
+                phase = phase,
+                uptimeSeconds = ready.uptimeSeconds,
+                busyAction = uiState.busyAction,
+                boxHandover = uiState.boxDetected == true && !status.rulesV4,
+                onStart = { onAction(ProxyAction.START) },
+                onStop = { confirmStop = true },
+                onRestart = { onAction(ProxyAction.RESTART) },
+                onOpenLogs = onOpenLogs,
+            )
 
             if (status.ipv6Bypass) {
                 Ipv6BypassCard()
@@ -142,15 +105,14 @@ fun StatusScreen(
                 BoxConflictCard(onOpenConflicts = onOpenConflicts)
             }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                ),
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    StatusDetails(status = status, uptimeSeconds = ready.uptimeSeconds)
-                }
+            if (updateState.updateAvailable || updateState.phase == UpdatePhase.INSTALLED) {
+                ModuleUpdateCard(updateState, onOpenUpdate)
+            }
+
+            BoxyCard {
+                CardTitle(stringResource(R.string.status_details))
+                Spacer(Modifier.height(6.dp))
+                StatusDetails(status = status, uptimeSeconds = ready.uptimeSeconds)
             }
 
             DnsCheckCard(
@@ -161,7 +123,7 @@ fun StatusScreen(
                 onModuleTest = onModuleTest,
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
         }
     }
 
@@ -185,67 +147,169 @@ fun StatusScreen(
     }
 }
 
+/**
+ * Boxy's hero card: big coloured state on the left, the key facts in a side panel,
+ * soft Start / Stop / Restart pills underneath.
+ */
 @Composable
-private fun ProxyActions(
+private fun HeroCard(
+    status: ModuleStatus,
     phase: ProxyPhase,
+    uptimeSeconds: Long?,
     busyAction: ProxyAction?,
+    boxHandover: Boolean,
     onStart: () -> Unit,
     onStop: () -> Unit,
     onRestart: () -> Unit,
+    onOpenLogs: () -> Unit,
 ) {
+    val colors = Boxy.colors
     val busy = busyAction != null
     val running = phase != ProxyPhase.STOPPED
-    // The ButtonGroup content lambda is not composable, so labels are resolved up here.
-    val startLabel = stringResource(R.string.action_start)
-    val stopLabel = stringResource(R.string.action_stop)
-    val restartLabel = stringResource(R.string.action_restart)
-
-    ButtonGroup(
-        overflowIndicator = { menuState ->
-            IconButton(onClick = { menuState.show() }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_more_vert),
-                    contentDescription = stringResource(R.string.action_more),
+    BoxyCard {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f).padding(end = 8.dp)) {
+                Text(
+                    stringResource(R.string.status_service),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.text2,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(phase.titleRes()),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = phaseColor(phase),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(10.dp))
+                val chip = when {
+                    phase == ProxyPhase.RUNNING && uptimeSeconds != null ->
+                        stringResource(R.string.hero_uptime, formatUptime(uptimeSeconds))
+                    else -> stringResource(R.string.label_pid) + " " + (status.pid?.toString() ?: "—")
+                }
+                Text(
+                    chip,
+                    Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(colors.surface2)
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.text,
+                    maxLines = 1,
                 )
             }
-        },
-        modifier = Modifier.fillMaxWidth(),
+            Column(
+                Modifier
+                    .width(150.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(colors.surface2)
+                    .padding(vertical = 8.dp),
+            ) {
+                MiniRow(
+                    stringResource(R.string.hero_ipv4),
+                    stringResource(if (status.rulesV4) R.string.hero_on else R.string.hero_off),
+                    if (status.rulesV4) Tints.green.fg else colors.text,
+                )
+                val ipv6 = status.ipv6Dns
+                MiniRow(
+                    stringResource(R.string.hero_ipv6),
+                    when (ipv6) {
+                        Ipv6Dns.REDIRECTED -> stringResource(R.string.hero_ipv6_redirected)
+                        Ipv6Dns.BLOCKED -> stringResource(R.string.hero_ipv6_blocked)
+                        Ipv6Dns.BYPASS -> stringResource(R.string.hero_ipv6_bypass)
+                        null -> stringResource(ipv6Label(status.redirectIpv6))
+                    },
+                    if (ipv6 == Ipv6Dns.BYPASS && status.running) Tints.red.fg else colors.text,
+                )
+                MiniRow(stringResource(R.string.hero_port), status.port.toString())
+                MiniRow(stringResource(R.string.hero_module), status.versionOrNull ?: "—")
+            }
+        }
+
+        if (!status.ipv6Bypass) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(phase.hintRes()),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.text2,
+            )
+        }
+        if (phase == ProxyPhase.RESTARTING) {
+            TextButton(onClick = onOpenLogs) { Text(stringResource(R.string.status_open_logs)) }
+        }
+        // Intercept handed to box on purpose: this is a working setup, not a fault.
+        if (boxHandover) {
+            Spacer(Modifier.height(8.dp))
+            Badge(stringResource(R.string.status_box_handover), Tints.blue)
+        }
+
+        Spacer(Modifier.height(16.dp))
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(22.dp))
+                .background(colors.surface2.copy(alpha = 0.6f))
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ActionPill(stringResource(R.string.action_start), Tints.green, !busy && !running, Modifier.weight(1f), onStart)
+            ActionPill(stringResource(R.string.action_stop), Tints.red, !busy && running, Modifier.weight(1f), onStop)
+            ActionPill(stringResource(R.string.action_restart), Tints.amber, !busy, Modifier.weight(1f), onRestart)
+        }
+
+        AnimatedVisibility(visible = busy) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(Modifier.height(16.dp))
+                LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.working),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colors.text2,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MiniRow(label: String, value: String, color: Color = Boxy.colors.text) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        clickableItem(
-            onClick = onStart,
-            label = startLabel,
-            icon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_play),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-            },
-            enabled = !busy && !running,
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = Boxy.colors.text2, maxLines = 1)
+        Text(
+            value,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = color,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
-        clickableItem(
-            onClick = onStop,
-            label = stopLabel,
-            icon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_stop),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-            },
-            enabled = !busy && running,
+    }
+}
+
+/** Shown on the home screen while update.json offers something newer, or a reboot is pending. */
+@Composable
+private fun ModuleUpdateCard(state: ModuleUpdateUiState, onClick: () -> Unit) {
+    val installed = state.phase == UpdatePhase.INSTALLED
+    BoxyCard(onClick = onClick) {
+        CardTitle(
+            stringResource(R.string.update_card_title),
+            badge = stringResource(if (installed) R.string.update_badge_reboot else R.string.update_badge_new),
+            tint = if (installed) Tints.amber else Tints.green,
         )
-        clickableItem(
-            onClick = onRestart,
-            label = restartLabel,
-            icon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_refresh),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-            },
-            enabled = !busy,
+        Spacer(Modifier.height(10.dp))
+        Text(
+            "${state.installed?.version.orEmpty()} → ${state.release?.version.orEmpty()}",
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
+            color = Boxy.colors.text,
+        )
+        Text(
+            stringResource(if (installed) R.string.update_reboot_hint else R.string.update_card_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Boxy.colors.text2,
         )
     }
 }
@@ -256,72 +320,30 @@ private fun ProxyActions(
  */
 @Composable
 private fun Ipv6BypassCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        ),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_warning),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    text = stringResource(R.string.status_ipv6_bypass_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                )
-            }
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.status_ipv6_bypass_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onErrorContainer,
-            )
-        }
-    }
+    NoticeCard(
+        title = stringResource(R.string.status_ipv6_bypass_title),
+        body = stringResource(R.string.status_ipv6_bypass_body),
+        tint = Tints.red,
+        icon = painterResource(R.drawable.ic_warning),
+    )
 }
 
 /** Our rules are installed but another module took port 53 first, so they sit idle. */
 @Composable
 private fun BoxConflictCard(onOpenConflicts: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        ),
+    NoticeCard(
+        title = stringResource(R.string.status_conflict_title),
+        body = stringResource(R.string.status_conflict_body),
+        tint = Tints.amber,
+        icon = painterResource(R.drawable.ic_warning),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_warning),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    text = stringResource(R.string.status_conflict_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                )
-            }
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.status_conflict_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-            )
-            Spacer(Modifier.height(8.dp))
-            TextButton(onClick = onOpenConflicts) {
-                Text(stringResource(R.string.status_open_conflicts))
-            }
-        }
+        ActionPill(
+            stringResource(R.string.status_open_conflicts),
+            Tints.amber,
+            enabled = true,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onOpenConflicts,
+        )
     }
 }
 
@@ -403,33 +425,33 @@ private fun DnsCheckCard(
     onProbe: () -> Unit,
     onModuleTest: () -> Unit,
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = stringResource(R.string.dns_check_title),
-                style = MaterialTheme.typography.titleMedium,
+    BoxyCard {
+        CardTitle(stringResource(R.string.dns_check_title))
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.dns_check_subtitle, DnsProbe.DEFAULT_HOST, port),
+            style = MaterialTheme.typography.bodySmall,
+            color = Boxy.colors.text2,
+        )
+        Spacer(Modifier.height(14.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ActionPill(
+                stringResource(R.string.dns_check_run),
+                Tints.blue,
+                enabled = !probing,
+                modifier = Modifier.width(140.dp),
+                onClick = onProbe,
             )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.dns_check_subtitle, DnsProbe.DEFAULT_HOST, port),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                FilledTonalButton(onClick = onProbe, enabled = !probing) {
-                    Text(stringResource(R.string.dns_check_run))
-                }
-                Spacer(Modifier.size(16.dp))
-                if (probing) {
-                    androidx.compose.material3.LoadingIndicator()
-                } else if (probe != null) {
-                    ProbeText(probe)
-                }
+            Spacer(Modifier.size(16.dp))
+            if (probing) {
+                androidx.compose.material3.LoadingIndicator()
+            } else if (probe != null) {
+                ProbeText(probe)
             }
-            TextButton(onClick = onModuleTest) {
-                Text(stringResource(R.string.dns_check_module_test))
-            }
+        }
+        Spacer(Modifier.height(8.dp))
+        TextButton(onClick = onModuleTest) {
+            Text(stringResource(R.string.dns_check_module_test))
         }
     }
 }

@@ -287,4 +287,31 @@
     <string name="update_error_arch">В пакете нет бинарника dnscrypt-proxy для этого устройства (%1$s). Ничего не установлено.</string>
     <string name="update_error_manager">Не найден Magisk, KernelSU или APatch для установки модуля.</string>
     <string name="update_error_install">Установщик завершился с кодом %1$d. Его вывод ниже.</string>
+
+    <!-- Boxy-style page headers and cards -->
+    <string name="page_status_sub">Статус и проверка</string>
+    <string name="page_servers_sub">Резолверы прокси</string>
+    <string name="page_settings_sub">Модуль и приложение</string>
+    <string name="page_logs_sub">Журналы прокси и модуля</string>
+    <string name="status_service">Статус сервиса</string>
+    <string name="status_details">Подробности</string>
+    <string name="hero_ipv4">IPv4</string>
+    <string name="hero_ipv6">IPv6</string>
+    <string name="hero_port">Порт</string>
+    <string name="hero_module">Модуль</string>
+    <string name="hero_on">Вкл.</string>
+    <string name="hero_off">Выкл.</string>
+    <string name="hero_ipv6_redirected">Прокси</string>
+    <string name="hero_ipv6_blocked">Блок</string>
+    <string name="hero_ipv6_bypass">Мимо</string>
+    <string name="hero_uptime">Работает · %1$s</string>
+    <string name="update_card_title">Обновление модуля</string>
+    <string name="update_card_hint">Нажмите, чтобы посмотреть изменения и установить</string>
+    <string name="update_badge_new">НОВОЕ</string>
+    <string name="update_badge_latest">АКТУАЛЬНО</string>
+    <string name="update_badge_reboot">ПЕРЕЗАГРУЗКА</string>
+    <string name="update_installed_version">Установлена</string>
+    <string name="update_latest_version">Последняя</string>
+    <string name="update_install_log">Вывод установщика</string>
+    <string name="update_error_title">Обновление не удалось</string>
 </resources>

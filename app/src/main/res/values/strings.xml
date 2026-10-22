@@ -277,4 +277,33 @@
     <string name="update_error_arch">The package has no dnscrypt-proxy binary for this device (%1$s). Nothing was installed.</string>
     <string name="update_error_manager">No Magisk, KernelSU or APatch found to install the module with.</string>
     <string name="update_error_install">The installer stopped with code %1$d. Its output is below.</string>
+
+    <!-- Boxy-style page headers and cards -->
+    <string name="page_status_title" translatable="false">DNSCrypt</string>
+    <string name="page_status_sub">Status and checks</string>
+    <string name="page_servers_sub">Resolvers the proxy uses</string>
+    <string name="page_settings_sub">Module and app</string>
+    <string name="page_config_sub" translatable="false">dnscrypt-proxy.toml</string>
+    <string name="page_logs_sub">Proxy and module logs</string>
+    <string name="status_service">Service status</string>
+    <string name="status_details">Details</string>
+    <string name="hero_ipv4">IPv4</string>
+    <string name="hero_ipv6">IPv6</string>
+    <string name="hero_port">Port</string>
+    <string name="hero_module">Module</string>
+    <string name="hero_on">On</string>
+    <string name="hero_off">Off</string>
+    <string name="hero_ipv6_redirected">Proxy</string>
+    <string name="hero_ipv6_blocked">Blocked</string>
+    <string name="hero_ipv6_bypass">Bypass</string>
+    <string name="hero_uptime">Up · %1$s</string>
+    <string name="update_card_title">Module update</string>
+    <string name="update_card_hint">Tap to see what\'s new and install</string>
+    <string name="update_badge_new">NEW</string>
+    <string name="update_badge_latest">LATEST</string>
+    <string name="update_badge_reboot">REBOOT</string>
+    <string name="update_installed_version">Installed</string>
+    <string name="update_latest_version">Latest</string>
+    <string name="update_install_log">Installer output</string>
+    <string name="update_error_title">Update did not go through</string>
 </resources>

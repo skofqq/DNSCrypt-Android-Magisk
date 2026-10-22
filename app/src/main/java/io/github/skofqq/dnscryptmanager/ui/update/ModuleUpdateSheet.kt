@@ -1,9 +1,11 @@
 package io.github.skofqq.dnscryptmanager.ui.update
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,18 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -42,11 +41,18 @@ import androidx.compose.ui.unit.dp
 import io.github.skofqq.dnscryptmanager.R
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.UpdateError
+import io.github.skofqq.dnscryptmanager.ui.components.ActionPill
+import io.github.skofqq.dnscryptmanager.ui.components.Badge
+import io.github.skofqq.dnscryptmanager.ui.components.IconTile
 import io.github.skofqq.dnscryptmanager.ui.components.InfoRow
+import io.github.skofqq.dnscryptmanager.ui.components.NoticeCard
+import io.github.skofqq.dnscryptmanager.ui.components.PrimaryPill
+import io.github.skofqq.dnscryptmanager.ui.theme.Boxy
+import io.github.skofqq.dnscryptmanager.ui.theme.Tints
 
 /**
- * The "Module version" entry in Settings. Like Boxy's About card, the value turns into
- * "current → latest" when update.json offers something newer.
+ * The "Module version" entry in Settings, laid out like Boxy's settings rows: icon tile,
+ * title, the version line, a badge when update.json offers something newer.
  */
 @Composable
 fun ModuleVersionRow(state: ModuleUpdateUiState, onClick: () -> Unit) {
@@ -65,28 +71,36 @@ fun ModuleVersionRow(state: ModuleUpdateUiState, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 18.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_system_update),
-            contentDescription = null,
-            tint = if (highlight) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        IconTile(
+            painterResource(R.drawable.ic_system_update),
+            tint = if (highlight) Boxy.colors.accent else Boxy.colors.text,
         )
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(stringResource(R.string.update_row_title), style = MaterialTheme.typography.bodyLarge)
+            Text(
+                stringResource(R.string.update_row_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = Boxy.colors.text,
+            )
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (highlight) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (highlight) Boxy.colors.accent else Boxy.colors.text2,
             )
         }
-        Icon(
-            painter = painterResource(R.drawable.ic_chevron_right),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        when {
+            state.phase == UpdatePhase.INSTALLED -> Badge(stringResource(R.string.update_badge_reboot), Tints.amber)
+            state.updateAvailable -> Badge(stringResource(R.string.update_badge_new), Tints.green)
+            else -> Icon(
+                painter = painterResource(R.drawable.ic_chevron_right),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = Boxy.colors.text2.copy(alpha = 0.75f),
+            )
+        }
     }
 }
 
@@ -105,151 +119,243 @@ fun ModuleUpdateSheet(
         skipPartiallyExpanded = true,
         confirmValueChange = { !state.busy },
     )
-    ModalBottomSheet(onDismissRequest = { if (!state.busy) onDismiss() }, sheetState = sheetState) {
+    ModalBottomSheet(
+        onDismissRequest = { if (!state.busy) onDismiss() },
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        containerColor = Boxy.colors.page,
+        contentColor = Boxy.colors.text,
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
+                .padding(horizontal = 20.dp)
                 .navigationBarsPadding()
+                .padding(bottom = 16.dp)
                 .animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(stringResource(R.string.update_sheet_title), style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = stringResource(
-                    R.string.update_current_version,
-                    state.installed?.version ?: stringResource(R.string.value_unknown),
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column {
+                Text(
+                    stringResource(R.string.update_sheet_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Boxy.colors.text,
+                )
+                Text(
+                    text = stringResource(
+                        R.string.update_current_version,
+                        state.installed?.version ?: stringResource(R.string.value_unknown),
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Boxy.colors.text2,
+                )
+            }
 
             when (state.phase) {
-                UpdatePhase.IDLE, UpdatePhase.CHECKING -> Row(verticalAlignment = Alignment.CenterVertically) {
-                    LoadingIndicator(modifier = Modifier.size(40.dp))
-                    Spacer(Modifier.width(12.dp))
-                    Text(stringResource(R.string.update_checking), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                UpdatePhase.IDLE, UpdatePhase.CHECKING -> SheetGroup {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        LoadingIndicator(modifier = Modifier.size(40.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Text(stringResource(R.string.update_checking), color = Boxy.colors.text2)
+                    }
                 }
 
                 UpdatePhase.UP_TO_DATE -> {
-                    Text(
-                        stringResource(R.string.update_latest),
-                        style = MaterialTheme.typography.titleMedium,
+                    VersionsGroup(state)
+                    NoticeCard(
+                        title = stringResource(R.string.update_latest),
+                        body = stringResource(R.string.update_install_note),
+                        tint = Tints.green,
+                        icon = painterResource(R.drawable.ic_shield),
                     )
-                    OutlinedButton(onClick = onCheck) { Text(stringResource(R.string.update_check_again)) }
+                    SheetButtons(primary = stringResource(R.string.update_check_again), onPrimary = onCheck)
                 }
 
                 UpdatePhase.CHECK_FAILED -> {
-                    ErrorText(state.error)
-                    OutlinedButton(onClick = onCheck) { Text(stringResource(R.string.update_retry)) }
+                    ErrorNotice(state.error)
+                    SheetButtons(primary = stringResource(R.string.update_retry), onPrimary = onCheck)
                 }
 
                 UpdatePhase.AVAILABLE, UpdatePhase.INSTALL_FAILED -> {
-                    ReleaseCard(state, onOpenUrl)
+                    VersionsGroup(state)
+                    Changelog(state, onOpenUrl)
                     if (state.phase == UpdatePhase.INSTALL_FAILED) {
-                        ErrorText(state.error)
+                        ErrorNotice(state.error)
                         InstallLog(state.log)
-                    }
-                    Button(onClick = onInstall, modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            stringResource(
-                                if (state.phase == UpdatePhase.INSTALL_FAILED) R.string.update_retry
-                                else R.string.update_install
-                            )
-                        )
                     }
                     Text(
                         stringResource(R.string.update_install_note),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Boxy.colors.text2,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                    SheetButtons(
+                        primary = stringResource(
+                            if (state.phase == UpdatePhase.INSTALL_FAILED) R.string.update_retry
+                            else R.string.update_install
+                        ),
+                        onPrimary = onInstall,
+                        secondary = stringResource(R.string.update_later),
+                        onSecondary = onDismiss,
                     )
                 }
 
                 UpdatePhase.DOWNLOADING -> {
-                    ReleaseCard(state, onOpenUrl)
-                    Text(
-                        text = if (state.progress >= 0f) {
-                            stringResource(R.string.update_downloading_percent, (state.progress * 100).toInt())
+                    VersionsGroup(state)
+                    SheetGroup {
+                        Text(
+                            text = if (state.progress >= 0f) {
+                                stringResource(R.string.update_downloading_percent, (state.progress * 100).toInt())
+                            } else {
+                                stringResource(R.string.update_downloading)
+                            },
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Boxy.colors.text,
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        if (state.progress >= 0f) {
+                            LinearWavyProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
                         } else {
-                            stringResource(R.string.update_downloading)
-                        },
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                    if (state.progress >= 0f) {
-                        LinearWavyProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
-                    } else {
-                        LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
+                            LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        }
                     }
                 }
 
                 UpdatePhase.INSTALLING -> {
-                    Text(stringResource(R.string.update_installing), style = MaterialTheme.typography.labelLarge)
-                    LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    SheetGroup {
+                        Text(
+                            stringResource(R.string.update_installing),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Boxy.colors.text,
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
                     InstallLog(state.log)
                 }
 
                 UpdatePhase.INSTALLED -> {
-                    Text(
-                        stringResource(R.string.update_installed, state.release?.version.orEmpty()),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        stringResource(R.string.update_reboot_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    NoticeCard(
+                        title = stringResource(R.string.update_installed, state.release?.version.orEmpty()),
+                        body = stringResource(R.string.update_reboot_hint),
+                        tint = Tints.green,
+                        icon = painterResource(R.drawable.ic_system_update),
                     )
                     InstallLog(state.log)
-                    if (state.error != null) ErrorText(state.error)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = onReboot, enabled = !state.rebooting) {
-                            Text(stringResource(R.string.update_reboot))
-                        }
-                        TextButton(onClick = onDismiss) { Text(stringResource(R.string.update_later)) }
-                    }
+                    if (state.error != null) ErrorNotice(state.error)
+                    SheetButtons(
+                        primary = stringResource(R.string.update_reboot),
+                        onPrimary = onReboot,
+                        primaryEnabled = !state.rebooting,
+                        secondary = stringResource(R.string.update_later),
+                        onSecondary = onDismiss,
+                    )
                 }
             }
         }
     }
 }
 
+/** Card-like group inside a sheet, as in Boxy. */
 @Composable
-private fun ReleaseCard(state: ModuleUpdateUiState, onOpenUrl: (String) -> Unit) {
+private fun SheetGroup(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Boxy.colors.card)
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        content = content,
+    )
+}
+
+/** Installed and latest version side by side, with the badge Boxy puts on a newer one. */
+@Composable
+private fun VersionsGroup(state: ModuleUpdateUiState) {
+    val release = state.release
+    SheetGroup {
+        InfoRow(
+            label = stringResource(R.string.update_installed_version),
+            value = state.installed?.version ?: stringResource(R.string.value_unknown),
+        )
+        if (release != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                InfoRow(
+                    label = stringResource(R.string.update_latest_version),
+                    value = release.version,
+                    valueColor = if (state.updateAvailable) Tints.green.fg else Boxy.colors.text,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(8.dp))
+                if (state.updateAvailable) {
+                    Badge(stringResource(R.string.update_badge_new), Tints.green)
+                } else {
+                    Badge(stringResource(R.string.update_badge_latest), Tints.gray)
+                }
+            }
+            InfoRow(label = stringResource(R.string.update_version_code), value = release.versionCode.toString())
+        }
+    }
+}
+
+@Composable
+private fun Changelog(state: ModuleUpdateUiState, onOpenUrl: (String) -> Unit) {
     val release = state.release ?: return
     var expanded by remember { mutableStateOf(false) }
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            InfoRow(
-                label = stringResource(R.string.update_available),
-                value = release.version,
-                valueColor = MaterialTheme.colorScheme.primary,
+    if (state.changelog == null && release.changelogUrl == null) return
+    SheetGroup {
+        Text(
+            stringResource(R.string.update_whats_new),
+            style = MaterialTheme.typography.titleMedium,
+            color = Boxy.colors.text,
+        )
+        state.changelog?.let { text ->
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+                color = Boxy.colors.text2,
+                maxLines = if (expanded) Int.MAX_VALUE else CHANGELOG_PREVIEW_LINES,
+                modifier = Modifier.clickable { expanded = !expanded },
             )
-            InfoRow(label = stringResource(R.string.update_version_code), value = release.versionCode.toString())
-            state.changelog?.let { text ->
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    stringResource(R.string.update_whats_new),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = if (expanded) Int.MAX_VALUE else CHANGELOG_PREVIEW_LINES,
-                    modifier = Modifier.clickable { expanded = !expanded },
-                )
-            }
-            release.changelogUrl?.let { url ->
-                TextButton(onClick = { onOpenUrl(url) }) { Text(stringResource(R.string.update_open_changelog)) }
-            }
         }
+        release.changelogUrl?.let { url ->
+            Spacer(Modifier.height(10.dp))
+            ActionPill(
+                stringResource(R.string.update_open_changelog),
+                Tints.blue,
+                enabled = true,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onOpenUrl(url) },
+            )
+        }
+    }
+}
+
+/** Two buttons at the bottom of a sheet: neutral secondary, accent primary. */
+@Composable
+private fun SheetButtons(
+    primary: String,
+    onPrimary: () -> Unit,
+    primaryEnabled: Boolean = true,
+    secondary: String? = null,
+    onSecondary: () -> Unit = {},
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(top = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        if (secondary != null) {
+            PrimaryPill(
+                secondary,
+                Modifier.weight(1f),
+                color = Boxy.colors.card,
+                contentColor = Boxy.colors.text,
+                onClick = onSecondary,
+            )
+        }
+        PrimaryPill(primary, Modifier.weight(1f), enabled = primaryEnabled, onClick = onPrimary)
     }
 }
 
@@ -259,15 +365,22 @@ private fun InstallLog(lines: List<String>) {
     if (lines.isEmpty()) return
     val scroll = rememberScrollState()
     LaunchedEffect(lines.size) { scroll.animateScrollTo(scroll.maxValue) }
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    SheetGroup {
+        Text(
+            stringResource(R.string.update_install_log),
+            style = MaterialTheme.typography.titleMedium,
+            color = Boxy.colors.text,
+        )
+        Spacer(Modifier.height(8.dp))
         Text(
             text = lines.joinToString("\n"),
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+            color = Boxy.colors.text,
             modifier = Modifier
-                .heightIn(max = 220.dp)
+                .fillMaxWidth()
+                .heightIn(max = 240.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(Boxy.colors.surface2)
                 .verticalScroll(scroll)
                 .padding(12.dp),
         )
@@ -275,11 +388,12 @@ private fun InstallLog(lines: List<String>) {
 }
 
 @Composable
-private fun ErrorText(error: UpdateError?) {
-    Text(
-        text = errorMessage(error),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.error,
+private fun ErrorNotice(error: UpdateError?) {
+    NoticeCard(
+        title = stringResource(R.string.update_error_title),
+        body = errorMessage(error),
+        tint = Tints.red,
+        icon = painterResource(R.drawable.ic_warning),
     )
 }
 
