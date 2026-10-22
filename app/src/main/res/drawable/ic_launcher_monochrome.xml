@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- One solid shape, no colour and no gradients: the system recolours it. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M54,26.4L79.8,35.6L79.8,55.8C79.8,66.9 68.7,76.1 54,81.6C39.3,76.1 28.2,66.9 28.2,55.8L28.2,35.6zM37.4,50.3L57.7,50.3L57.7,43.9L70.6,54L57.7,64.1L57.7,57.7L37.4,57.7z" />
+</vector>

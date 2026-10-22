@@ -1,0 +1,280 @@
+<resources>
+    <string name="app_name">DNSCrypt Manager</string>
+    <string name="tile_label">DNSCrypt</string>
+
+    <!-- Navigation -->
+    <string name="nav_status">Status</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_config">Config</string>
+    <string name="nav_logs">Logs</string>
+
+    <!-- Shared actions -->
+    <string name="action_retry">Try again</string>
+    <string name="action_start">Start</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_restart">Restart</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_more">More</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_share">Share</string>
+    <string name="action_search">Search</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_open_releases">Open releases page</string>
+    <string name="action_next_match">Next match</string>
+    <string name="action_previous_match">Previous match</string>
+
+    <!-- Gates -->
+    <string name="gate_loading">Reading module state…</string>
+    <string name="gate_no_root_title">No root access</string>
+    <string name="gate_no_root_body">The app talks to the module through a root shell. Grant the request in your root manager, then try again.</string>
+    <string name="gate_missing_title">Module not installed</string>
+    <string name="gate_missing_body">dnscrypt-ctl was not found. Install the DNSCrypt-Proxy 2 Magisk module and reboot.</string>
+    <string name="gate_disabled_title">Module is switched off</string>
+    <string name="gate_disabled_body">The module is installed but disabled in Magisk, so nothing is mounted. Enable it in Magisk and reboot.</string>
+    <string name="gate_outdated_title">Module is too old</string>
+    <string name="gate_outdated_body">This app needs module %1$s or newer, which is the first release with the json command.</string>
+    <string name="gate_outdated_installed">Installed: %1$s</string>
+    <string name="gate_outdated_unknown">The installed version could not be read.</string>
+
+    <!-- Status screen -->
+    <string name="status_running">Running</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="status_restarting">Restarting</string>
+    <string name="status_running_hint">DNS queries are going through the proxy.</string>
+    <string name="status_stopped_hint">The proxy is down and the intercept rules are off.</string>
+    <string name="status_restarting_hint">The supervisor is bringing the proxy back up. Open the logs if this lasts.</string>
+    <string name="status_open_logs">Open logs</string>
+
+    <string name="label_uptime">Uptime</string>
+    <string name="label_version">Module version</string>
+    <string name="label_port">Port</string>
+    <string name="label_port6">IPv6 port</string>
+    <string name="label_rules">IPv4 intercept rules</string>
+    <string name="label_ipv6">IPv6 redirect</string>
+    <string name="label_private_dns">Private DNS</string>
+    <string name="label_pid">PID</string>
+    <string name="label_supervisor">Supervisor PID</string>
+    <string name="label_tether">Tethering redirect</string>
+    <string name="label_config">Config file</string>
+
+    <string name="value_present">In place</string>
+    <string name="value_absent">Missing</string>
+    <string name="value_on">On</string>
+    <string name="value_off">Off</string>
+    <string name="value_unknown">No data</string>
+    <string name="value_seconds">%1$d s</string>
+    <string name="uptime_format">%1$dh %2$02dm</string>
+    <string name="uptime_format_short">%1$dm %2$02ds</string>
+
+    <string name="ipv6_auto">Auto</string>
+    <string name="ipv6_redirect">Redirect</string>
+    <string name="ipv6_off">Off</string>
+
+    <string name="confirm_stop_title">Stop the proxy?</string>
+    <string name="confirm_stop_message">The proxy will be stopped and the DNS intercept rules removed. Queries will go to the network DNS again.</string>
+
+    <string name="dns_check_title">DNS check</string>
+    <string name="dns_check_subtitle">Sends one A query for %1$s to 127.0.0.1:%2$d. No root involved.</string>
+    <string name="dns_check_module_test">Module self-test</string>
+    <string name="dns_check_run">Check</string>
+    <string name="dns_check_answered">Answer received · %1$d ms</string>
+    <string name="dns_check_empty">Answer received, no records · %1$d ms</string>
+    <string name="dns_check_rcode">Response code %1$d</string>
+    <string name="dns_check_timeout">No answer within 2 seconds</string>
+    <string name="dns_check_failed">Check failed: %1$s</string>
+
+    <!-- Settings screen -->
+    <string name="settings_module_header">Module</string>
+    <string name="settings_app_header">App</string>
+    <string name="settings_restart_note">Module settings only take effect after a restart.</string>
+
+    <string name="setting_redirect_ipv4">Redirect IPv4 DNS</string>
+    <string name="setting_redirect_ipv4_desc">The main mode: sends IPv4 DNS traffic through the local proxy.</string>
+    <string name="setting_redirect_ipv6">IPv6 DNS</string>
+    <string name="setting_redirect_ipv6_desc">Auto only redirects when the kernel can do ip6tables nat.</string>
+    <string name="setting_tether">Redirect hotspot DNS</string>
+    <string name="setting_tether_desc">Also sends queries from devices on your hotspot through the proxy. Off by default: touching tethering has broken Wi-Fi sharing in the past.</string>
+    <string name="setting_private_dns">Turn off Private DNS</string>
+    <string name="setting_private_dns_desc">System Private DNS goes over DoT and bypasses port 53, so the module cannot intercept it.</string>
+    <string name="setting_mirror">Mirror the config</string>
+    <string name="setting_mirror_desc">Keeps a copy of the config in internal storage for editing.</string>
+    <string name="setting_restart_delay">Restart delay cap</string>
+    <string name="setting_restart_delay_desc">Longest pause between attempts to bring a crashed proxy back up.</string>
+
+    <string name="settings_apply">Apply and restart</string>
+    <plurals name="settings_pending">
+        <item quantity="one">%1$d unsaved change</item>
+        <item quantity="other">%1$d unsaved changes</item>
+    </plurals>
+    <string name="settings_applied">Settings applied, proxy restarted</string>
+
+    <string name="setting_theme">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+    <string name="setting_dynamic_color">System colors</string>
+    <string name="setting_dynamic_color_desc">Takes the palette from your wallpaper.</string>
+    <string name="setting_poll">Refresh interval</string>
+    <string name="setting_poll_desc">How often the status screen re-reads the module while it is open.</string>
+
+    <!-- Config screen -->
+    <string name="config_title">dnscrypt-proxy.toml</string>
+    <string name="config_search_hint">Find in file</string>
+    <string name="config_match_count">%1$d of %2$d</string>
+    <string name="config_no_matches">No matches</string>
+    <string name="config_save_restart">Save and restart</string>
+    <string name="config_create_backup">Create backup</string>
+    <string name="config_backups">Backups</string>
+    <string name="config_export">Export to storage</string>
+    <string name="config_import">Import from storage</string>
+    <string name="config_saved">Config saved, proxy restarted</string>
+    <string name="config_invalid_empty">The file is empty. Nothing was saved.</string>
+    <string name="config_invalid_listen">No listen_addresses in the file. Nothing was saved.</string>
+    <string name="config_unsaved">Unsaved changes</string>
+    <string name="backup_created">Backup created: %1$s</string>
+    <string name="backup_restored">Backup restored</string>
+    <string name="backups_title">Config backups</string>
+    <string name="backups_empty">No backups yet.</string>
+    <string name="backup_pending">Left by a module update</string>
+    <string name="confirm_restore_title">Restore this backup?</string>
+    <string name="confirm_restore_message">%1$s will replace the current config. The current file is backed up first.</string>
+    <string name="action_restore">Restore</string>
+
+    <!-- Logs screen -->
+    <string name="logs_tab_module">module.log</string>
+    <string name="logs_tab_proxy">dnscrypt-proxy.log</string>
+    <string name="logs_tab_rules">Rules</string>
+    <string name="logs_autoscroll">Follow</string>
+    <string name="logs_empty">Nothing to show.</string>
+    <string name="logs_copied">Copied to clipboard</string>
+    <plurals name="logs_lines">
+        <item quantity="one">Last %1$d line</item>
+        <item quantity="other">Last %1$d lines</item>
+    </plurals>
+    <string name="logs_share_title">Share log</string>
+    <plurals name="logs_matches">
+        <item quantity="one">%1$d match</item>
+        <item quantity="other">%1$d matches</item>
+    </plurals>
+
+    <!-- Errors -->
+    <string name="error_prefix">Error: %1$s</string>
+    <string name="error_timeout">The command did not finish within 10 seconds.</string>
+    <string name="error_no_root">Root access was lost.</string>
+    <string name="working">Working…</string>
+
+    <!-- Servers screen -->
+    <string name="nav_servers">Servers</string>
+    <string name="servers_mode_auto">Automatic</string>
+    <string name="servers_mode_manual">Chosen by hand</string>
+    <string name="servers_auto_explained">The proxy picks servers itself, using the require_dnssec, require_nolog and require_nofilter filters from the config.</string>
+    <string name="servers_active_title">Current server</string>
+    <string name="servers_active_hint">This line appears in the proxy log only after a successful start.</string>
+    <string name="servers_search_label">Search by name or description</string>
+    <string name="servers_found">%1$d of %2$d</string>
+    <string name="servers_selected_title">Chosen</string>
+    <string name="servers_selected_empty">Nothing chosen. An empty list means the same as automatic.</string>
+    <string name="servers_order_hint">Order matters: the proxy tries them top to bottom. Tap a chip, then use the arrows.</string>
+    <string name="servers_move_up">Move earlier</string>
+    <string name="servers_move_down">Move later</string>
+    <string name="servers_unknown_chip">Not in the list</string>
+    <string name="servers_unknown_note">Marked servers are missing from the cached list. That is allowed: the name may come from elsewhere.</string>
+    <string name="servers_cache_missing_title">Resolver list not downloaded yet</string>
+    <string name="servers_cache_missing_body">The list appears after the proxy first starts with a working network. The proxy downloads it itself and checks the minisign signature, so the app does not fetch it.</string>
+    <string name="servers_cache_stale">The cached list is over a week old. The proxy refreshes it on its own.</string>
+    <string name="servers_empty_title">Switch to automatic?</string>
+    <string name="servers_empty_message">The list is empty, which means the same as automatic selection. The proxy will pick servers by the require_* filters.</string>
+    <string name="servers_unsupported_title">Module is too old for this</string>
+    <string name="servers_unsupported_body">Choosing resolvers needs module %1$s or newer, which is where dnscrypt-ctl servers first appears.</string>
+    <string name="servers_flag_dnssec">DNSSEC</string>
+    <string name="servers_flag_nolog">No logs</string>
+    <string name="servers_flag_nofilter">No filter</string>
+    <plurals name="servers_pending">
+        <item quantity="one">%1$d change</item>
+        <item quantity="other">%1$d changes</item>
+    </plurals>
+
+    <string name="protocol_plain">Plain DNS</string>
+    <string name="protocol_dnscrypt">DNSCrypt</string>
+    <string name="protocol_doh">DoH</string>
+    <string name="protocol_dot">DoT</string>
+    <string name="protocol_doq">DoQ</string>
+    <string name="protocol_odoh">ODoH</string>
+    <string name="protocol_relay">Relay</string>
+    <string name="protocol_unknown">Unknown</string>
+
+    <!-- Conflicts -->
+    <string name="logs_tab_conflicts">Conflicts</string>
+    <string name="status_conflict_title">Another module holds port 53</string>
+    <string name="status_conflict_body">DNS interception is configured, but box_for_magisk takes port 53 first, so our rules sit idle.</string>
+    <string name="status_open_conflicts">Open conflicts</string>
+    <string name="status_box_handover">DNS interception handled by box_for_magisk</string>
+
+    <!-- Advanced settings -->
+    <string name="settings_advanced_header">Advanced</string>
+    <string name="setting_run_gid">Process group</string>
+    <string name="setting_run_gid_desc">Only needed with box_for_magisk installed: it lets traffic owned by root:net_admin past its own interception, and without this the proxy queries to resolvers go back through box.</string>
+    <string name="run_gid_default">Default</string>
+    <string name="run_gid_custom">Custom value</string>
+    <string name="run_gid_custom_label">GID or group name</string>
+    <string name="run_gid_invalid">Digits only, or a group name of letters and underscores.</string>
+    <string name="servers_applied">Server list applied, proxy restarted</string>
+    <string name="servers_more_results">First %1$d of %2$d — narrow the search</string>
+    <string name="settings_reset">Reset to defaults</string>
+    <string name="settings_reset_title">Reset module settings?</string>
+    <string name="settings_reset_message">Every module setting goes back to the value the module ships with. The current ones are saved next to module.conf as a .bak first. The proxy restarts.</string>
+    <string name="settings_reset_done">Settings reset to defaults, proxy restarted</string>
+    <string name="setting_autostart">Start at boot</string>
+    <string name="setting_autostart_desc">Off keeps the module installed but asleep: after a reboot it starts nothing and installs no intercept rules. You can still start it by hand here or from the quick settings tile.</string>
+
+    <!-- IPv6 DNS, reported by the module from 2.4.2 on -->
+    <string name="label_ipv6_dns">IPv6 DNS</string>
+    <string name="ipv6_dns_redirected">Through the proxy</string>
+    <string name="ipv6_dns_blocked">Blocked, falls back to IPv4</string>
+    <string name="ipv6_dns_bypass">Bypasses the proxy</string>
+    <string name="status_ipv6_bypass_title">IPv6 DNS bypasses the proxy</string>
+    <string name="status_ipv6_bypass_body">This kernel cannot redirect IPv6, so queries to the network\'s IPv6 resolver are neither encrypted nor filtered. Update the module: newer versions block IPv6 DNS here so the system falls back to IPv4.</string>
+
+    <!-- Current server -->
+    <string name="servers_active_rtt">rtt %1$d ms</string>
+    <plurals name="servers_active_live">
+        <item quantity="one">%1$d live server</item>
+        <item quantity="other">%1$d live servers</item>
+    </plurals>
+
+    <!-- Module update -->
+    <string name="settings_about_header">About</string>
+    <string name="update_row_title">Module version</string>
+    <string name="update_row_available">%1$s → %2$s, update available</string>
+    <string name="update_row_reboot_pending">%1$s installed, reboot to finish</string>
+    <string name="update_sheet_title">DNSCrypt-Proxy 2 module</string>
+    <string name="update_current_version">Installed version: %1$s</string>
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_latest">You have the latest version</string>
+    <string name="update_check_again">Check again</string>
+    <string name="update_retry">Try again</string>
+    <string name="update_available">Update available</string>
+    <string name="update_version_code">versionCode</string>
+    <string name="update_whats_new">What\'s new</string>
+    <string name="update_open_changelog">Full changelog</string>
+    <string name="update_install">Download and install</string>
+    <string name="update_install_note">The package is checked before it is installed: it has to be this module and contain a binary for this device. Your config and settings stay as they are.</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_downloading_percent">Downloading… %1$d%%</string>
+    <string name="update_installing">Installing…</string>
+    <string name="update_installed">Version %1$s installed</string>
+    <string name="update_reboot_hint">The new version starts after a reboot. Until then the current one keeps working.</string>
+    <string name="update_reboot">Reboot now</string>
+    <string name="update_later">Later</string>
+    <string name="update_error_unknown">Something went wrong.</string>
+    <string name="update_error_network">No connection to GitHub. Check the network and try again.</string>
+    <string name="update_error_http">The server answered with HTTP %1$d.</string>
+    <string name="update_error_json">update.json could not be read.</string>
+    <string name="update_error_not_installed">The module is not installed, so there is nothing to update.</string>
+    <string name="update_error_package">The downloaded file is not a valid module package.</string>
+    <string name="update_error_wrong_module">The package is module \"%1$s\", not \"%2$s\". Nothing was installed.</string>
+    <string name="update_error_arch">The package has no dnscrypt-proxy binary for this device (%1$s). Nothing was installed.</string>
+    <string name="update_error_manager">No Magisk, KernelSU or APatch found to install the module with.</string>
+    <string name="update_error_install">The installer stopped with code %1$d. Its output is below.</string>
+</resources>
