@@ -284,4 +284,5 @@
     <string name="update_cannot_install_here">Бұл пакетті осы құрылғыға орнату мүмкін емес, қайталау көмектеспейді.</string>
     <string name="setting_language">Тіл</string>
     <string name="language_system">Жүйедегідей</string>
+    <string name="status_manual_stop_hint">Қолмен тоқтатылды — өзіңіз қоспайынша жүктелгенде іске қосылмайды.</string>
 </resources>

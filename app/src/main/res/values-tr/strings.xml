@@ -284,4 +284,5 @@
     <string name="update_cannot_install_here">Bu paket bu cihaza yüklenemez, tekrar denemek işe yaramaz.</string>
     <string name="setting_language">Dil</string>
     <string name="language_system">Sistem dili</string>
+    <string name="status_manual_stop_hint">Elle durduruldu; siz başlatana kadar açılışta çalışmaz.</string>
 </resources>

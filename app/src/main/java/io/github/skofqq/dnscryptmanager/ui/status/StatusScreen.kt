@@ -78,6 +78,8 @@ fun StatusScreen(
     val ready = uiState.state as? ModuleState.Ready ?: return
     val status = ready.status
     val phase = phaseOf(status)
+    // The module says whether box really holds port 53 (2.4.1+); older ones only say it is there.
+    val boxCapturesDns = status.boxDns ?: (uiState.boxDetected == true)
     var confirmStop by remember { mutableStateOf(false) }
 
     PullToRefreshBox(
@@ -99,7 +101,7 @@ fun StatusScreen(
                 activeServer = uiState.activeServer,
                 uptimeSeconds = ready.uptimeSeconds,
                 busyAction = uiState.busyAction,
-                boxHandover = uiState.boxDetected == true && !status.rulesV4,
+                boxHandover = boxCapturesDns && !status.rulesV4,
                 onStart = { onAction(ProxyAction.START) },
                 onStop = { confirmStop = true },
                 onRestart = { onAction(ProxyAction.RESTART) },
@@ -110,7 +112,7 @@ fun StatusScreen(
                 Ipv6BypassCard()
             }
 
-            if (uiState.boxDetected == true && status.rulesV4) {
+            if (boxCapturesDns && status.rulesV4) {
                 BoxConflictCard(onOpenConflicts = onOpenConflicts)
             }
 
@@ -278,7 +280,7 @@ private fun HeroCard(
         if (!status.ipv6Bypass) {
             Spacer(Modifier.height(12.dp))
             Text(
-                stringResource(phase.hintRes()),
+                stringResource(if (phase == ProxyPhase.STOPPED && status.manualStop) R.string.status_manual_stop_hint else phase.hintRes()),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.text2,
             )

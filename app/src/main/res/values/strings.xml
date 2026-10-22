@@ -345,4 +345,5 @@
     <string name="update_cannot_install_here">This package cannot be installed on this device, so trying again will not help.</string>
     <string name="setting_language">Language</string>
     <string name="language_system">System default</string>
+    <string name="status_manual_stop_hint">Stopped by hand — it will not start on boot until you start it.</string>
 </resources>

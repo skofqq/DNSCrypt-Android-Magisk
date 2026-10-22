@@ -292,4 +292,5 @@
     <string name="update_cannot_install_here">Tego pakietu nie da się zainstalować na tym urządzeniu, ponowna próba nie pomoże.</string>
     <string name="setting_language">Język</string>
     <string name="language_system">Język systemu</string>
+    <string name="status_manual_stop_hint">Zatrzymany ręcznie — nie uruchomi się przy starcie, dopóki go nie włączysz.</string>
 </resources>

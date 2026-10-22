@@ -292,4 +292,5 @@
     <string name="update_cannot_install_here">Гэты пакет нельга ўсталяваць на гэтую прыладу, паўтор не дапаможа.</string>
     <string name="setting_language">Мова</string>
     <string name="language_system">Як у сістэме</string>
+    <string name="status_manual_stop_hint">Спынены ўручную — не запусціцца пры загрузцы, пакуль вы яго не запусціце.</string>
 </resources>

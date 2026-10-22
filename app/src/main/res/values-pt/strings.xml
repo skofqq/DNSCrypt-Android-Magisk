@@ -288,4 +288,5 @@
     <string name="update_cannot_install_here">Este pacote não pode ser instalado neste dispositivo; tentar de novo não ajuda.</string>
     <string name="setting_language">Idioma</string>
     <string name="language_system">Idioma do sistema</string>
+    <string name="status_manual_stop_hint">Parado manualmente: não arranca no boot até o iniciar.</string>
 </resources>

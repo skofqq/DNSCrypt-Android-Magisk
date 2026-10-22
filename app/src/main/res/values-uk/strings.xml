@@ -292,4 +292,5 @@
     <string name="update_cannot_install_here">Цей пакет не можна встановити на цей пристрій, повтор не допоможе.</string>
     <string name="setting_language">Мова</string>
     <string name="language_system">Як у системі</string>
+    <string name="status_manual_stop_hint">Зупинено вручну — не запуститься під час завантаження, доки ви його не запустите.</string>
 </resources>

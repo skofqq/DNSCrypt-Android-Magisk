@@ -352,4 +352,5 @@
     <string name="update_cannot_install_here">Этот пакет нельзя установить на это устройство, повтор не поможет.</string>
     <string name="setting_language">Язык</string>
     <string name="language_system">Как в системе</string>
+    <string name="status_manual_stop_hint">Остановлен вручную — не запустится при загрузке, пока вы его не запустите.</string>
 </resources>

@@ -288,4 +288,5 @@
     <string name="update_cannot_install_here">Ce paquet ne peut pas être installé sur cet appareil, réessayer n\'y changera rien.</string>
     <string name="setting_language">Langue</string>
     <string name="language_system">Langue du système</string>
+    <string name="status_manual_stop_hint">Arrêté manuellement : il ne démarrera pas au boot tant que vous ne le relancez pas.</string>
 </resources>

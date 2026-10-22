@@ -34,6 +34,13 @@ data class ModuleStatus(
     /** Comma-separated resolver names, or `auto`. */
     val servers: String = ServerSelection.AUTO,
     @SerialName("resolvers_cached") val resolversCached: Boolean = false,
+    /**
+     * True when box_for_magisk's rules really capture port 53 (not merely installed or
+     * running in a mode that lets DNS through). Null before the module reported it.
+     */
+    @SerialName("box_dns") val boxDns: Boolean? = null,
+    /** Stopped with `dnscrypt-ctl stop`: the proxy stays down across reboots until started. */
+    @SerialName("manual_stop") val manualStop: Boolean = false,
 ) {
     /** Empty when the proxy picks servers itself. */
     val serverSelection: List<String> get() = ServerSelection.parseSelection(servers)

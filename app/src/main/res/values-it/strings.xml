@@ -288,4 +288,5 @@
     <string name="update_cannot_install_here">Questo pacchetto non si può installare su questo dispositivo, riprovare non servirà.</string>
     <string name="setting_language">Lingua</string>
     <string name="language_system">Lingua di sistema</string>
+    <string name="status_manual_stop_hint">Fermato a mano: non partirà all\'avvio finché non lo avvii tu.</string>
 </resources>

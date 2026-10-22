@@ -70,3 +70,20 @@ class LogAndChangelogTest {
         )
     }
 }
+
+class BoxAndManualStopTest {
+
+    @Test
+    fun `box_dns and manual_stop parse, and older modules leave them unset`() {
+        val new = io.github.skofqq.dnscryptmanager.data.StatusParser.parse(
+            """{"running":false,"port":5354,"port6":5354,"box_dns":true,"manual_stop":true,"version":"2.4.1"}"""
+        ).getOrThrow()
+        assertEquals(true, new.boxDns)
+        assertTrue(new.manualStop)
+        val old = io.github.skofqq.dnscryptmanager.data.StatusParser.parse(
+            """{"running":true,"port":5354,"port6":"","version":"2.4"}"""
+        ).getOrThrow()
+        assertNull(old.boxDns)
+        assertFalse(old.manualStop)
+    }
+}
