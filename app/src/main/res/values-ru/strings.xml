@@ -385,7 +385,7 @@
         <item quantity="many">Проверено %1$d мин назад</item>
         <item quantity="other">Проверено %1$d мин назад</item>
     </plurals>
-    <string name="saved_for_next_start">Сохранено. Прокси остановлен — изменения применятся при следующем запуске.</string>
+    <string name="saved_for_next_start">Сохранено. Применится при запуске прокси.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Исключён</string>
     <string name="exclusions_include">Вернуть</string>

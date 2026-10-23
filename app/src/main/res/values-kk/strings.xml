@@ -332,7 +332,7 @@
         <item quantity="one">%1$d мин бұрын тексерілді</item>
         <item quantity="other">%1$d мин бұрын тексерілді</item>
     </plurals>
-    <string name="saved_for_next_start">Сақталды. Прокси тоқтатылған — өзгерістер келесі іске қосқанда қолданылады.</string>
+    <string name="saved_for_next_start">Сақталды. Прокси іске қосылғанда қолданылады.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Шығарылған</string>
     <string name="exclusions_include">Қайтару</string>

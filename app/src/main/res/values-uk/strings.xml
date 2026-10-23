@@ -342,7 +342,7 @@
         <item quantity="many">Перевірено %1$d хв тому</item>
         <item quantity="other">Перевірено %1$d хв тому</item>
     </plurals>
-    <string name="saved_for_next_start">Збережено. Проксі зупинено — зміни застосуються під час наступного запуску.</string>
+    <string name="saved_for_next_start">Збережено. Застосується під час запуску проксі.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Виключено</string>
     <string name="exclusions_include">Повернути</string>

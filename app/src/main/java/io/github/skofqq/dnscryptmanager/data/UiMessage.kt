@@ -11,7 +11,8 @@ import io.github.skofqq.dnscryptmanager.root.ShellTimeoutException
  */
 sealed interface UiMessage {
 
-    data class Raw(val text: String) : UiMessage
+    /** Text from the module; [error] false for plain output such as the self-test. */
+    data class Raw(val text: String, val error: Boolean = true) : UiMessage
 
     data object Timeout : UiMessage
 

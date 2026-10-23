@@ -337,7 +337,7 @@
         <item quantity="many">Verificato %1$d min fa</item>
         <item quantity="other">Verificato %1$d min fa</item>
     </plurals>
-    <string name="saved_for_next_start">Salvato. Il proxy è fermo: varrà al prossimo avvio.</string>
+    <string name="saved_for_next_start">Salvato. Si applica all\'avvio del proxy.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Escluso</string>
     <string name="exclusions_include">Includi</string>

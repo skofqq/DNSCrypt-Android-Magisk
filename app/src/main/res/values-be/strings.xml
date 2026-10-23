@@ -342,7 +342,7 @@
         <item quantity="many">Праверана %1$d хв таму</item>
         <item quantity="other">Праверана %1$d хв таму</item>
     </plurals>
-    <string name="saved_for_next_start">Захавана. Проксі спынены — змены прыменяцца пры наступным запуску.</string>
+    <string name="saved_for_next_start">Захавана. Ужывецца пры запуску проксі.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Выключаны</string>
     <string name="exclusions_include">Вярнуць</string>

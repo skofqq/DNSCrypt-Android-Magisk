@@ -332,7 +332,7 @@
         <item quantity="one">%1$d dk önce denetlendi</item>
         <item quantity="other">%1$d dk önce denetlendi</item>
     </plurals>
-    <string name="saved_for_next_start">Kaydedildi. Proxy durdurulmuş; değişiklikler bir sonraki başlatmada uygulanır.</string>
+    <string name="saved_for_next_start">Kaydedildi. Proxy başlayınca uygulanır.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Hariç</string>
     <string name="exclusions_include">Dahil et</string>

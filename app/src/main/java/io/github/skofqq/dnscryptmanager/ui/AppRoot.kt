@@ -1,5 +1,11 @@
 package io.github.skofqq.dnscryptmanager.ui
 
+import androidx.compose.foundation.layout.ime
+import io.github.skofqq.dnscryptmanager.ui.status.ProxyAction
+import io.github.skofqq.dnscryptmanager.ui.components.notify
+import io.github.skofqq.dnscryptmanager.ui.components.NoticeKind
+import io.github.skofqq.dnscryptmanager.ui.components.LocalSnackbarLift
+import io.github.skofqq.dnscryptmanager.ui.components.BoxySnackbarHost
 import io.github.skofqq.dnscryptmanager.ui.blocklists.BlocklistsScreen
 import io.github.skofqq.dnscryptmanager.ui.blocklists.BlocklistsViewModel
 import android.content.ClipData
@@ -99,6 +105,8 @@ fun AppRoot() {
     var destination by rememberSaveable { mutableStateOf(Destination.STATUS) }
     var subPage by rememberSaveable { mutableStateOf<SubPage?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+    // Raised by screens with their own bottom bar (Settings' unsaved changes) so notices clear it.
+    val snackbarLift = remember { mutableStateOf(0.dp) }
     val scope = rememberCoroutineScope()
 
     val haptics = LocalHapticFeedback.current
@@ -118,8 +126,22 @@ fun AppRoot() {
         }
     }
 
+    // Every message from the view models goes through here: failures as errors, a change
+    // saved while the proxy is stopped as information with Start, which only the user presses.
+    val startLabel = stringResource(R.string.action_start)
+    val notifyMessage: suspend (UiMessage) -> Unit = { message ->
+        when (message) {
+            is UiMessage.SavedForNextStart ->
+                snackbarHostState.notify(savedForNextStartText, NoticeKind.INFO, startLabel) {
+                    statusViewModel.run(ProxyAction.START)
+                }
+            is UiMessage.Raw -> snackbarHostState.notify(message.text, if (message.error) NoticeKind.ERROR else NoticeKind.INFO)
+            else -> snackbarHostState.notify(resolve(message), NoticeKind.ERROR)
+        }
+    }
+
     LaunchedEffect(statusViewModel) {
-        statusViewModel.messages.collect { snackbarHostState.showSnackbar(resolve(it)) }
+        statusViewModel.messages.collect { notifyMessage(it) }
     }
 
     // Buzz when the proxy actually changed state, not when the button was pressed.
@@ -190,7 +212,7 @@ fun AppRoot() {
             return@Box
         }
 
-        CompositionLocalProvider(LocalBarPadding provides barPadding) {
+        CompositionLocalProvider(LocalBarPadding provides barPadding, LocalSnackbarLift provides snackbarLift) {
             AnimatedContent(
                 targetState = subPage,
                 transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -205,13 +227,13 @@ fun AppRoot() {
 
                         LaunchedEffect(serversViewModel) {
                             serversViewModel.messages.collect {
-                                snackbarHostState.showSnackbar(resolve(it))
+                                notifyMessage(it)
                             }
                         }
                         LaunchedEffect(serversViewModel) {
                             serversViewModel.applied.collect {
                                 haptics.performHapticFeedback(HapticFeedbackType.Confirm)
-                                snackbarHostState.showSnackbar(appliedText)
+                                snackbarHostState.notify(appliedText, NoticeKind.SUCCESS)
                                 statusViewModel.refresh()
                             }
                         }
@@ -255,15 +277,15 @@ fun AppRoot() {
 
                         LaunchedEffect(configViewModel) {
                             configViewModel.events.collect { event ->
-                                val message = when (event) {
-                                    is ConfigEvent.Saved -> savedText
-                                    is ConfigEvent.InvalidEmpty -> emptyText
-                                    is ConfigEvent.InvalidListen -> listenText
-                                    is ConfigEvent.Restored -> restoredText
-                                    is ConfigEvent.BackupCreated -> backupFormat.format(event.name)
-                                    is ConfigEvent.Failed -> resolve(event.message)
+                                val (message, kind) = when (event) {
+                                    is ConfigEvent.Saved -> savedText to NoticeKind.SUCCESS
+                                    is ConfigEvent.InvalidEmpty -> emptyText to NoticeKind.WARNING
+                                    is ConfigEvent.InvalidListen -> listenText to NoticeKind.WARNING
+                                    is ConfigEvent.Restored -> restoredText to NoticeKind.SUCCESS
+                                    is ConfigEvent.BackupCreated -> backupFormat.format(event.name) to NoticeKind.SUCCESS
+                                    is ConfigEvent.Failed -> resolve(event.message) to NoticeKind.ERROR
                                 }
-                                snackbarHostState.showSnackbar(message)
+                                snackbarHostState.notify(message, kind)
                                 statusViewModel.refresh()
                             }
                         }
@@ -285,7 +307,7 @@ fun AppRoot() {
                         val blocklistsViewModel: BlocklistsViewModel = viewModel(factory = factory)
                         val blocklistsState by blocklistsViewModel.uiState.collectAsStateWithLifecycle()
                         LaunchedEffect(blocklistsViewModel) {
-                            blocklistsViewModel.messages.collect { snackbarHostState.showSnackbar(resolve(it)) }
+                            blocklistsViewModel.messages.collect { notifyMessage(it) }
                         }
                         BlocklistsScreen(
                             uiState = blocklistsState,
@@ -361,7 +383,7 @@ fun AppRoot() {
 
                                 LaunchedEffect(settingsViewModel) {
                                     settingsViewModel.messages.collect {
-                                        snackbarHostState.showSnackbar(resolve(it))
+                                        notifyMessage(it)
                                     }
                                 }
 
@@ -409,7 +431,7 @@ fun AppRoot() {
                                         blocklistsSummary = blocklistsSummary,
                                         onReset = {
                                             settingsViewModel.resetToDefaults {
-                                                scope.launch { snackbarHostState.showSnackbar(resetDoneText) }
+                                                scope.launch { snackbarHostState.notify(resetDoneText, NoticeKind.SUCCESS) }
                                                 statusViewModel.refresh()
                                             }
                                         },
@@ -417,7 +439,7 @@ fun AppRoot() {
                                         onDiscard = settingsViewModel::discardEdits,
                                         onApply = {
                                             settingsViewModel.applyAndRestart {
-                                                scope.launch { snackbarHostState.showSnackbar(appliedMessage) }
+                                                scope.launch { snackbarHostState.notify(appliedMessage, NoticeKind.SUCCESS) }
                                                 statusViewModel.refresh()
                                             }
                                         },
@@ -461,7 +483,7 @@ fun AppRoot() {
                                     onAddName = logsViewModel::addName,
                                     onCopyLine = { text ->
                                         context.copyToClipboard(text)
-                                        scope.launch { snackbarHostState.showSnackbar(copiedMessage) }
+                                        scope.launch { snackbarHostState.notify(copiedMessage, NoticeKind.SUCCESS) }
                                     },
                                     onRestartNow = {
                                         logsViewModel.restartNow()
@@ -470,14 +492,18 @@ fun AppRoot() {
                                     onDismissNameResult = logsViewModel::dismissNameResult,
                                     onCopy = {
                                         context.copyToClipboard(logsViewModel.currentText())
-                                        scope.launch { snackbarHostState.showSnackbar(copiedMessage) }
+                                        scope.launch { snackbarHostState.notify(copiedMessage, NoticeKind.SUCCESS) }
                                     },
                                     onShare = { context.shareText(logsViewModel.currentText(), shareTitle) },
                                     onSave = {
                                         val name = logsViewModel.exportFileName()
                                         val ok = context.saveToDownloads(name, logsViewModel.currentText())
                                         scope.launch {
-                                            snackbarHostState.showSnackbar(if (ok) savedFormat.format(name) else saveFailed)
+                                            if (ok) {
+                                                snackbarHostState.notify(savedFormat.format(name), NoticeKind.SUCCESS)
+                                            } else {
+                                                snackbarHostState.notify(saveFailed, NoticeKind.ERROR)
+                                            }
                                         }
                                     },
                                 )
@@ -508,9 +534,13 @@ fun AppRoot() {
             }
         }
 
-        SnackbarHost(
+        // Above the keyboard when it is open (the config editor), otherwise above the bars.
+        val imeBottom = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+        BoxySnackbarHost(
             snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = barPadding),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = maxOf(barPadding + snackbarLift.value, imeBottom)),
         )
     }
 }

@@ -228,7 +228,8 @@ class StatusViewModel(
             val failure = UiMessage.ofFailure(result)
             _messages.emit(
                 failure ?: UiMessage.Raw(
-                    result.getOrNull()?.out?.trim().orEmpty().ifBlank { "ok" }
+                    result.getOrNull()?.out?.trim().orEmpty().ifBlank { "ok" },
+                    error = false,
                 )
             )
         }

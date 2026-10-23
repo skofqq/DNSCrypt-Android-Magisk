@@ -396,7 +396,7 @@
     </plurals>
     <string name="dnscard_server_stopped">Proxy stopped</string>
     <string name="dnscard_server_sub">%1$d of %2$d · %3$s</string>
-    <string name="saved_for_next_start">Saved. The proxy is stopped, so this applies the next time it starts.</string>
+    <string name="saved_for_next_start">Saved. Applies when the proxy starts.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Excluded</string>
     <string name="exclusions_include">Include</string>

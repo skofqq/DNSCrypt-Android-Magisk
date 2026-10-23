@@ -337,7 +337,7 @@
         <item quantity="many">Verificado há %1$d min</item>
         <item quantity="other">Verificado há %1$d min</item>
     </plurals>
-    <string name="saved_for_next_start">Guardado. O proxy está parado: aplica-se no próximo arranque.</string>
+    <string name="saved_for_next_start">Guardado. Aplica-se quando o proxy arrancar.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Excluído</string>
     <string name="exclusions_include">Incluir</string>

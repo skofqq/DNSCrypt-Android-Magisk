@@ -1,5 +1,8 @@
 package io.github.skofqq.dnscryptmanager.ui.settings
 
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import io.github.skofqq.dnscryptmanager.ui.components.LocalSnackbarLift
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.animation.core.animateDpAsState
@@ -115,6 +118,10 @@ fun SettingsScreen(
         if (pendingShown) with(density) { pendingBarHeight.toDp() } else 0.dp,
         label = "pendingInset",
     )
+    // Notices float above the unsaved-changes bar rather than on top of it.
+    val snackbarLift = LocalSnackbarLift.current
+    SideEffect { snackbarLift.value = pendingInset }
+    DisposableEffect(Unit) { onDispose { snackbarLift.value = 0.dp } }
     val context = LocalContext.current
     val activity = context as? Activity
     // Read once per composition; changing it recreates the activity anyway.

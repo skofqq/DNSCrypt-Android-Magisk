@@ -332,7 +332,7 @@
         <item quantity="one">Vor %1$d Min. geprüft</item>
         <item quantity="other">Vor %1$d Min. geprüft</item>
     </plurals>
-    <string name="saved_for_next_start">Gespeichert. Der Proxy ist gestoppt – das gilt beim nächsten Start.</string>
+    <string name="saved_for_next_start">Gespeichert. Gilt ab dem Start des Proxys.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Ausgeschlossen</string>
     <string name="exclusions_include">Zulassen</string>

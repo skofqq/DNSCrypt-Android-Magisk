@@ -342,7 +342,7 @@
         <item quantity="many">Sprawdzono %1$d min temu</item>
         <item quantity="other">Sprawdzono %1$d min temu</item>
     </plurals>
-    <string name="saved_for_next_start">Zapisano. Proxy jest zatrzymane — zmiany zadziałają przy następnym starcie.</string>
+    <string name="saved_for_next_start">Zapisano. Zadziała po uruchomieniu proxy.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Wykluczony</string>
     <string name="exclusions_include">Przywróć</string>
