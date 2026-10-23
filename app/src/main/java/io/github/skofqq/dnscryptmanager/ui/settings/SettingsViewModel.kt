@@ -61,7 +61,9 @@ class SettingsViewModel(
 
     fun reload() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(loading = true, error = null)
+            // Only the first load shows the spinner: swapping the list for it on a re-read
+            // after Apply threw the page back to the top.
+            _uiState.value = _uiState.value.copy(loading = _uiState.value.saved.isEmpty(), error = null)
             repository.readModuleConf().fold(
                 onSuccess = { conf ->
                     _uiState.value = ModuleSettingsUiState(
