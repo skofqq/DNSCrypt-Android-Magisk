@@ -418,7 +418,7 @@ fun AppRoot() {
                                     onWrap = logsViewModel::setWrap,
                                     onOnlyMatches = logsViewModel::setOnlyMatches,
                                     onRefresh = { logsViewModel.refresh() },
-                                    onLiveRefresh = { logsViewModel.refresh(silent = true) },
+                                    onLiveRefresh = logsViewModel::liveRefresh,
                                     onCopy = {
                                         context.copyToClipboard(logsViewModel.currentText())
                                         scope.launch { snackbarHostState.showSnackbar(copiedMessage) }

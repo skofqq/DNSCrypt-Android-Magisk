@@ -16,6 +16,15 @@ data class ConfigBackup(
     val isPending: Boolean,
 )
 
+/**
+ * One status poll: the module state and, while the proxy runs, the raw answers of
+ * `servers active` and `servers live`. See [ModuleRepository.poll].
+ */
+data class PolledStatus(val state: ModuleState, val activeServer: String?, val liveJson: String?)
+
+/** Part of a log file and the file size it ends at; see [ModuleRepository.logChunk]. */
+data class LogChunk(val size: Long, val lines: List<String>, val reset: Boolean)
+
 /** Effective group of the proxy process; see [ModuleRepository.proxyGroup]. */
 data class ProxyGroup(val gid: Int, val suRefusedGroup: Boolean)
 
@@ -49,12 +58,43 @@ class ModuleRepository(
         }
 
         val status = parsed.getOrThrow()
+        readyState(status, status.pid?.let { readProcessUptime(it) })
+    }
+
+    private fun readyState(status: ModuleStatus, uptimeSeconds: Long?): ModuleState {
         val version = status.versionOrNull
         if (version != null && !ModuleVersion.isAtLeast(version, ModuleContract.MIN_VERSION)) {
-            return@withContext ModuleState.Outdated(version)
+            return ModuleState.Outdated(version)
         }
+        return ModuleState.Ready(status, uptimeSeconds = uptimeSeconds)
+    }
 
-        ModuleState.Ready(status, uptimeSeconds = status.pid?.let { readProcessUptime(it) })
+    /**
+     * Everything the status screen polls for, in one root call: `json`, the process
+     * start time and, while the proxy runs and [withServers] asks for it, `servers
+     * active` and `servers live`. Anything unusual in the `json` part (missing module,
+     * old build) falls back to [loadState].
+     */
+    suspend fun poll(withServers: Boolean = true): PolledStatus = withContext(Dispatchers.IO) {
+        val out = shell.execLine(pollScript(withServers)).getOrNull()
+            ?: return@withContext PolledStatus(loadState(), null, null)
+        val sections = splitSections(out.stdout)
+        val status = StatusParser.parse(sections[0].joinToString("\n")).getOrNull()
+            ?: return@withContext PolledStatus(loadState(), null, null)
+        val proc = sections.getOrElse(1) { emptyList() }
+        PolledStatus(
+            state = readyState(status, status.pid?.let { uptimeFrom(proc.getOrNull(0), proc.getOrNull(1)) }),
+            activeServer = sections.getOrNull(2)?.joinToString("\n")?.trim()?.ifEmpty { null },
+            liveJson = sections.getOrNull(3)?.joinToString("\n")?.trim()?.ifEmpty { null },
+        )
+    }
+
+    private fun splitSections(lines: List<String>): List<List<String>> {
+        val sections = mutableListOf(mutableListOf<String>())
+        for (line in lines) {
+            if (line == POLL_SEPARATOR) sections += mutableListOf<String>() else sections.last() += line
+        }
+        return sections
     }
 
     private suspend fun diagnoseMissing(): ModuleState {
@@ -88,10 +128,15 @@ class ModuleRepository(
     private suspend fun readProcessUptime(pid: Int): Long? {
         val out = shell.execLine("cat /proc/uptime; cat /proc/$pid/stat").getOrNull() ?: return null
         if (!out.isSuccess || out.stdout.size < 2) return null
-        val systemUptime = out.stdout[0].trim().split(' ').firstOrNull()?.toDoubleOrNull() ?: return null
+        return uptimeFrom(out.stdout[0], out.stdout[1])
+    }
+
+    /** Process age from a `/proc/uptime` line and the process's `/proc/<pid>/stat` line. */
+    private fun uptimeFrom(uptimeLine: String?, statLine: String?): Long? {
+        if (uptimeLine == null || statLine == null) return null
+        val systemUptime = uptimeLine.trim().split(' ').firstOrNull()?.toDoubleOrNull() ?: return null
         // Field 22 of /proc/pid/stat is the start time in clock ticks. The process name
         // in field 2 can hold spaces, so cut everything up to the closing parenthesis.
-        val statLine = out.stdout[1]
         val afterComm = statLine.substringAfterLast(") ", missingDelimiterValue = "")
         val fields = afterComm.split(' ')
         val startTicks = fields.getOrNull(19)?.toDoubleOrNull() ?: return null
@@ -143,6 +188,29 @@ class ModuleRepository(
     suspend fun moduleLog(lines: Int): Result<ShellOutput> = ctl("log", lines.toString())
 
     suspend fun proxyLog(lines: Int): Result<ShellOutput> = ctl("proxylog", lines.toString())
+
+    /**
+     * Reads a log by byte offset. With [from] null, or when the file shrank (rotated or
+     * cleared), it returns the last [lines] lines and [LogChunk.reset]; otherwise only the
+     * bytes written since [from]. The proxy log falls back to stdout.log like `proxylog`.
+     * Fails when the file is missing, so callers can show the module's own message.
+     */
+    suspend fun logChunk(proxy: Boolean, from: Long?, lines: Int): Result<LogChunk> {
+        val path = if (proxy) {
+            "f=${RootShell.quote(ModuleContract.PROXY_LOG)}; [ -f \"\$f\" ] || f=${RootShell.quote(ModuleContract.STDOUT_LOG)}"
+        } else {
+            "f=${RootShell.quote(ModuleContract.MODULE_LOG)}"
+        }
+        val off = from ?: -1L
+        val out = shell.execLine(
+            "$path; s=\$(stat -c %s \"\$f\" 2>/dev/null) || exit 1; echo \$s; " +
+                "if [ $off -lt 0 ] || [ \"\$s\" -lt $off ]; then echo R; tail -n $lines \"\$f\"; " +
+                "else echo A; [ \"\$s\" -gt $off ] && tail -c +\$(($off + 1)) \"\$f\" | head -c \$((s - $off)); fi; true"
+        ).getOrElse { return Result.failure(it) }
+        if (!out.isSuccess || out.stdout.size < 2) return Result.failure(ShellFailure(out))
+        val size = out.stdout[0].trim().toLongOrNull() ?: return Result.failure(ShellFailure(out))
+        return Result.success(LogChunk(size, out.stdout.drop(2), reset = out.stdout[1] == "R"))
+    }
 
     suspend fun exportConfig(): Result<ShellOutput> = ctl("export")
 
@@ -320,6 +388,31 @@ class ModuleRepository(
 
     private companion object {
         const val CLOCK_TICKS_PER_SECOND = 100.0
+
+        const val POLL_SEPARATOR = "@@dnscm-poll@@"
+
+        /**
+         * The pid comes out of the json by parameter expansion and /proc is read with the
+         * `read` builtin, so the only forks are the module's own scripts. The servers part
+         * (`active` + `live`, about as costly as `json` itself) runs only when asked for.
+         */
+        fun pollScript(withServers: Boolean): String {
+            val servers = if (withServers) {
+                "echo $POLL_SEPARATOR; ${ModuleContract.CTL} servers active 2>/dev/null; " +
+                    "echo $POLL_SEPARATOR; ${ModuleContract.CTL} servers live 2>/dev/null"
+            } else {
+                ""
+            }
+            return """
+                j=$(${ModuleContract.CTL} json 2>/dev/null); echo "${'$'}j"; echo $POLL_SEPARATOR
+                case "${'$'}j" in *'"running":true'*)
+                  p=${'$'}{j#*'"pid":'}; p=${'$'}{p%%[!0-9]*}
+                  read u < /proc/uptime; echo "${'$'}u"
+                  [ -n "${'$'}p" ] && read s < /proc/${'$'}p/stat 2>/dev/null && echo "${'$'}s"
+                  $servers ;;
+                esac
+            """.trimIndent()
+        }
     }
 }
 

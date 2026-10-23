@@ -8,6 +8,7 @@ import io.github.skofqq.dnscryptmanager.data.AppSettings
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.ModuleRepository
 import io.github.skofqq.dnscryptmanager.data.ModuleState
+import io.github.skofqq.dnscryptmanager.data.PolledStatus
 import io.github.skofqq.dnscryptmanager.data.UiMessage
 import io.github.skofqq.dnscryptmanager.dns.DnsProbe
 import io.github.skofqq.dnscryptmanager.dns.ProbeResult
@@ -72,12 +73,13 @@ class StatusViewModel(
         viewModelScope.launch {
             if (showSpinner) _uiState.update { it.copy(refreshing = true) }
             if (showSpinner) conflictsChecked = false
-            val state = repository.loadState()
+            val polled = repository.poll()
+            val state = polled.state
             _uiState.update { it.copy(state = state, refreshing = false) }
             restartPending = false
             AppStartGate.markReady()
             checkConflicts(state)
-            loadServers(state)
+            applyServers(polled)
         }
     }
 
@@ -99,16 +101,24 @@ class StatusViewModel(
         _uiState.update { it.copy(state = state) }
     }
 
-    /** The active server and the live list; servers support arrived in 2.1.18-r2. */
-    private suspend fun loadServers(state: ModuleState) {
-        val ready = state as? ModuleState.Ready ?: return
+    /**
+     * The active server and the live list from the same poll; servers support arrived in
+     * 2.1.18-r2. Gated on the state on screen, which a lone restart blip does not replace.
+     */
+    private fun applyServers(polled: PolledStatus) {
+        val ready = _uiState.value.state as? ModuleState.Ready ?: return
+        if (polled.liveJson != null || polled.activeServer != null) {
+            serversFetchedAt = System.currentTimeMillis()
+            serversPid = ready.status.pid
+        }
         if (!ready.status.supportsServers || !ready.status.running) {
             _uiState.update { it.copy(activeServer = null, live = null, rttHistory = emptyList()) }
             return
         }
-        val line = repository.serversActive().getOrNull()?.takeIf { it.isSuccess }?.out?.trim()
-        val live = repository.serversLive().getOrNull()?.takeIf { it.isSuccess }?.out?.let(LiveServers::parseJson)
-        _uiState.update { it.copy(activeServer = line?.let(ActiveServer::parse), live = live ?: it.live) }
+        val live = polled.liveJson?.let(LiveServers::parseJson)
+        _uiState.update {
+            it.copy(activeServer = polled.activeServer?.let(ActiveServer::parse) ?: it.activeServer, live = live ?: it.live)
+        }
     }
 
     private var lastRttSample = 0L
@@ -156,15 +166,35 @@ class StatusViewModel(
                 .getOrDefault(AppSettings.DEFAULT_POLL_SECONDS)
             sampleRtt(_uiState.value.state)
             while (isActive) {
-                delay(interval * 1000L)
+                delay(if (inTransition()) FAST_POLL_MS else interval * 1000L)
                 if (_uiState.value.busyAction == null) {
-                    val state = repository.loadState()
-                    applyPolled(state)
-                    loadServers(_uiState.value.state)
+                    val polled = repository.poll(withServers = serversDue())
+                    applyPolled(polled.state)
+                    applyServers(polled)
                     sampleRtt(_uiState.value.state)
                 }
             }
         }
+    }
+
+    private var serversFetchedAt = 0L
+    private var serversPid: Int? = null
+
+    /**
+     * The live list only changes when the proxy restarts or re-ranks its servers, and
+     * asking for it costs about as much as the status itself: once a minute, or at once
+     * for a new process.
+     */
+    private fun serversDue(): Boolean {
+        val pid = (_uiState.value.state as? ModuleState.Ready)?.status?.pid
+        return pid != serversPid || System.currentTimeMillis() - serversFetchedAt >= SERVERS_REFRESH_MS
+    }
+
+    /** Something is about to change on its own: an action, a restart or a crash loop. */
+    private fun inTransition(): Boolean {
+        val status = (_uiState.value.state as? ModuleState.Ready)?.status
+        return _uiState.value.busyAction != null || restartPending || status?.isRestarting == true ||
+            _uiState.value.state is ModuleState.Loading
     }
 
     fun stopPolling() {
@@ -226,6 +256,11 @@ class StatusViewModel(
 
     private companion object {
         const val RTT_SAMPLE_MS = 10_000L
+
+        /** Poll pace while the state is moving; the user's interval applies when it is idle. */
+        const val FAST_POLL_MS = 2_500L
+
+        const val SERVERS_REFRESH_MS = 60_000L
         const val RTT_SAMPLES = 20
     }
 }

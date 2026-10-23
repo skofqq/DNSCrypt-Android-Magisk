@@ -89,11 +89,52 @@ class LogsViewModel(
         refresh()
     }
 
+    /** Byte offset each log was read up to, so Live only fetches what was appended. */
+    private val offsets = mutableMapOf<LogTab, Long>()
+
+    /**
+     * Live update of a log tab: reads from the stored offset and appends, keeping the
+     * last [LogsUiState.lineCount] lines. Without an offset it is a full [refresh].
+     */
+    fun liveRefresh() {
+        val state = _uiState.value
+        val from = offsets[state.tab]
+        if (!state.isLog || from == null) {
+            refresh(silent = true)
+            return
+        }
+        viewModelScope.launch {
+            val chunk = repository.logChunk(state.tab == LogTab.PROXY, from, state.lineCount).getOrNull()
+                ?: return@launch refresh(silent = true)
+            if (_uiState.value.tab != state.tab) return@launch
+            offsets[state.tab] = chunk.size
+            if (!chunk.reset && chunk.lines.isEmpty()) return@launch
+            val added = chunk.lines.map(LogLine::parse)
+            _uiState.update {
+                val lines = if (chunk.reset) added else (it.lines + added).takeLast(it.lineCount)
+                it.copy(lines = lines, error = null)
+            }
+        }
+    }
+
     /** [silent] skips the progress bar: live updates should not flicker every few seconds. */
     fun refresh(silent: Boolean = false) {
         viewModelScope.launch {
             val state = _uiState.value
             if (!silent) _uiState.update { it.copy(loading = true, error = null) }
+            if (state.isLog) {
+                // Straight from the file, so the size it ended at is known for Live.
+                val chunk = repository.logChunk(state.tab == LogTab.PROXY, null, state.lineCount).getOrNull()
+                if (chunk != null) {
+                    if (_uiState.value.tab != state.tab) return@launch
+                    offsets[state.tab] = chunk.size
+                    _uiState.update {
+                        it.copy(loading = false, lines = chunk.lines.map(LogLine::parse), error = null)
+                    }
+                    return@launch
+                }
+                offsets.remove(state.tab)
+            }
             val result = when (state.tab) {
                 LogTab.MODULE -> repository.moduleLog(state.lineCount)
                 LogTab.PROXY -> repository.proxyLog(state.lineCount)
