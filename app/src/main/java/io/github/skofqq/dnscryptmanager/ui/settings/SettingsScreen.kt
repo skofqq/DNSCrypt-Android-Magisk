@@ -86,6 +86,8 @@ fun SettingsScreen(
     autostartSupported: Boolean,
     onOpenServers: () -> Unit,
     onOpenConfig: () -> Unit,
+    onOpenBlocklists: () -> Unit,
+    blocklistsSummary: String,
     onReset: () -> Unit,
     onEdit: (String, String) -> Unit,
     onDiscard: () -> Unit,
@@ -165,8 +167,14 @@ fun SettingsScreen(
                         icon = painterResource(R.drawable.ic_article),
                         title = stringResource(R.string.settings_config_row),
                         subtitle = ModuleContract.CONFIG_NAME,
-                        showDivider = false,
                         onClick = onOpenConfig,
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_block),
+                        title = stringResource(R.string.blocklists_title),
+                        subtitle = blocklistsSummary,
+                        showDivider = false,
+                        onClick = onOpenBlocklists,
                     )
                 }
             }

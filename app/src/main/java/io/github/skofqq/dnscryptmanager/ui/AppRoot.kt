@@ -1,5 +1,7 @@
 package io.github.skofqq.dnscryptmanager.ui
 
+import io.github.skofqq.dnscryptmanager.ui.blocklists.BlocklistsScreen
+import io.github.skofqq.dnscryptmanager.ui.blocklists.BlocklistsViewModel
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentValues
@@ -82,7 +84,7 @@ enum class Destination(val labelRes: Int, val iconRes: Int) {
 }
 
 /** Pages opened from Settings, shown full screen with a back pill and no bottom bar. */
-enum class SubPage { SERVERS, CONFIG }
+enum class SubPage { SERVERS, CONFIG, BLOCKLISTS }
 
 /** Height of the floating bar plus its margins, without the system navigation bar. */
 private val BarHeight = 68.dp + 6.dp + 10.dp
@@ -278,6 +280,30 @@ fun AppRoot() {
                         )
                     }
 
+                    SubPage.BLOCKLISTS -> {
+                        val blocklistsViewModel: BlocklistsViewModel = viewModel(factory = factory)
+                        val blocklistsState by blocklistsViewModel.uiState.collectAsStateWithLifecycle()
+                        LaunchedEffect(blocklistsViewModel) {
+                            blocklistsViewModel.messages.collect { snackbarHostState.showSnackbar(resolve(it)) }
+                        }
+                        BlocklistsScreen(
+                            uiState = blocklistsState,
+                            onBack = { subPage = null },
+                            onToggle = blocklistsViewModel::setEnabled,
+                            onAdd = blocklistsViewModel::add,
+                            onRemove = blocklistsViewModel::remove,
+                            onUpdateNow = blocklistsViewModel::updateNow,
+                            onAutoUpdate = blocklistsViewModel::setAutoUpdate,
+                            onUnmeteredOnly = blocklistsViewModel::setUnmeteredOnly,
+                            onChargingOnly = blocklistsViewModel::setChargingOnly,
+                            onRestartNow = {
+                                blocklistsViewModel.restartNow()
+                                statusViewModel.refresh()
+                            },
+                            onDismissRestart = blocklistsViewModel::dismissRestart,
+                        )
+                    }
+
                     null -> AnimatedContent(
                         targetState = destination,
                         transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -339,6 +365,16 @@ fun AppRoot() {
                                 }
 
                                 val chosen = readyStatus?.serverSelection.orEmpty()
+                                val blocklistSettings by context.appContainer.blocklists.settings.collectAsStateWithLifecycle()
+                                val blocklistsSummary = if (blocklistSettings.enabledCount == 0) {
+                                    stringResource(R.string.blocklists_none_enabled)
+                                } else {
+                                    stringResource(
+                                        R.string.blocklists_summary,
+                                        blocklistSettings.enabledCount,
+                                        java.text.NumberFormat.getIntegerInstance().format(blocklistSettings.mergedEntries ?: 0),
+                                    )
+                                }
                                 TabPage(
                                     title = stringResource(R.string.nav_settings),
                                     subtitle = stringResource(R.string.page_settings_sub),
@@ -368,6 +404,8 @@ fun AppRoot() {
                                         autostartSupported = autostartSupported,
                                         onOpenServers = { subPage = SubPage.SERVERS },
                                         onOpenConfig = { subPage = SubPage.CONFIG },
+                                        onOpenBlocklists = { subPage = SubPage.BLOCKLISTS },
+                                        blocklistsSummary = blocklistsSummary,
                                         onReset = {
                                             settingsViewModel.resetToDefaults {
                                                 scope.launch { snackbarHostState.showSnackbar(resetDoneText) }
@@ -419,6 +457,16 @@ fun AppRoot() {
                                     onOnlyMatches = logsViewModel::setOnlyMatches,
                                     onRefresh = { logsViewModel.refresh() },
                                     onLiveRefresh = logsViewModel::liveRefresh,
+                                    onAddName = logsViewModel::addName,
+                                    onCopyLine = { text ->
+                                        context.copyToClipboard(text)
+                                        scope.launch { snackbarHostState.showSnackbar(copiedMessage) }
+                                    },
+                                    onRestartNow = {
+                                        logsViewModel.restartNow()
+                                        statusViewModel.refresh()
+                                    },
+                                    onDismissNameResult = logsViewModel::dismissNameResult,
                                     onCopy = {
                                         context.copyToClipboard(logsViewModel.currentText())
                                         scope.launch { snackbarHostState.showSnackbar(copiedMessage) }

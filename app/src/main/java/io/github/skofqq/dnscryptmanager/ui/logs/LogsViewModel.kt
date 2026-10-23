@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.skofqq.dnscryptmanager.data.LevelFilter
 import io.github.skofqq.dnscryptmanager.data.LogLine
 import io.github.skofqq.dnscryptmanager.data.ModuleRepository
+import io.github.skofqq.dnscryptmanager.data.ModuleState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,9 @@ import java.util.Date
 import java.util.Locale
 
 enum class LogTab { MODULE, PROXY, RULES, CONFLICTS }
+
+/** A name added from a log line: whether it was new, and whether the proxy runs to restart it. */
+data class NameResult(val name: String, val allowed: Boolean, val added: Boolean, val running: Boolean)
 
 data class LogsUiState(
     val tab: LogTab = LogTab.MODULE,
@@ -29,6 +33,7 @@ data class LogsUiState(
     val level: LevelFilter = LevelFilter.ALL,
     val lineCount: Int = DEFAULT_LINES,
     val wrap: Boolean = true,
+    val nameResult: NameResult? = null,
 ) {
     /** Rules and conflicts are command output, not logs: no levels, no tail length. */
     val isLog: Boolean get() = tab == LogTab.MODULE || tab == LogTab.PROXY
@@ -160,6 +165,27 @@ class LogsViewModel(
                 },
             )
         }
+    }
+
+    /** Adds a domain from a log line to blocked- or allowed-names.txt. Never starts the proxy. */
+    fun addName(allowed: Boolean, name: String) {
+        viewModelScope.launch {
+            repository.addName(allowed, name).fold(
+                onSuccess = { added ->
+                    val running = (repository.loadState() as? ModuleState.Ready)?.status?.running == true
+                    _uiState.update { it.copy(nameResult = NameResult(name, allowed, added, running)) }
+                },
+                onFailure = { error ->
+                    _uiState.update { it.copy(error = error.message ?: error.javaClass.simpleName) }
+                },
+            )
+        }
+    }
+
+    fun dismissNameResult() = _uiState.update { it.copy(nameResult = null) }
+
+    fun restartNow() {
+        viewModelScope.launch { repository.restartIfRunning() }
     }
 
     fun currentText(): String = _uiState.value.visibleLines.joinToString("\n") { it.raw }

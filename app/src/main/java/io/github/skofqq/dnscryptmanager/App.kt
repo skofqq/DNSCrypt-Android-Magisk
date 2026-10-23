@@ -3,6 +3,7 @@ package io.github.skofqq.dnscryptmanager
 import android.app.Application
 import android.content.Context
 import io.github.skofqq.dnscryptmanager.data.AppPreferences
+import io.github.skofqq.dnscryptmanager.data.BlocklistRepository
 import io.github.skofqq.dnscryptmanager.data.ModuleRepository
 import io.github.skofqq.dnscryptmanager.data.ModuleUpdater
 import io.github.skofqq.dnscryptmanager.root.RootShell
@@ -17,6 +18,7 @@ class AppContainer(context: Context) {
     val rootShell: RootShell = RootShell()
     val repository: ModuleRepository = ModuleRepository(rootShell, context.cacheDir)
     val updater: ModuleUpdater = ModuleUpdater(rootShell, context.cacheDir)
+    val blocklists: BlocklistRepository = BlocklistRepository(context, repository)
 }
 
 class App : Application() {

@@ -21,6 +21,13 @@ object ModuleContract {
     const val MIRROR_DIR = "/storage/emulated/0/dnscrypt-proxy"
 
     const val RESOLVERS_CACHE = "$DATA_DIR/public-resolvers.md"
+    const val BLOCKED_NAMES = "$DATA_DIR/blocked-names.txt"
+    const val ALLOWED_NAMES = "$DATA_DIR/allowed-names.txt"
+
+    /** Fences around the part of blocked-names.txt the app regenerates from blocklists. */
+    const val BLOCKLIST_BEGIN_PREFIX = "# >>> DNSCrypt Manager blocklists"
+    const val BLOCKLIST_BEGIN = "$BLOCKLIST_BEGIN_PREFIX (generated, edits here are replaced)"
+    const val BLOCKLIST_END = "# <<< DNSCrypt Manager blocklists"
 
     /** First module release that ships `dnscrypt-ctl json`. */
     const val MIN_VERSION = "2.1.18-r1"

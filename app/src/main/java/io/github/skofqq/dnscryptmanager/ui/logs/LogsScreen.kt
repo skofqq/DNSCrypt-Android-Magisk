@@ -1,5 +1,11 @@
 package io.github.skofqq.dnscryptmanager.ui.logs
 
+import io.github.skofqq.dnscryptmanager.ui.components.BoxyDialog
+import io.github.skofqq.dnscryptmanager.data.LogDomains
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -100,7 +106,12 @@ fun LogsScreen(
     onShare: () -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
+    onAddName: (allowed: Boolean, name: String) -> Unit = { _, _ -> },
+    onCopyLine: (String) -> Unit = {},
+    onRestartNow: () -> Unit = {},
+    onDismissNameResult: () -> Unit = {},
 ) {
+    var domainLine by remember { mutableStateOf<LogLine?>(null) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val lines = uiState.visibleLines
@@ -293,6 +304,7 @@ fun LogsScreen(
                         wrap = uiState.wrap,
                         listState = listState,
                         bottomPadding = barPadding,
+                        onLongPress = if (uiState.isLog) { line -> domainLine = line } else null,
                     )
                 }
             }
@@ -314,8 +326,14 @@ fun LogsScreen(
             }
         }
     }
-}
 
+    domainLine?.let { line ->
+        DomainDialog(line, onAddName, onCopyLine, onDismiss = { domainLine = null })
+    }
+    uiState.nameResult?.let { result ->
+        NameResultDialog(result, onRestartNow, onDismissNameResult)
+    }
+}
 
 @Composable
 private fun ChipRow(content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit) {
@@ -378,8 +396,10 @@ private fun LogCard(
     wrap: Boolean,
     listState: androidx.compose.foundation.lazy.LazyListState,
     bottomPadding: androidx.compose.ui.unit.Dp,
+    onLongPress: ((LogLine) -> Unit)? = null,
 ) {
     val palette = logPalette()
+    val haptics = LocalHapticFeedback.current
     val horizontal = rememberScrollState()
     Box(
         Modifier
@@ -389,7 +409,9 @@ private fun LogCard(
             .background(Boxy.colors.card)
             .then(if (wrap) Modifier else Modifier.horizontalScroll(horizontal)),
     ) {
-        SelectionContainer {
+        // Log lines answer a long press with their domains, which text selection would
+        // swallow; command output keeps selection. Copy stays in the menu for both.
+        val list: @Composable () -> Unit = {
             LazyColumn(
                 state = listState,
                 modifier = if (wrap) {
@@ -406,12 +428,99 @@ private fun LogCard(
                         text = if (isLog) colourLog(line, query, palette) else colourCommand(line.raw, query, palette),
                         style = MonospaceTextStyle,
                         softWrap = wrap,
+                        modifier = if (onLongPress == null) {
+                            Modifier
+                        } else {
+                            Modifier.fillMaxWidth().pointerInput(line) {
+                                detectTapGestures(onLongPress = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onLongPress(line)
+                                })
+                            }
+                        },
                     )
+                }
+            }
+        }
+        if (onLongPress == null) SelectionContainer { list() } else list()
+    }
+}
+
+/** Domains of one log line, each with Block and Allow; plus copying the line itself. */
+@Composable
+private fun DomainDialog(
+    line: LogLine,
+    onAddName: (allowed: Boolean, name: String) -> Unit,
+    onCopyLine: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val domains = remember(line) { LogDomains.extract(line.raw) }
+    BoxyDialog(
+        title = stringResource(R.string.logs_domain_title),
+        text = if (domains.isEmpty()) stringResource(R.string.logs_no_domain) else null,
+        onDismiss = onDismiss,
+        dismissText = stringResource(R.string.action_cancel),
+        confirmText = stringResource(R.string.logs_copy_line),
+        onConfirm = {
+            onCopyLine(line.raw)
+            onDismiss()
+        },
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            domains.take(MAX_DOMAINS).forEach { domain ->
+                Column(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Boxy.colors.surface2).padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(domain, style = MonospaceTextStyle, color = Boxy.colors.text)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionPill(stringResource(R.string.logs_block), Tints.red, true, Modifier.weight(1f)) {
+                            onAddName(false, domain)
+                            onDismiss()
+                        }
+                        ActionPill(stringResource(R.string.logs_allow), Tints.green, true, Modifier.weight(1f)) {
+                            onAddName(true, domain)
+                            onDismiss()
+                        }
+                    }
                 }
             }
         }
     }
 }
+
+/** What adding a name did, and the restart offer when the proxy runs. */
+@Composable
+private fun NameResultDialog(result: NameResult, onRestartNow: () -> Unit, onDismiss: () -> Unit) {
+    val title = when {
+        !result.added -> stringResource(R.string.logs_already, result.name)
+        result.allowed -> stringResource(R.string.logs_added_allowed, result.name)
+        else -> stringResource(R.string.logs_added_blocked, result.name)
+    }
+    if (result.added && result.running) {
+        BoxyDialog(
+            title = title,
+            text = stringResource(R.string.blocklists_restart_body),
+            onDismiss = onDismiss,
+            dismissText = stringResource(R.string.update_later),
+            confirmText = stringResource(R.string.exclusions_restart_now),
+            onConfirm = {
+                onRestartNow()
+                onDismiss()
+            },
+        )
+    } else {
+        BoxyDialog(
+            title = title,
+            text = if (result.added) stringResource(R.string.saved_for_next_start) else null,
+            onDismiss = onDismiss,
+            confirmText = stringResource(R.string.action_ok),
+            onConfirm = onDismiss,
+        )
+    }
+}
+
+private const val MAX_DOMAINS = 4
 
 
 private data class LogPalette(

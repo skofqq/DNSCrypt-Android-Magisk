@@ -190,6 +190,43 @@ class ModuleRepository(
     suspend fun proxyLog(lines: Int): Result<ShellOutput> = ctl("proxylog", lines.toString())
 
     /**
+     * Replaces the app's generated section of blocked-names.txt with [merged] (the
+     * section goes away when the file is empty). Lines outside the markers, the user's
+     * own, are kept as they are; `cat >` keeps the file's owner and mode.
+     */
+    suspend fun installBlocklists(merged: File): Result<Unit> {
+        val file = RootShell.quote(ModuleContract.BLOCKED_NAMES)
+        val tmp = RootShell.quote(ModuleContract.BLOCKED_NAMES + ".dnscm")
+        val src = RootShell.quote(merged.absolutePath)
+        val begin = RootShell.quote(ModuleContract.BLOCKLIST_BEGIN)
+        val end = RootShell.quote(ModuleContract.BLOCKLIST_END)
+        // toybox has sed but no awk. The markers hold no regex specials besides '.'.
+        val range = RootShell.quote("/^${ModuleContract.BLOCKLIST_BEGIN_PREFIX}/,/^${ModuleContract.BLOCKLIST_END}\$/d")
+        val out = shell.execLine(
+            "touch $file && " +
+                "sed $range $file > $tmp && " +
+                "{ if [ -s $src ]; then echo $begin; cat $src; echo $end; fi; } >> $tmp && " +
+                "cat $tmp > $file && rm -f $tmp"
+        ).getOrElse { return Result.failure(it) }
+        return if (out.isSuccess) Result.success(Unit) else Result.failure(ShellFailure(out))
+    }
+
+    /**
+     * Appends one name to blocked-names.txt or allowed-names.txt unless it is already
+     * there. False when it was there. The name must pass [BlocklistFormat.isDomain].
+     */
+    suspend fun addName(allowed: Boolean, name: String): Result<Boolean> {
+        require(BlocklistFormat.isDomain(name)) { "Not a domain: $name" }
+        val file = RootShell.quote(if (allowed) ModuleContract.ALLOWED_NAMES else ModuleContract.BLOCKED_NAMES)
+        val quoted = RootShell.quote(name)
+        val out = shell.execLine(
+            "if grep -qxF $quoted $file 2>/dev/null; then echo present; else echo $quoted >> $file && echo added; fi"
+        ).getOrElse { return Result.failure(it) }
+        if (!out.isSuccess) return Result.failure(ShellFailure(out))
+        return Result.success(out.out.trim() == "added")
+    }
+
+    /**
      * Reads a log by byte offset. With [from] null, or when the file shrank (rotated or
      * cleared), it returns the last [lines] lines and [LogChunk.reset]; otherwise only the
      * bytes written since [from]. The proxy log falls back to stdout.log like `proxylog`.
