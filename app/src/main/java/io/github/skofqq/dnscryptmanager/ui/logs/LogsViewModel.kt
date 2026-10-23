@@ -150,11 +150,14 @@ class LogsViewModel(
             if (_uiState.value.tab != state.tab) return@launch
             result.fold(
                 onSuccess = { output ->
+                    // `rules` exits non-zero when one table is missing (no ip6tables nat)
+                    // yet prints the rest: command output is shown whenever there is some.
+                    val usable = output.isSuccess || (!state.isLog && output.stdout.isNotEmpty())
                     _uiState.update {
                         it.copy(
                             loading = false,
-                            lines = if (output.isSuccess) output.stdout.map(LogLine::parse) else emptyList(),
-                            error = if (output.isSuccess) null else output.message,
+                            lines = if (usable) output.stdout.map(LogLine::parse) else emptyList(),
+                            error = if (usable) null else output.message,
                         )
                     }
                 },
