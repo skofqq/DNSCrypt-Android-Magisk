@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">DNSCrypt Manager</string>
-    <string name="tile_label">DNSCrypt</string>
+    <string name="app_name" translatable="false">DNSCrypt Manager</string>
+    <string name="tile_label" translatable="false">DNSCrypt</string>
 
     <!-- Navigation -->
     <string name="nav_status">Status</string>
@@ -52,7 +52,7 @@
     <string name="label_rules">IPv4 intercept rules</string>
     <string name="label_ipv6">IPv6 redirect</string>
     <string name="label_private_dns">Private DNS</string>
-    <string name="label_pid">PID</string>
+    <string name="label_pid" translatable="false">PID</string>
     <string name="label_supervisor">Supervisor PID</string>
     <string name="label_tether">Tethering redirect</string>
     <string name="label_config">Config file</string>
@@ -88,7 +88,7 @@
     <string name="settings_restart_note">Module settings only take effect after a restart.</string>
 
     <string name="setting_redirect_ipv4">Redirect IPv4 DNS</string>
-    <string name="setting_redirect_ipv6">IPv6 DNS</string>
+    <string name="setting_redirect_ipv6" translatable="false">IPv6 DNS</string>
     <string name="setting_redirect_ipv6_desc">Auto only redirects when the kernel can do ip6tables nat.</string>
     <string name="setting_tether">Redirect hotspot DNS</string>
     <string name="setting_private_dns">Turn off Private DNS</string>
@@ -113,7 +113,7 @@
     <string name="setting_poll">Refresh interval</string>
 
     <!-- Config screen -->
-    <string name="config_title">dnscrypt-proxy.toml</string>
+    <string name="config_title" translatable="false">dnscrypt-proxy.toml</string>
     <string name="config_search_hint">Find in file</string>
     <string name="config_match_count">%1$d of %2$d</string>
     <string name="config_no_matches">No matches</string>
@@ -136,8 +136,8 @@
     <string name="action_restore">Restore</string>
 
     <!-- Logs screen -->
-    <string name="logs_tab_module">module.log</string>
-    <string name="logs_tab_proxy">dnscrypt-proxy.log</string>
+    <string name="logs_tab_module" translatable="false">module.log</string>
+    <string name="logs_tab_proxy" translatable="false">dnscrypt-proxy.log</string>
     <string name="logs_tab_rules">Rules</string>
     <string name="logs_empty">Nothing to show.</string>
     <string name="logs_copied">Copied to clipboard</string>
@@ -174,7 +174,7 @@
     <string name="servers_empty_message">The list is empty, which means the same as automatic selection. The proxy will pick servers by the require_* filters.</string>
     <string name="servers_unsupported_title">Module is too old for this</string>
     <string name="servers_unsupported_body">Choosing resolvers needs module %1$s or newer, which is where dnscrypt-ctl servers first appears.</string>
-    <string name="servers_flag_dnssec">DNSSEC</string>
+    <string name="servers_flag_dnssec" translatable="false">DNSSEC</string>
     <string name="servers_flag_nolog">No logs</string>
     <string name="servers_flag_nofilter">No filter</string>
     <plurals name="servers_pending">
@@ -183,11 +183,11 @@
     </plurals>
 
     <string name="protocol_plain">Plain DNS</string>
-    <string name="protocol_dnscrypt">DNSCrypt</string>
-    <string name="protocol_doh">DoH</string>
-    <string name="protocol_dot">DoT</string>
-    <string name="protocol_doq">DoQ</string>
-    <string name="protocol_odoh">ODoH</string>
+    <string name="protocol_dnscrypt" translatable="false">DNSCrypt</string>
+    <string name="protocol_doh" translatable="false">DoH</string>
+    <string name="protocol_dot" translatable="false">DoT</string>
+    <string name="protocol_doq" translatable="false">DoQ</string>
+    <string name="protocol_odoh" translatable="false">ODoH</string>
     <string name="protocol_relay">Relay</string>
     <string name="protocol_unknown">Unknown</string>
 
@@ -214,7 +214,7 @@
     <string name="setting_autostart">Start at boot</string>
 
     <!-- IPv6 DNS, reported by the module from 2.4.2 on -->
-    <string name="label_ipv6_dns">IPv6 DNS</string>
+    <string name="label_ipv6_dns" translatable="false">IPv6 DNS</string>
     <string name="ipv6_dns_redirected">Through the proxy</string>
     <string name="ipv6_dns_blocked">Blocked, falls back to IPv4</string>
     <string name="ipv6_dns_bypass">Bypasses the proxy</string>
@@ -234,7 +234,7 @@
     <string name="update_latest">You have the latest version</string>
     <string name="update_check_again">Check again</string>
     <string name="update_retry">Try again</string>
-    <string name="update_version_code">versionCode</string>
+    <string name="update_version_code" translatable="false">versionCode</string>
     <string name="update_whats_new">What\'s new</string>
     <string name="update_open_changelog">Full changelog</string>
     <string name="update_install">Download and install</string>
@@ -263,8 +263,8 @@
     <string name="page_settings_sub">Module and app</string>
     <string name="status_service">Service status</string>
     <string name="status_details">Details</string>
-    <string name="hero_ipv4">IPv4</string>
-    <string name="hero_ipv6">IPv6</string>
+    <string name="hero_ipv4" translatable="false">IPv4</string>
+    <string name="hero_ipv6" translatable="false">IPv6</string>
     <string name="hero_port">Port</string>
     <string name="hero_module">Module</string>
     <string name="hero_on">On</string>
@@ -386,7 +386,7 @@
     <string name="dnscard_badge_system">SYSTEM</string>
     <string name="dnscard_value_proxy">Via DNSCrypt</string>
     <string name="dnscard_value_leak">Provider</string>
-    <string name="dnscard_value_box">box_for_magisk</string>
+    <string name="dnscard_value_box" translatable="false">box_for_magisk</string>
     <string name="dnscard_value_system">Network DNS</string>
     <string name="dnscard_tap_to_check">Tap to check</string>
     <string name="dnscard_checked_now">Checked just now</string>
