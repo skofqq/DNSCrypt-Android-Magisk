@@ -26,4 +26,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "DNSCrypt Manager"
 include(":app")
+include(":baselineprofile")
  

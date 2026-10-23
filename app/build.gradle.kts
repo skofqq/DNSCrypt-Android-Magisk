@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.baselineprofile)
 }
 
 // Release signing credentials live outside version control. Without the file the
@@ -107,6 +108,8 @@ dependencies {
     implementation(libs.libsu.core)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
