@@ -433,4 +433,6 @@
     <string name="version_tap_to_check">Націсніце, каб праверыць абнаўленні</string>
     <string name="rules_missing_title">DNS не перахопліваецца</string>
     <string name="rules_missing_body">Проксі працуе, але правіл IPv4 няма, і запыты ідуць міма яго. Перазапусціце проксі.</string>
+    <string name="migration_notice">Налады перанесены з DNSCrypt Manager — старую праграму можна выдаліць.</string>
+    <string name="migration_action">Пра праграму</string>
 </resources>

@@ -421,4 +421,6 @@
     <string name="version_tap_to_check">Жаңартуларды тексеру үшін түртіңіз</string>
     <string name="rules_missing_title">DNS ұсталмайды</string>
     <string name="rules_missing_body">Прокси жұмыс істеп тұр, бірақ IPv4 ережелері жоқ, сұраулар оны айналып өтеді. Проксиді қайта қосыңыз.</string>
+    <string name="migration_notice">Баптаулар DNSCrypt Manager-ден көшірілді — ескі қолданбаны жоюға болады.</string>
+    <string name="migration_action">Қолданба туралы</string>
 </resources>

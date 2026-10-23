@@ -433,4 +433,6 @@
     <string name="version_tap_to_check">Dotknij, aby sprawdzić aktualizacje</string>
     <string name="rules_missing_title">DNS nie jest przechwytywany</string>
     <string name="rules_missing_body">Proxy działa, ale brakuje reguł IPv4 i zapytania je omijają. Uruchom proxy ponownie.</string>
+    <string name="migration_notice">Ustawienia przeniesiono z DNSCrypt Manager. Starą aplikację można usunąć.</string>
+    <string name="migration_action">Informacje o aplikacji</string>
 </resources>

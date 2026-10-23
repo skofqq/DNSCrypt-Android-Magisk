@@ -427,4 +427,6 @@
     <string name="version_tap_to_check">Touchez pour chercher une mise à jour</string>
     <string name="rules_missing_title">Le DNS n\'est pas intercepté</string>
     <string name="rules_missing_body">Le proxy tourne, mais ses règles IPv4 manquent et les requêtes le contournent. Redémarrez le proxy.</string>
+    <string name="migration_notice">Réglages repris de DNSCrypt Manager. L\'ancienne app peut être supprimée.</string>
+    <string name="migration_action">Infos sur l\'app</string>
 </resources>

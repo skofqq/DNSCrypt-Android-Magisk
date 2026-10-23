@@ -18,13 +18,13 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "io.github.skofqq.dnscryptmanager"
+    namespace = "com.skofqq.shieldy"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "io.github.skofqq.dnscryptmanager"
+        applicationId = "com.skofqq.shieldy"
         minSdk = 31
         targetSdk = 36
         versionCode = 8

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">DNSCrypt Manager</string>
+    <string name="app_name" translatable="false">Shieldy</string>
     <string name="tile_label" translatable="false">DNSCrypt</string>
 
     <!-- Navigation -->
@@ -485,4 +485,6 @@
     <string name="version_tap_to_check">Tap to check for updates</string>
     <string name="rules_missing_title">DNS is not intercepted</string>
     <string name="rules_missing_body">The proxy runs, but its IPv4 rules are missing, so queries go past it. Restart the proxy.</string>
+    <string name="migration_notice">Settings moved over from DNSCrypt Manager. The old app can be removed.</string>
+    <string name="migration_action">App info</string>
 </resources>

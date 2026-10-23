@@ -3,6 +3,11 @@
 
     <!-- Only used to talk to the proxy on 127.0.0.1. -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- DNSCrypt Manager, the app's former package: its settings move over once. -->
+    <queries>
+        <package android:name="io.github.skofqq.dnscryptmanager" />
+    </queries>
     <!-- The DNS check reads which DNS servers the active network hands out. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -16,12 +21,12 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DNSCryptManager">
+        android:theme="@style/Theme.Shieldy">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.DNSCryptManager.Starting">
+            android:theme="@style/Theme.Shieldy.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -476,4 +476,6 @@
     <string name="version_tap_to_check">Нажмите, чтобы проверить обновления</string>
     <string name="rules_missing_title">DNS не перехватывается</string>
     <string name="rules_missing_body">Прокси работает, но правил IPv4 нет, и запросы идут мимо него. Перезапустите прокси.</string>
+    <string name="migration_notice">Настройки перенесены из DNSCrypt Manager — старое приложение можно удалить.</string>
+    <string name="migration_action">О приложении</string>
 </resources>

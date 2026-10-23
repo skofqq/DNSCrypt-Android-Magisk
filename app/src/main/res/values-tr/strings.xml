@@ -421,4 +421,6 @@
     <string name="version_tap_to_check">Güncellemeleri denetlemek için dokunun</string>
     <string name="rules_missing_title">DNS yakalanmıyor</string>
     <string name="rules_missing_body">Proxy çalışıyor ama IPv4 kuralları yok, sorgular onu atlıyor. Proxy\'yi yeniden başlatın.</string>
+    <string name="migration_notice">Ayarlar DNSCrypt Manager\'dan taşındı. Eski uygulama kaldırılabilir.</string>
+    <string name="migration_action">Uygulama bilgisi</string>
 </resources>

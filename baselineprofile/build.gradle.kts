@@ -8,7 +8,7 @@ plugins {
 //   ./gradlew :app:generateReleaseBaselineProfile
 // The app needs root, so grant it once in the Magisk prompt on the first run.
 android {
-    namespace = "io.github.skofqq.dnscryptmanager.baselineprofile"
+    namespace = "com.skofqq.shieldy.baselineprofile"
     compileSdk {
         version = release(37)
     }

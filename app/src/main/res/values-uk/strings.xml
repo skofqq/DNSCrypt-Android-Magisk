@@ -433,4 +433,6 @@
     <string name="version_tap_to_check">Натисніть, щоб перевірити оновлення</string>
     <string name="rules_missing_title">DNS не перехоплюється</string>
     <string name="rules_missing_body">Проксі працює, але правил IPv4 немає, і запити йдуть повз нього. Перезапустіть проксі.</string>
+    <string name="migration_notice">Налаштування перенесено з DNSCrypt Manager — старий застосунок можна видалити.</string>
+    <string name="migration_action">Про застосунок</string>
 </resources>

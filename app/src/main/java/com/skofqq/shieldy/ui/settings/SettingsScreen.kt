@@ -1,0 +1,630 @@
+package com.skofqq.shieldy.ui.settings
+
+import androidx.compose.runtime.CompositionLocalProvider
+import com.skofqq.shieldy.ui.components.LocalBaseDensity
+import com.skofqq.shieldy.ui.components.IconTile
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import com.skofqq.shieldy.ui.components.LocalSnackbarLift
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import com.skofqq.shieldy.ui.components.CardInset
+import com.skofqq.shieldy.ui.components.Badge
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.skofqq.shieldy.R
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
+import com.skofqq.shieldy.data.AppLanguage
+import com.skofqq.shieldy.data.AppSettings
+import com.skofqq.shieldy.data.ModuleContract
+import com.skofqq.shieldy.data.ModuleSettings
+import com.skofqq.shieldy.ui.components.BoxyDialog
+import com.skofqq.shieldy.ui.components.Choice
+import com.skofqq.shieldy.ui.components.ChoiceDialog
+import com.skofqq.shieldy.ui.components.LocalBarPadding
+import com.skofqq.shieldy.ui.components.NavRow
+import com.skofqq.shieldy.ui.components.NoticeCard
+import com.skofqq.shieldy.ui.components.PageInset
+import com.skofqq.shieldy.ui.components.PendingBar
+import com.skofqq.shieldy.ui.components.SectionCard
+import com.skofqq.shieldy.ui.components.SwitchRow
+import com.skofqq.shieldy.ui.components.TextInset
+import com.skofqq.shieldy.ui.theme.Boxy
+import com.skofqq.shieldy.ui.theme.ThemeMode
+import com.skofqq.shieldy.ui.theme.Tints
+import com.skofqq.shieldy.ui.update.ModuleUpdateUiState
+import com.skofqq.shieldy.ui.update.ModuleVersionRow
+import kotlin.math.roundToInt
+
+/** Which of the value dialogs is open; one at a time. */
+private enum class SettingDialog { IPV6, RESTART_DELAY, RUN_GID, RUN_GID_CUSTOM, THEME, LANGUAGE, POLL, RESET }
+
+/**
+ * Settings in Boxy's layout: titled cards with icon rows. Choices open a dialog instead
+ * of sitting in the row as segmented buttons; servers and the config editor are sub-pages.
+ */
+@Composable
+fun SettingsScreen(
+    uiState: ModuleSettingsUiState,
+    appSettings: AppSettings,
+    serversSupported: Boolean,
+    serversSummary: String,
+    advancedSupported: Boolean,
+    runGidSupported: Boolean,
+    mirrorSupported: Boolean,
+    resetSupported: Boolean,
+    autostartSupported: Boolean,
+    onOpenServers: () -> Unit,
+    onOpenConfig: () -> Unit,
+    onOpenBlocklists: () -> Unit,
+    blocklistsSummary: String,
+    onReset: () -> Unit,
+    onEdit: (String, String) -> Unit,
+    onDiscard: () -> Unit,
+    onApply: () -> Unit,
+    onThemeMode: (ThemeMode) -> Unit,
+    onDynamicColor: (Boolean) -> Unit,
+    onPollInterval: (Int) -> Unit,
+    onUiScale: (Int) -> Unit,
+    updateState: ModuleUpdateUiState,
+    onOpenUpdate: () -> Unit,
+    modifier: Modifier = Modifier,
+    onShown: () -> Unit = {},
+) {
+    var dialog by remember { mutableStateOf<SettingDialog?>(null) }
+    LaunchedEffect(Unit) { onShown() }
+    val barPadding = LocalBarPadding.current
+    // The list makes room for the unsaved-changes bar by its measured height, so the
+    // last rows are never covered, and grows with it instead of jumping.
+    val pendingShown = uiState.pendingKeys.isNotEmpty()
+    var pendingBarHeight by remember { mutableIntStateOf(0) }
+    // While the bar slides out the count is already 0; keep showing the last one.
+    var shownCount by remember { mutableIntStateOf(0) }
+    if (pendingShown) shownCount = uiState.pendingKeys.size
+    val density = LocalDensity.current
+    val pendingInset by animateDpAsState(
+        if (pendingShown) with(density) { pendingBarHeight.toDp() } else 0.dp,
+        label = "pendingInset",
+    )
+    // Notices float above the unsaved-changes bar rather than on top of it.
+    val snackbarLift = LocalSnackbarLift.current
+    SideEffect { snackbarLift.value = pendingInset }
+    DisposableEffect(Unit) { onDispose { snackbarLift.value = 0.dp } }
+    val context = LocalContext.current
+    val activity = context as? Activity
+    // Read once per composition; changing it recreates the activity anyway.
+    val language = remember { AppLanguage.current(context) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        if (uiState.loading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
+            return@Box
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = PageInset,
+                end = PageInset,
+                top = 4.dp,
+                bottom = barPadding + pendingInset,
+            ),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            if (uiState.error != null) {
+                item {
+                    NoticeCard(
+                        title = stringResource(R.string.settings_error_title),
+                        body = stringResource(R.string.error_prefix, uiState.error),
+                        tint = Tints.red,
+                        icon = painterResource(R.drawable.ic_warning),
+                    )
+                }
+            }
+
+            item {
+                SectionCard(
+                    title = stringResource(R.string.settings_proxy_header),
+                    subtitle = stringResource(R.string.settings_proxy_sub),
+                ) {
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_dns),
+                        title = stringResource(R.string.nav_servers),
+                        subtitle = if (serversSupported) {
+                            serversSummary
+                        } else {
+                            stringResource(R.string.settings_needs_module, ModuleContract.MIN_SERVERS_VERSION)
+                        },
+                        enabled = serversSupported,
+                        onClick = onOpenServers,
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_article),
+                        title = stringResource(R.string.settings_config_row),
+                        subtitle = ModuleContract.CONFIG_NAME,
+                        onClick = onOpenConfig,
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_block),
+                        title = stringResource(R.string.blocklists_title),
+                        subtitle = blocklistsSummary,
+                        showDivider = false,
+                        onClick = onOpenBlocklists,
+                    )
+                }
+            }
+
+            item {
+                SectionCard(
+                    title = stringResource(R.string.settings_module_header),
+                    subtitle = stringResource(R.string.settings_module_sub),
+                ) {
+                    if (autostartSupported) {
+                        SwitchRow(
+                            icon = painterResource(R.drawable.ic_power),
+                            title = stringResource(R.string.setting_autostart),
+                            subtitle = stringResource(R.string.setting_autostart_short),
+                            checked = uiState.boolean(ModuleSettings.AUTOSTART, true),
+                            onCheckedChange = { onEdit(ModuleSettings.AUTOSTART, it.toString()) },
+                        )
+                    }
+                    SwitchRow(
+                        icon = painterResource(R.drawable.ic_swap),
+                        title = stringResource(R.string.setting_redirect_ipv4),
+                        subtitle = stringResource(R.string.setting_redirect_ipv4_short),
+                        checked = uiState.boolean(ModuleSettings.REDIRECT_IPV4, true),
+                        onCheckedChange = { onEdit(ModuleSettings.REDIRECT_IPV4, it.toString()) },
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_globe),
+                        title = stringResource(R.string.setting_redirect_ipv6),
+                        subtitle = stringResource(ipv6ModeLabel(uiState.text(ModuleSettings.REDIRECT_IPV6, "auto"))),
+                        onClick = { dialog = SettingDialog.IPV6 },
+                    )
+                    SwitchRow(
+                        icon = painterResource(R.drawable.ic_hotspot),
+                        title = stringResource(R.string.setting_tether),
+                        subtitle = stringResource(R.string.setting_tether_short),
+                        checked = uiState.boolean(ModuleSettings.TETHER_REDIRECT, false),
+                        onCheckedChange = { onEdit(ModuleSettings.TETHER_REDIRECT, it.toString()) },
+                    )
+                    SwitchRow(
+                        icon = painterResource(R.drawable.ic_lock),
+                        title = stringResource(R.string.setting_private_dns),
+                        subtitle = stringResource(R.string.setting_private_dns_short),
+                        checked = uiState.boolean(ModuleSettings.DISABLE_PRIVATE_DNS, false),
+                        onCheckedChange = { onEdit(ModuleSettings.DISABLE_PRIVATE_DNS, it.toString()) },
+                    )
+                    if (mirrorSupported) {
+                        SwitchRow(
+                            icon = painterResource(R.drawable.ic_backup),
+                            title = stringResource(R.string.setting_mirror),
+                            subtitle = stringResource(R.string.setting_mirror_desc),
+                            checked = uiState.boolean(ModuleSettings.MIRROR_CONFIG, false),
+                            onCheckedChange = { onEdit(ModuleSettings.MIRROR_CONFIG, it.toString()) },
+                        )
+                    }
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_timer),
+                        title = stringResource(R.string.setting_restart_delay),
+                        subtitle = stringResource(
+                            R.string.value_seconds,
+                            uiState.number(ModuleSettings.RESTART_DELAY_MAX, ModuleSettings.RESTART_DELAY_DEFAULT),
+                        ),
+                        showDivider = resetSupported,
+                        onClick = { dialog = SettingDialog.RESTART_DELAY },
+                    )
+                    if (resetSupported) {
+                        NavRow(
+                            icon = painterResource(R.drawable.ic_restore),
+                            title = stringResource(R.string.settings_reset),
+                            subtitle = stringResource(R.string.settings_restart_note),
+                            iconTint = Tints.red.fg,
+                            enabled = !uiState.applying,
+                            showDivider = false,
+                            onClick = { dialog = SettingDialog.RESET },
+                        )
+                    }
+                }
+            }
+
+            if (advancedSupported && runGidSupported) {
+                item {
+                    SectionCard(
+                        title = stringResource(R.string.settings_advanced_header),
+                        subtitle = stringResource(R.string.settings_advanced_sub),
+                    ) {
+                        val group = uiState.group
+                        NavRow(
+                            icon = painterResource(R.drawable.ic_group),
+                            title = stringResource(R.string.setting_run_gid),
+                            titleBadge = { ExperimentalBadge() },
+                            subtitle = runGidValue(uiState.text(ModuleSettings.RUN_GID, "")) +
+                                (group?.let { " · " + stringResource(R.string.run_gid_effective, it.gid) } ?: ""),
+                            showDivider = false,
+                            onClick = { dialog = SettingDialog.RUN_GID },
+                        )
+                        // What the module was asked for vs what the process got: a normal
+                        // start runs with root's group 0.
+                        val expected = ModuleSettings.expectedGid(uiState.saved[ModuleSettings.RUN_GID].orEmpty()) ?: 0
+                        AnimatedVisibility(
+                            visible = group != null && group.gid != expected,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            if (group == null) return@AnimatedVisibility
+                            NoticeCard(
+                                title = stringResource(R.string.run_gid_mismatch_title),
+                                body = if (group.suRefusedGroup && expected != 0) {
+                                    stringResource(R.string.run_gid_unsupported_body, group.gid, expected)
+                                } else {
+                                    stringResource(R.string.run_gid_mismatch_body, group.gid, expected)
+                                },
+                                tint = Tints.amber,
+                                icon = painterResource(R.drawable.ic_warning),
+                                modifier = Modifier.padding(start = CardInset, end = CardInset, bottom = CardInset),
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                SectionCard(
+                    title = stringResource(R.string.settings_display_header),
+                    subtitle = stringResource(R.string.settings_display_sub),
+                ) {
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_palette),
+                        title = stringResource(R.string.setting_theme),
+                        subtitle = stringResource(themeLabel(appSettings.themeMode)),
+                        onClick = { dialog = SettingDialog.THEME },
+                    )
+                    SwitchRow(
+                        icon = painterResource(R.drawable.ic_wallpaper),
+                        title = stringResource(R.string.setting_dynamic_color),
+                        subtitle = stringResource(R.string.setting_dynamic_color_desc),
+                        checked = appSettings.dynamicColor,
+                        onCheckedChange = onDynamicColor,
+                    )
+                    UiScaleRow(percent = appSettings.uiScalePercent, onScale = onUiScale)
+                }
+            }
+
+            item {
+                SectionCard(
+                    title = stringResource(R.string.settings_app_header),
+                    subtitle = stringResource(R.string.settings_app_sub),
+                ) {
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_translate),
+                        title = stringResource(R.string.setting_language),
+                        subtitle = AppLanguage.OPTIONS.firstOrNull { it.tag == language }?.label
+                            ?: (AppLanguage.SYSTEM_FLAG + " " + stringResource(R.string.language_system)),
+                        onClick = { dialog = SettingDialog.LANGUAGE },
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_schedule),
+                        title = stringResource(R.string.setting_poll),
+                        subtitle = stringResource(R.string.value_seconds, appSettings.pollIntervalSeconds),
+                        showDivider = false,
+                        onClick = { dialog = SettingDialog.POLL },
+                    )
+                }
+            }
+
+            item {
+                SectionCard(
+                    title = stringResource(R.string.settings_about_header),
+                    subtitle = stringResource(R.string.settings_about_sub),
+                ) {
+                    ModuleVersionRow(state = updateState, onClick = onOpenUpdate)
+                    val uriHandler = LocalUriHandler.current
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_globe),
+                        title = stringResource(R.string.geoip_attribution),
+                        subtitle = "db-ip.com",
+                        showDivider = false,
+                        onClick = { uriHandler.openUri("https://db-ip.com") },
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = pendingShown,
+            enter = slideInVertically { it / 2 } + fadeIn(),
+            exit = slideOutVertically { it / 2 } + fadeOut(),
+            // Sits on top of the floating nav bar, not over it.
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = barPadding - 8.dp)
+                .onSizeChanged { pendingBarHeight = it.height },
+        ) {
+            Column {
+                PendingBar(
+                    label = pluralStringResource(R.plurals.settings_pending, shownCount, shownCount) +
+                        " · " + stringResource(R.string.settings_restart_note),
+                    applying = uiState.applying,
+                    applyText = stringResource(R.string.settings_apply),
+                    onDiscard = onDiscard,
+                    onApply = onApply,
+                )
+            }
+        }
+    }
+
+    when (dialog) {
+        SettingDialog.IPV6 -> ChoiceDialog(
+            title = stringResource(R.string.setting_redirect_ipv6),
+            choices = listOf(
+                Choice("auto", stringResource(R.string.ipv6_auto), stringResource(R.string.setting_redirect_ipv6_desc)),
+                Choice("redirect", stringResource(R.string.ipv6_redirect), stringResource(R.string.ipv6_redirect_desc)),
+                Choice("off", stringResource(R.string.ipv6_off), stringResource(R.string.ipv6_off_desc)),
+            ),
+            selected = uiState.text(ModuleSettings.REDIRECT_IPV6, "auto"),
+            onSelect = { onEdit(ModuleSettings.REDIRECT_IPV6, it) },
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.RESTART_DELAY -> RestartDelayDialog(
+            seconds = uiState.number(ModuleSettings.RESTART_DELAY_MAX, ModuleSettings.RESTART_DELAY_DEFAULT),
+            onConfirm = { onEdit(ModuleSettings.RESTART_DELAY_MAX, it.toString()) },
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.RUN_GID -> {
+            val current = uiState.text(ModuleSettings.RUN_GID, "")
+            ChoiceDialog(
+                title = stringResource(R.string.setting_run_gid),
+                titleBadge = { ExperimentalBadge() },
+                text = stringResource(R.string.setting_run_gid_desc) + "\n\n" + stringResource(R.string.run_gid_experimental_note),
+                choices = listOf(
+                    Choice("", stringResource(R.string.run_gid_default), stringResource(R.string.run_gid_default_desc)),
+                    Choice(ModuleSettings.RUN_GID_NET_ADMIN, stringResource(R.string.run_gid_box), "GID ${ModuleSettings.NET_ADMIN_GID}"),
+                    Choice(CUSTOM, stringResource(R.string.run_gid_custom), stringResource(R.string.run_gid_custom_desc)),
+                ),
+                selected = if (current.isEmpty() || current == ModuleSettings.RUN_GID_NET_ADMIN) current else CUSTOM,
+                onSelect = { if (it == CUSTOM) dialog = SettingDialog.RUN_GID_CUSTOM else onEdit(ModuleSettings.RUN_GID, it) },
+                onDismiss = { if (dialog == SettingDialog.RUN_GID) dialog = null },
+            )
+        }
+
+        SettingDialog.RUN_GID_CUSTOM -> RunGidCustomDialog(
+            initial = uiState.text(ModuleSettings.RUN_GID, "").takeIf { value -> value.all { it.isDigit() } }.orEmpty(),
+            onConfirm = { onEdit(ModuleSettings.RUN_GID, it) },
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.LANGUAGE -> ChoiceDialog(
+            title = stringResource(R.string.setting_language),
+            choices = listOf(Choice("", AppLanguage.SYSTEM_FLAG + " " + stringResource(R.string.language_system))) +
+                AppLanguage.OPTIONS.map { Choice(it.tag, it.label) },
+            selected = language,
+            onSelect = { tag -> activity?.let { AppLanguage.set(it, tag) } },
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.THEME -> ChoiceDialog(
+            title = stringResource(R.string.setting_theme),
+            choices = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK).map { Choice(it, stringResource(themeLabel(it))) },
+            selected = appSettings.themeMode,
+            onSelect = onThemeMode,
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.POLL -> ChoiceDialog(
+            title = stringResource(R.string.setting_poll),
+            choices = AppSettings.POLL_CHOICES.map { Choice(it, stringResource(R.string.value_seconds, it)) },
+            selected = appSettings.pollIntervalSeconds,
+            onSelect = onPollInterval,
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.RESET -> BoxyDialog(
+            title = stringResource(R.string.settings_reset_title),
+            text = stringResource(R.string.settings_reset_message),
+            onDismiss = { dialog = null },
+            dismissText = stringResource(R.string.action_cancel),
+            confirmText = stringResource(R.string.settings_reset),
+            confirmTint = Tints.red,
+            onConfirm = {
+                dialog = null
+                onReset()
+            },
+        )
+
+        null -> Unit
+    }
+}
+
+/** Marker for the "custom value" choice; never written to module.conf. */
+private const val CUSTOM = "\u0000custom"
+
+@Composable
+private fun RestartDelayDialog(seconds: Int, onConfirm: (Int) -> Unit, onDismiss: () -> Unit) {
+    var value by remember { mutableIntStateOf(seconds) }
+    BoxyDialog(
+        title = stringResource(R.string.setting_restart_delay),
+        text = stringResource(R.string.setting_restart_delay_desc),
+        onDismiss = onDismiss,
+        dismissText = stringResource(R.string.action_cancel),
+        confirmText = stringResource(R.string.action_ok),
+        onConfirm = {
+            onConfirm(value)
+            onDismiss()
+        },
+    ) {
+        Text(
+            stringResource(R.string.value_seconds, value),
+            style = MaterialTheme.typography.headlineMedium,
+            color = Boxy.colors.text,
+        )
+        Slider(
+            value = value.toFloat(),
+            onValueChange = { value = it.roundToInt() },
+            valueRange = ModuleSettings.RESTART_DELAY_MIN_SECONDS.toFloat()..ModuleSettings.RESTART_DELAY_MAX_SECONDS.toFloat(),
+        )
+    }
+}
+
+/**
+ * Boxy's "Interface scale": the value in the title, the range underneath, a stepped
+ * slider applied live. Reset, or a long press on the row, goes back to 100%.
+ */
+@Composable
+private fun UiScaleRow(percent: Int, onScale: (Int) -> Unit) {
+    // Follows the finger at once; the stored value (and so the whole app) follows each step.
+    var dragged by remember(percent) { mutableFloatStateOf(percent.toFloat()) }
+    val haptics = LocalHapticFeedback.current
+    Column(Modifier.padding(horizontal = CardInset, vertical = 10.dp)) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onScale(AppSettings.DEFAULT_UI_SCALE)
+                    },
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconTile(painterResource(R.drawable.ic_tune))
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.setting_ui_scale, dragged.roundToInt()),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Boxy.colors.text,
+                )
+                Text(
+                    stringResource(R.string.setting_ui_scale_desc, AppSettings.MIN_UI_SCALE, AppSettings.MAX_UI_SCALE),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Boxy.colors.text2,
+                )
+            }
+            if (percent != AppSettings.DEFAULT_UI_SCALE) {
+                TextButton(onClick = { onScale(AppSettings.DEFAULT_UI_SCALE) }) {
+                    Text(stringResource(R.string.setting_ui_scale_reset), color = Boxy.colors.accent)
+                }
+            }
+        }
+        val baseDensity = LocalBaseDensity.current ?: LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides baseDensity) {
+        Slider(
+            value = dragged,
+            onValueChange = { value ->
+                val stepped = (value / AppSettings.UI_SCALE_STEP).roundToInt() * AppSettings.UI_SCALE_STEP
+                if (stepped != dragged.roundToInt()) onScale(stepped)
+                dragged = stepped.toFloat()
+            },
+            valueRange = AppSettings.MIN_UI_SCALE.toFloat()..AppSettings.MAX_UI_SCALE.toFloat(),
+            // 80, 85 ... 120: nine positions, seven between the ends.
+            steps = (AppSettings.MAX_UI_SCALE - AppSettings.MIN_UI_SCALE) / AppSettings.UI_SCALE_STEP - 1,
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+        )
+        }
+    }
+}
+
+@Composable
+private fun RunGidCustomDialog(initial: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf(initial) }
+    // Numeric only: names other than net_admin are the module's business, not the UI's.
+    val normalized = text.trim().takeIf { it.isNotEmpty() && it.all(Char::isDigit) }
+    BoxyDialog(
+        title = stringResource(R.string.run_gid_custom),
+        onDismiss = onDismiss,
+        dismissText = stringResource(R.string.action_cancel),
+        confirmText = stringResource(R.string.action_ok),
+        onConfirm = {
+            if (normalized != null) {
+                onConfirm(normalized)
+                onDismiss()
+            }
+        },
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            singleLine = true,
+            isError = text.isNotEmpty() && normalized == null,
+            label = { Text(stringResource(R.string.run_gid_custom_label)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            supportingText = {
+                if (text.isNotEmpty() && normalized == null) Text(stringResource(R.string.run_gid_invalid))
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun runGidValue(value: String): String = when {
+    value.isEmpty() -> stringResource(R.string.run_gid_default)
+    value == ModuleSettings.RUN_GID_NET_ADMIN -> stringResource(R.string.run_gid_box)
+    value.all { it.isDigit() } -> stringResource(R.string.run_gid_value, value)
+    else -> value
+}
+
+@Composable
+private fun ExperimentalBadge() {
+    Badge(stringResource(R.string.experimental_badge), Tints.amber)
+}
+
+private fun themeLabel(mode: ThemeMode) = when (mode) {
+    ThemeMode.LIGHT -> R.string.theme_light
+    ThemeMode.DARK -> R.string.theme_dark
+    ThemeMode.SYSTEM -> R.string.theme_system
+}
+
+private fun ipv6ModeLabel(mode: String) = when (mode) {
+    "redirect" -> R.string.ipv6_redirect
+    "off" -> R.string.ipv6_off
+    else -> R.string.ipv6_auto
+}
