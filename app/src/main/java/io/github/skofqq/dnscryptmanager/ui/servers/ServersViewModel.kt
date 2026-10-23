@@ -240,12 +240,13 @@ class ServersViewModel(
                 return@launch
             }
 
-            val restartFailure = UiMessage.ofFailure(repository.restart())
+            val restart = repository.restartIfRunning()
+            val restartFailure = restart?.let(UiMessage::ofFailure)
             _uiState.update { it.copy(applying = false) }
-            if (restartFailure != null) {
-                _messages.emit(restartFailure)
-            } else {
-                _applied.emit(Unit)
+            when {
+                restartFailure != null -> _messages.emit(restartFailure)
+                restart == null -> _messages.emit(UiMessage.SavedForNextStart)
+                else -> _applied.emit(Unit)
             }
             load()
         }

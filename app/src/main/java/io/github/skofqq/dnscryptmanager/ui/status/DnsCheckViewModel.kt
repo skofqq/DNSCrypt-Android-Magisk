@@ -48,6 +48,8 @@ data class DnsCheckState(
     val leakRunning: Boolean = false,
     val leak: LeakReport? = null,
     val leakError: String? = null,
+    /** When the last check finished, for "checked N min ago" on the Status card. */
+    val checkedAt: Long? = null,
 ) {
     val verdict: DnsVerdict
         get() = LeakTest.verdict(leak, proxyActive, network?.servers.orEmpty())
@@ -92,6 +94,7 @@ class DnsCheckViewModel(
                     live = live,
                     catalog = catalog,
                     network = network.await(),
+                    checkedAt = System.currentTimeMillis(),
                 )
             }
         }

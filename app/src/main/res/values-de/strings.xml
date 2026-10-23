@@ -318,4 +318,19 @@
     <string name="dnscheck_leak_none">bash.ws hat keinen Resolver gesehen. Versuche es erneut.</string>
     <string name="dnscheck_leak_error">Test fehlgeschlagen: %1$s</string>
     <string name="dnscheck_close">Schließen</string>
+    <!-- Status metric cards -->
+    <string name="dnscard_badge_leak">LECK</string>
+    <string name="dnscard_badge_system">SYSTEM</string>
+    <string name="dnscard_value_proxy">Über DNSCrypt</string>
+    <string name="dnscard_value_leak">Anbieter</string>
+    <string name="dnscard_value_system">DNS des Netzwerks</string>
+    <string name="dnscard_tap_to_check">Zum Prüfen tippen</string>
+    <string name="dnscard_checked_now">Gerade geprüft</string>
+    <string name="dnscard_server_stopped">Proxy gestoppt</string>
+    <string name="dnscard_server_sub">%1$d von %2$d · %3$s</string>
+    <plurals name="dnscard_checked_ago">
+        <item quantity="one">Vor %1$d Min. geprüft</item>
+        <item quantity="other">Vor %1$d Min. geprüft</item>
+    </plurals>
+    <string name="saved_for_next_start">Gespeichert. Der Proxy ist gestoppt – das gilt beim nächsten Start.</string>
 </resources>

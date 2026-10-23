@@ -386,4 +386,21 @@
     <string name="dnscheck_leak_none">bash.ws не увидел ни одного резолвера. Попробуйте ещё раз.</string>
     <string name="dnscheck_leak_error">Тест не удался: %1$s</string>
     <string name="dnscheck_close">Закрыть</string>
+    <!-- Status metric cards -->
+    <string name="dnscard_badge_leak">УТЕЧКА</string>
+    <string name="dnscard_badge_system">СИСТЕМА</string>
+    <string name="dnscard_value_proxy">Через DNSCrypt</string>
+    <string name="dnscard_value_leak">Провайдер</string>
+    <string name="dnscard_value_system">DNS сети</string>
+    <string name="dnscard_tap_to_check">Нажмите, чтобы проверить</string>
+    <string name="dnscard_checked_now">Проверено только что</string>
+    <string name="dnscard_server_stopped">Прокси остановлен</string>
+    <string name="dnscard_server_sub">%1$d из %2$d · %3$s</string>
+    <plurals name="dnscard_checked_ago">
+        <item quantity="one">Проверено %1$d мин назад</item>
+        <item quantity="few">Проверено %1$d мин назад</item>
+        <item quantity="many">Проверено %1$d мин назад</item>
+        <item quantity="other">Проверено %1$d мин назад</item>
+    </plurals>
+    <string name="saved_for_next_start">Сохранено. Прокси остановлен — изменения применятся при следующем запуске.</string>
 </resources>

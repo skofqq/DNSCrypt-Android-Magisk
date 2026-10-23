@@ -1,0 +1,9 @@
+<resources>
+    <!-- Launch theme: Boxy page colour, the animated shield on an accent disc. -->
+    <style name="Theme.DNSCryptManager.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
+        <item name="postSplashScreenTheme">@style/Theme.DNSCryptManager</item>
+    </style>
+</resources>

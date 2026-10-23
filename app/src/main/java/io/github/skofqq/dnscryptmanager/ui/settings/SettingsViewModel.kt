@@ -102,12 +102,13 @@ class SettingsViewModel(
                     return@launch
                 }
             }
-            val failure = UiMessage.ofFailure(repository.restart())
+            val restart = repository.restartIfRunning()
+            val failure = restart?.let(UiMessage::ofFailure)
             _uiState.value = _uiState.value.copy(applying = false)
-            if (failure != null) {
-                _messages.emit(failure)
-            } else {
-                onApplied()
+            when {
+                failure != null -> _messages.emit(failure)
+                restart == null -> _messages.emit(UiMessage.SavedForNextStart)
+                else -> onApplied()
             }
             reload()
         }
@@ -118,10 +119,15 @@ class SettingsViewModel(
         if (_uiState.value.applying) return
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(applying = true)
-            val failure = UiMessage.ofFailure(repository.resetSettings())
-                ?: UiMessage.ofFailure(repository.restart())
+            val resetFailure = UiMessage.ofFailure(repository.resetSettings())
+            val restart = if (resetFailure == null) repository.restartIfRunning() else null
+            val failure = resetFailure ?: restart?.let(UiMessage::ofFailure)
             _uiState.value = _uiState.value.copy(applying = false)
-            if (failure != null) _messages.emit(failure) else onDone()
+            when {
+                failure != null -> _messages.emit(failure)
+                restart == null -> _messages.emit(UiMessage.SavedForNextStart)
+                else -> onDone()
+            }
             reload()
         }
     }

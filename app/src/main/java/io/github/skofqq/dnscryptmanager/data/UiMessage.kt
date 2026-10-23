@@ -17,6 +17,9 @@ sealed interface UiMessage {
 
     data object NoRoot : UiMessage
 
+    /** A change was saved while the proxy is stopped: it takes effect at the next start. */
+    data object SavedForNextStart : UiMessage
+
     companion object {
         fun of(error: Throwable): UiMessage = when (error) {
             is ShellTimeoutException -> Timeout

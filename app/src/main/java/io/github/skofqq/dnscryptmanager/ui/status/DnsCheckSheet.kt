@@ -57,7 +57,7 @@ import io.github.skofqq.dnscryptmanager.ui.theme.Tints
  * the proxy is using, the network's own DNS, and the optional bash.ws leak test.
  */
 @Composable
-fun DnsCheckSheet(state: DnsCheckState, onDismiss: () -> Unit, onLeakTest: () -> Unit) {
+fun DnsCheckSheet(state: DnsCheckState, onDismiss: () -> Unit, onLeakTest: () -> Unit, onSelfTest: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -94,6 +94,13 @@ fun DnsCheckSheet(state: DnsCheckState, onDismiss: () -> Unit, onLeakTest: () ->
             Network(state)
             Leak(state, onLeakTest)
 
+            ActionPill(
+                stringResource(R.string.dns_check_self_test),
+                Tints.teal,
+                enabled = true,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onSelfTest,
+            )
             PrimaryPill(
                 stringResource(R.string.dnscheck_close),
                 Modifier.fillMaxWidth(),

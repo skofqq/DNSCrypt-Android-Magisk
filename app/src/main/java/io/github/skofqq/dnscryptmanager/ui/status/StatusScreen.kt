@@ -73,6 +73,8 @@ fun StatusScreen(
     onOpenConflicts: () -> Unit,
     updateState: ModuleUpdateUiState,
     onOpenUpdate: () -> Unit,
+    dnsCheck: DnsCheckState,
+    onOpenServers: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val ready = uiState.state as? ModuleState.Ready ?: return
@@ -98,7 +100,6 @@ fun StatusScreen(
             HeroCard(
                 status = status,
                 phase = phase,
-                activeServer = uiState.activeServer,
                 uptimeSeconds = ready.uptimeSeconds,
                 busyAction = uiState.busyAction,
                 boxHandover = boxCapturesDns && !status.rulesV4,
@@ -120,12 +121,12 @@ fun StatusScreen(
                 ModuleUpdateCard(updateState, onOpenUpdate)
             }
 
-            DnsCheckCard(
-                port = status.port,
-                probing = uiState.probing,
-                probe = uiState.probe,
-                onProbe = onProbe,
-                onModuleTest = onModuleTest,
+            DnsCardsRow(
+                status = status,
+                uiState = uiState,
+                dnsCheck = dnsCheck,
+                onCheck = onProbe,
+                onOpenServers = onOpenServers,
             )
 
             var expanded by rememberSaveable { mutableStateOf(false) }
@@ -171,7 +172,6 @@ fun StatusScreen(
 private fun HeroCard(
     status: ModuleStatus,
     phase: ProxyPhase,
-    activeServer: ActiveServer?,
     uptimeSeconds: Long?,
     busyAction: ProxyAction?,
     boxHandover: Boolean,
@@ -242,38 +242,6 @@ private fun HeroCard(
                 )
                 MiniRow(stringResource(R.string.hero_port), status.port.toString())
                 MiniRow(stringResource(R.string.hero_module), status.versionOrNull ?: "—")
-            }
-        }
-
-        // The resolver the proxy settled on: too long for the side panel, so a full-width strip.
-        if (activeServer != null && running) {
-            Spacer(Modifier.height(12.dp))
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(colors.surface2)
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    stringResource(R.string.hero_server),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.text2,
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    activeServer.name,
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = colors.text,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                activeServer.rttMs?.let {
-                    Spacer(Modifier.width(8.dp))
-                    Badge(stringResource(R.string.servers_rtt_short, it), rttTint(it))
-                }
             }
         }
 

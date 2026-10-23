@@ -318,4 +318,19 @@
     <string name="dnscheck_leak_none">bash.ws бірде-бір резолверді көрмеді. Қайталап көріңіз.</string>
     <string name="dnscheck_leak_error">Тест сәтсіз: %1$s</string>
     <string name="dnscheck_close">Жабу</string>
+    <!-- Status metric cards -->
+    <string name="dnscard_badge_leak">АҒЫП КЕТУ</string>
+    <string name="dnscard_badge_system">ЖҮЙЕ</string>
+    <string name="dnscard_value_proxy">DNSCrypt арқылы</string>
+    <string name="dnscard_value_leak">Провайдер</string>
+    <string name="dnscard_value_system">Желі DNS-і</string>
+    <string name="dnscard_tap_to_check">Тексеру үшін түртіңіз</string>
+    <string name="dnscard_checked_now">Жаңа ғана тексерілді</string>
+    <string name="dnscard_server_stopped">Прокси тоқтатылған</string>
+    <string name="dnscard_server_sub">%2$d ішінен %1$d · %3$s</string>
+    <plurals name="dnscard_checked_ago">
+        <item quantity="one">%1$d мин бұрын тексерілді</item>
+        <item quantity="other">%1$d мин бұрын тексерілді</item>
+    </plurals>
+    <string name="saved_for_next_start">Сақталды. Прокси тоқтатылған — өзгерістер келесі іске қосқанда қолданылады.</string>
 </resources>

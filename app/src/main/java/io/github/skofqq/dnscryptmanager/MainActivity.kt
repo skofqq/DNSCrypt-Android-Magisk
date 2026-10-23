@@ -2,6 +2,9 @@ package io.github.skofqq.dnscryptmanager
 
 import android.content.Context
 import android.os.Bundle
+import android.os.SystemClock
+import android.view.animation.AccelerateInterpolator
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.github.skofqq.dnscryptmanager.data.AppLanguage
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +25,27 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splash = installSplashScreen()
+        // Hold the splash until the first status read (so the app opens on real data),
+        // but never longer than SPLASH_MAX_MS: a slow root prompt must not look like a hang.
+        val shownAt = SystemClock.uptimeMillis()
+        splash.setKeepOnScreenCondition {
+            !AppStartGate.ready && SystemClock.uptimeMillis() - shownAt < SPLASH_MAX_MS
+        }
+        splash.setOnExitAnimationListener { provider ->
+            val icon = provider.iconView
+            icon.animate()
+                .scaleX(1.25f).scaleY(1.25f).alpha(0f)
+                .setDuration(EXIT_MS)
+                .setInterpolator(AccelerateInterpolator())
+                .start()
+            provider.view.animate()
+                .alpha(0f)
+                .setStartDelay(EXIT_MS / 3)
+                .setDuration(EXIT_MS)
+                .withEndAction { provider.remove() }
+                .start()
+        }
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val container = appContainer
@@ -34,5 +58,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private companion object {
+        const val SPLASH_MAX_MS = 1_500L
+        const val EXIT_MS = 260L
     }
 }

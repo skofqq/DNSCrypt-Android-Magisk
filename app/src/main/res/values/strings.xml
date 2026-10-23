@@ -379,4 +379,22 @@
     <string name="dnscheck_leak_none">bash.ws saw no resolvers. Try again.</string>
     <string name="dnscheck_leak_error">Leak test failed: %1$s</string>
     <string name="dnscheck_close">Close</string>
+    <!-- Status metric cards -->
+    <string name="common_dash" translatable="false">—</string>
+    <string name="dnscard_badge_dnscrypt" translatable="false">DNSCrypt</string>
+    <string name="dnscard_badge_leak">LEAK</string>
+    <string name="dnscard_badge_system">SYSTEM</string>
+    <string name="dnscard_value_proxy">Via DNSCrypt</string>
+    <string name="dnscard_value_leak">Provider</string>
+    <string name="dnscard_value_box">box_for_magisk</string>
+    <string name="dnscard_value_system">Network DNS</string>
+    <string name="dnscard_tap_to_check">Tap to check</string>
+    <string name="dnscard_checked_now">Checked just now</string>
+    <plurals name="dnscard_checked_ago">
+        <item quantity="one">Checked %1$d min ago</item>
+        <item quantity="other">Checked %1$d min ago</item>
+    </plurals>
+    <string name="dnscard_server_stopped">Proxy stopped</string>
+    <string name="dnscard_server_sub">%1$d of %2$d · %3$s</string>
+    <string name="saved_for_next_start">Saved. The proxy is stopped, so this applies the next time it starts.</string>
 </resources>

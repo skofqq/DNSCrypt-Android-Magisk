@@ -104,6 +104,17 @@ class ModuleRepository(
 
     suspend fun restart(): Result<ShellOutput> = ctl("restart")
 
+    /**
+     * Restarts only a proxy that is running. `restart` on a stopped one would start it and
+     * clear a manual stop, which must never happen behind the user's back (for instance
+     * while box_for_magisk is the one in charge). Null when it was left alone.
+     */
+    suspend fun restartIfRunning(): Result<ShellOutput>? {
+        val ready = loadState() as? ModuleState.Ready
+        if (ready?.status?.running != true) return null
+        return restart()
+    }
+
     suspend fun test(): Result<ShellOutput> = ctl("test")
 
     suspend fun rules(): Result<ShellOutput> = ctl("rules")

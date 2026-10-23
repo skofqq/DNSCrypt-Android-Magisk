@@ -111,8 +111,13 @@ class ConfigViewModel(
                 return@launch
             }
             _uiState.value = _uiState.value.copy(busy = false, original = state.text)
-            val failure = UiMessage.ofFailure(repository.restart())
-            if (failure != null) _events.emit(ConfigEvent.Failed(failure)) else _events.emit(ConfigEvent.Saved)
+            val restart = repository.restartIfRunning()
+            val failure = restart?.let(UiMessage::ofFailure)
+            when {
+                failure != null -> _events.emit(ConfigEvent.Failed(failure))
+                restart == null -> _events.emit(ConfigEvent.Failed(UiMessage.SavedForNextStart))
+                else -> _events.emit(ConfigEvent.Saved)
+            }
             refreshBackups()
         }
     }

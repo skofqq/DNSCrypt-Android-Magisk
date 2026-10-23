@@ -104,12 +104,14 @@ fun AppRoot() {
     // Resource lookups belong in composable scope; effects only see the finished text.
     val timeoutText = stringResource(R.string.error_timeout)
     val noRootText = stringResource(R.string.error_no_root)
-    val resolve: (UiMessage) -> String = remember(timeoutText, noRootText) {
+    val savedForNextStartText = stringResource(R.string.saved_for_next_start)
+    val resolve: (UiMessage) -> String = remember(timeoutText, noRootText, savedForNextStartText) {
         { message ->
             when (message) {
                 is UiMessage.Raw -> message.text
                 is UiMessage.Timeout -> timeoutText
                 is UiMessage.NoRoot -> noRootText
+                is UiMessage.SavedForNextStart -> savedForNextStartText
             }
         }
     }
@@ -161,6 +163,7 @@ fun AppRoot() {
             state = dnsCheck,
             onDismiss = dnsCheckViewModel::close,
             onLeakTest = dnsCheckViewModel::runLeakTest,
+            onSelfTest = statusViewModel::runModuleTest,
         )
     }
 
@@ -311,6 +314,8 @@ fun AppRoot() {
                                     },
                                     updateState = updateState,
                                     onOpenUpdate = { updateSheet = true },
+                                    dnsCheck = dnsCheck,
+                                    onOpenServers = { subPage = SubPage.SERVERS },
                                 )
                             }
 

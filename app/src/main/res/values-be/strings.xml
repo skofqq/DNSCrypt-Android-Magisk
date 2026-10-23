@@ -326,4 +326,21 @@
     <string name="dnscheck_leak_none">bash.ws не ўбачыў ніводнага рэзолвера. Паспрабуйце яшчэ раз.</string>
     <string name="dnscheck_leak_error">Тэст не ўдаўся: %1$s</string>
     <string name="dnscheck_close">Закрыць</string>
+    <!-- Status metric cards -->
+    <string name="dnscard_badge_leak">УЦЕЧКА</string>
+    <string name="dnscard_badge_system">СІСТЭМА</string>
+    <string name="dnscard_value_proxy">Праз DNSCrypt</string>
+    <string name="dnscard_value_leak">Правайдар</string>
+    <string name="dnscard_value_system">DNS сеткі</string>
+    <string name="dnscard_tap_to_check">Націсніце, каб праверыць</string>
+    <string name="dnscard_checked_now">Праверана толькі што</string>
+    <string name="dnscard_server_stopped">Проксі спынены</string>
+    <string name="dnscard_server_sub">%1$d з %2$d · %3$s</string>
+    <plurals name="dnscard_checked_ago">
+        <item quantity="one">Праверана %1$d хв таму</item>
+        <item quantity="few">Праверана %1$d хв таму</item>
+        <item quantity="many">Праверана %1$d хв таму</item>
+        <item quantity="other">Праверана %1$d хв таму</item>
+    </plurals>
+    <string name="saved_for_next_start">Захавана. Проксі спынены — змены прыменяцца пры наступным запуску.</string>
 </resources>
