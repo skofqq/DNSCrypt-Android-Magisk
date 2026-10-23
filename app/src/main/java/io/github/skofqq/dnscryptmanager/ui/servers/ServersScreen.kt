@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.skofqq.dnscryptmanager.R
 import io.github.skofqq.dnscryptmanager.data.ActiveServer
+import io.github.skofqq.dnscryptmanager.data.ServerCountries
+import androidx.compose.ui.text.style.TextDecoration
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
 import io.github.skofqq.dnscryptmanager.data.ResolverEntry
 import io.github.skofqq.dnscryptmanager.data.StampProtocol
@@ -92,6 +94,12 @@ fun ServersScreen(
     onApply: () -> Unit,
     onRefresh: () -> Unit,
     onOpenReleases: () -> Unit,
+    onExclude: (String) -> Unit = {},
+    onInclude: (String) -> Unit = {},
+    onSetCountries: (Set<String>) -> Unit = {},
+    onRestartNow: () -> Unit = {},
+    onDismissRestart: () -> Unit = {},
+    onToggleExcludedOnly: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var searchOpen by remember { mutableStateOf(false) }
@@ -166,6 +174,20 @@ fun ServersScreen(
                                 onSetAuto = onSetAuto,
                             )
                         }
+                        item(key = "exclusions") {
+                            ExclusionsCard(
+                                uiState = uiState,
+                                onSetCountries = onSetCountries,
+                                onToggleExcludedOnly = onToggleExcludedOnly,
+                                onRestartNow = onRestartNow,
+                                onDismissRestart = onDismissRestart,
+                            )
+                        }
+                        if (uiState.showExcludedOnly) {
+                            items(uiState.excluded.sorted(), key = { "x:" + it }) { name ->
+                                ExcludedRow(name, uiState.countries?.get(name), uiState.exclusionsBusy) { onInclude(name) }
+                            }
+                        }
 
                         if (manual && uiState.cacheMissing) {
                             item(key = "cache") { CacheMissingCard(uiState.error, onRefresh) }
@@ -207,6 +229,11 @@ fun ServersScreen(
                             items(filtered, key = { "r:" + it.name }) { entry ->
                                 ResolverCard(
                                     entry = entry,
+                                    country = uiState.countries?.get(entry.name),
+                                    excluded = entry.name in uiState.excluded,
+                                    busy = uiState.exclusionsBusy,
+                                    onExclude = { onExclude(entry.name) },
+                                    onInclude = { onInclude(entry.name) },
                                     checked = entry.name in uiState.draftSelection,
                                     onToggle = { checked ->
                                         if (checked) onAdd(entry.name) else onRemove(entry.name)
@@ -489,7 +516,16 @@ private fun SmallIcon(icon: Int, description: Int, enabled: Boolean, onClick: ()
 
 /** One resolver: checkbox, name, two lines of description and its properties as pills. */
 @Composable
-private fun ResolverCard(entry: ResolverEntry, checked: Boolean, onToggle: (Boolean) -> Unit) {
+private fun ResolverCard(
+    entry: ResolverEntry,
+    country: String?,
+    excluded: Boolean,
+    busy: Boolean,
+    onExclude: () -> Unit,
+    onInclude: () -> Unit,
+    checked: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -507,9 +543,10 @@ private fun ResolverCard(entry: ResolverEntry, checked: Boolean, onToggle: (Bool
         Spacer(Modifier.width(4.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                entry.name,
+                listOfNotNull(country?.let { ServerCountries.flag(it) }, entry.name).joinToString(" "),
                 style = MaterialTheme.typography.titleMedium,
-                color = Boxy.colors.text,
+                color = Boxy.colors.text.copy(alpha = if (excluded) 0.45f else 1f),
+                textDecoration = if (excluded) TextDecoration.LineThrough else null,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -528,10 +565,175 @@ private fun ResolverCard(entry: ResolverEntry, checked: Boolean, onToggle: (Bool
                 if (entry.noLog) TagPill(stringResource(R.string.servers_flag_nolog), Tints.green)
                 if (entry.dnssec) TagPill(stringResource(R.string.servers_flag_dnssec), Tints.teal)
                 if (entry.noFilter) TagPill(stringResource(R.string.servers_flag_nofilter), Tints.purple)
+                if (excluded) TagPill(stringResource(R.string.exclusions_tag), Tints.red)
+            }
+        }
+        SmallIcon(
+            if (excluded) R.drawable.ic_restore else R.drawable.ic_block,
+            if (excluded) R.string.exclusions_include else R.string.exclusions_exclude,
+            enabled = !busy,
+            onClick = if (excluded) onInclude else onExclude,
+        )
+    }
+}
+
+/** A name on the exclusion list, with its way back. */
+@Composable
+private fun ExcludedRow(name: String, country: String?, busy: Boolean, onInclude: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Boxy.colors.card)
+            .padding(start = CardInset, end = 6.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            listOfNotNull(country?.let { ServerCountries.flag(it) }, name).joinToString(" "),
+            style = MaterialTheme.typography.bodyLarge,
+            color = Boxy.colors.text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        ActionPill(
+            stringResource(R.string.exclusions_include),
+            Tints.green,
+            enabled = !busy,
+            modifier = Modifier.width(130.dp),
+            onClick = onInclude,
+        )
+    }
+}
+
+/** Countries and single servers the proxy must skip, in any mode. */
+@Composable
+private fun ExclusionsCard(
+    uiState: ServersUiState,
+    onSetCountries: (Set<String>) -> Unit,
+    onToggleExcludedOnly: () -> Unit,
+    onRestartNow: () -> Unit,
+    onDismissRestart: () -> Unit,
+) {
+    var dialog by remember { mutableStateOf(false) }
+    SectionCard(
+        title = stringResource(R.string.exclusions_title),
+        subtitle = stringResource(R.string.exclusions_sub),
+    ) {
+        val rules = uiState.countryRules.sorted()
+        io.github.skofqq.dnscryptmanager.ui.components.NavRow(
+            icon = painterResource(R.drawable.ic_globe),
+            title = stringResource(R.string.exclusions_countries),
+            subtitle = when {
+                uiState.countries == null -> stringResource(R.string.exclusions_countries_loading)
+                rules.isEmpty() -> stringResource(R.string.exclusions_none)
+                else -> rules.map { ServerCountries.flag(it) + " " + countryName(it) }.joinToString(" ")
+            },
+            enabled = uiState.countries != null && !uiState.exclusionsBusy,
+            onClick = { dialog = true },
+        )
+        io.github.skofqq.dnscryptmanager.ui.components.NavRow(
+            icon = painterResource(R.drawable.ic_block),
+            title = stringResource(R.string.exclusions_servers),
+            subtitle = pluralStringResource(R.plurals.exclusions_count, uiState.excluded.size, uiState.excluded.size),
+            showDivider = false,
+            trailing = if (uiState.showExcludedOnly) {
+                { Icon(painterResource(R.drawable.ic_check), null, tint = Boxy.colors.accent) }
+            } else {
+                null
+            },
+            onClick = onToggleExcludedOnly,
+        )
+        if (uiState.restartOffer) {
+            NoticeCard(
+                title = stringResource(R.string.exclusions_restart_title),
+                body = stringResource(R.string.exclusions_restart_body),
+                tint = Tints.amber,
+                icon = painterResource(R.drawable.ic_refresh),
+                modifier = Modifier.padding(horizontal = 8.dp),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ActionPill(stringResource(R.string.update_later), Tints.gray, true, Modifier.weight(1f), onDismissRestart)
+                    ActionPill(stringResource(R.string.exclusions_restart_now), Tints.amber, true, Modifier.weight(1f), onRestartNow)
+                }
+            }
+        }
+    }
+    if (dialog) {
+        CountryDialog(
+            countries = uiState.countries.orEmpty(),
+            selected = uiState.countryRules,
+            onApply = {
+                dialog = false
+                onSetCountries(it)
+            },
+            onDismiss = { dialog = false },
+        )
+    }
+}
+
+/** Multi-select of countries with flags and server counts, the unknown group last. */
+@Composable
+private fun CountryDialog(
+    countries: Map<String, String>,
+    selected: Set<String>,
+    onApply: (Set<String>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val counts = remember(countries) {
+        countries.values.groupingBy { it }.eachCount().entries
+            .sortedWith(compareBy({ it.key == ServerCountries.UNKNOWN }, { -it.value }))
+    }
+    var picked by remember { mutableStateOf(selected) }
+    BoxyDialog(
+        title = stringResource(R.string.exclusions_countries),
+        onDismiss = onDismiss,
+        dismissText = stringResource(R.string.action_cancel),
+        confirmText = stringResource(R.string.settings_apply_short),
+        onConfirm = { onApply(picked) },
+    ) {
+        LazyColumn(Modifier.height(420.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            items(counts, key = { it.key }) { (code, count) ->
+                val on = code in picked
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(if (on) Tints.red.bg else Boxy.colors.surface2)
+                        .clickable { picked = if (on) picked - code else picked + code }
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(ServerCountries.flag(code), fontSize = 20.sp)
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        countryName(code),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Boxy.colors.text,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text("$count", style = MaterialTheme.typography.labelLarge, color = Boxy.colors.text2)
+                    if (on) {
+                        Spacer(Modifier.width(8.dp))
+                        Icon(painterResource(R.drawable.ic_block), null, Modifier.size(18.dp), tint = Tints.red.fg)
+                    }
+                }
             }
         }
     }
 }
+
+/** Country name in the app's language; the unknown group gets its own label. */
+@Composable
+private fun countryName(code: String): String =
+    if (code == ServerCountries.UNKNOWN) {
+        stringResource(R.string.exclusions_unknown_country)
+    } else {
+        java.util.Locale("", code).getDisplayCountry(androidx.compose.ui.platform.LocalConfiguration.current.locales[0])
+            .ifBlank { code }
+    }
 
 @Composable
 private fun TagPill(text: String, tint: Tint) {

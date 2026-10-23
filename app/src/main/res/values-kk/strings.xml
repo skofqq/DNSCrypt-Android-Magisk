@@ -333,4 +333,24 @@
         <item quantity="other">%1$d мин бұрын тексерілді</item>
     </plurals>
     <string name="saved_for_next_start">Сақталды. Прокси тоқтатылған — өзгерістер келесі іске қосқанда қолданылады.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Шығарылған</string>
+    <string name="exclusions_include">Қайтару</string>
+    <string name="exclusions_exclude">Шығару</string>
+    <string name="exclusions_title">Шығарылғандар</string>
+    <string name="exclusions_sub">Прокси оларды автоматты режимде де өткізіп жібереді</string>
+    <string name="exclusions_countries">Елдерді шығару</string>
+    <string name="exclusions_countries_loading">Серверлер елдері анықталуда…</string>
+    <string name="exclusions_none">Жоқ</string>
+    <string name="exclusions_servers">Шығарылған серверлер</string>
+    <string name="exclusions_restart_title">Қолдану үшін қайта қосыңыз</string>
+    <string name="exclusions_restart_body">Прокси қайта қосылғанша бұрынғы серверлерді қолданады.</string>
+    <string name="exclusions_restart_now">Қазір қайта қосу</string>
+    <string name="exclusions_unknown_country">Белгісіз / Anycast</string>
+    <string name="settings_apply_short">Қолдану</string>
+    <string name="geoip_attribution">IP геолокациясы: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">%1$d сервер шығарылды</item>
+        <item quantity="other">%1$d сервер шығарылды</item>
+    </plurals>
 </resources>

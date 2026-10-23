@@ -1,5 +1,6 @@
 package io.github.skofqq.dnscryptmanager.ui.servers
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.skofqq.dnscryptmanager.data.ModuleContract
@@ -39,6 +40,16 @@ data class ServersUiState(
     val requireNoFilter: Boolean = false,
     val activeServer: String? = null,
     val error: String? = null,
+    /** disabled_server_names: skipped by the proxy even in automatic mode. */
+    val excluded: Set<String> = emptySet(),
+    /** Server name → two-letter country, or [ServerCountries.UNKNOWN]; null until worked out. */
+    val countries: Map<String, String>? = null,
+    /** Countries excluded as a whole (app-side rule; the module only keeps names). */
+    val countryRules: Set<String> = emptySet(),
+    val exclusionsBusy: Boolean = false,
+    /** Exclusions changed while the proxy runs: offer a restart instead of doing it. */
+    val restartOffer: Boolean = false,
+    val showExcludedOnly: Boolean = false,
 ) {
     private val catalogNames: Set<String> by lazy { catalog.mapTo(HashSet()) { it.name } }
 
@@ -73,6 +84,7 @@ data class ServersUiState(
 
 class ServersViewModel(
     private val repository: ModuleRepository,
+    private val context: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ServersUiState())
@@ -164,7 +176,7 @@ class ServersViewModel(
                     activeServer = active,
                 )
             }
-        }
+        }.invokeOnCompletion { viewModelScope.launch { refreshExclusions(); computeCountries() } }
     }
 
     fun setQuery(query: String) = _uiState.update { it.copy(query = query) }
@@ -250,5 +262,112 @@ class ServersViewModel(
             }
             load()
         }
+    }
+
+    // ---- Exclusions (disabled_server_names) ----
+
+    /** Which names the country rules put on the list, so lifting a rule spares manual exclusions. */
+    private val prefs by lazy { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE) }
+
+    private suspend fun refreshExclusions() {
+        val out = repository.serversExcluded().getOrNull()?.takeIf { it.isSuccess } ?: return
+        val names = out.out.split(',', '\n').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+        _uiState.update {
+            it.copy(excluded = names, countryRules = prefs.getStringSet(KEY_COUNTRIES, emptySet()).orEmpty())
+        }
+    }
+
+    /** Country per server, worked out once per resolver list (keyed by its timestamp). */
+    private suspend fun computeCountries() {
+        val state = _uiState.value
+        if (state.catalog.isEmpty() || state.countries != null) return
+        val cacheFile = java.io.File(context.cacheDir, "countries-${state.cacheEpochSeconds ?: 0}.txt")
+        val cached = runCatching {
+            cacheFile.readLines().mapNotNull { line -> line.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to it[1] } }.toMap()
+        }.getOrNull()?.takeIf { it.isNotEmpty() }
+        val countries = cached ?: run {
+            val geo = withContext(Dispatchers.IO) { io.github.skofqq.dnscryptmanager.data.GeoIp.load(context) }
+            io.github.skofqq.dnscryptmanager.data.ServerCountries.map(state.catalog, geo).also { map ->
+                runCatching {
+                    context.cacheDir.listFiles { f -> f.name.startsWith("countries-") }?.forEach { it.delete() }
+                    cacheFile.writeText(map.entries.joinToString("\n") { "${it.key}=${it.value}" })
+                }
+            }
+        }
+        _uiState.update { it.copy(countries = countries) }
+    }
+
+    fun excludeServer(name: String) = editExclusions { repository.serversExclude(listOf(name)) }
+
+    fun includeServer(name: String) = editExclusions {
+        // A manual include also takes the name out of the country bookkeeping.
+        val fromCountries = prefs.getStringSet(KEY_COUNTRY_NAMES, emptySet()).orEmpty() - name
+        prefs.edit().putStringSet(KEY_COUNTRY_NAMES, fromCountries).apply()
+        repository.serversInclude(listOf(name))
+    }
+
+    /**
+     * Applies a new set of excluded countries. Newly chosen countries add their servers
+     * (only those not excluded already); dropped countries give back exactly the names
+     * they added, so a server excluded by hand stays excluded.
+     */
+    fun setCountryRules(codes: Set<String>) {
+        val state = _uiState.value
+        val countries = state.countries ?: return
+        val before = prefs.getStringSet(KEY_COUNTRIES, emptySet()).orEmpty()
+        val added = codes - before
+        val removed = before - codes
+        val owned = prefs.getStringSet(KEY_COUNTRY_NAMES, emptySet()).orEmpty().toMutableSet()
+
+        val toExclude = countries.filter { it.value in added && it.key !in state.excluded }.keys
+        val toInclude = owned.filter { countries[it] in removed }.toSet()
+
+        editExclusions {
+            val include = repository.serversInclude(toInclude)
+            if (include.getOrNull()?.isSuccess == false || include.isFailure) return@editExclusions include
+            val exclude = repository.serversExclude(toExclude)
+            if (exclude.getOrNull()?.isSuccess == true) {
+                owned.removeAll(toInclude)
+                owned.addAll(toExclude)
+                prefs.edit().putStringSet(KEY_COUNTRIES, codes).putStringSet(KEY_COUNTRY_NAMES, owned).apply()
+            }
+            exclude
+        }
+    }
+
+    private fun editExclusions(edit: suspend () -> Result<io.github.skofqq.dnscryptmanager.root.ShellOutput>) {
+        if (_uiState.value.exclusionsBusy) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(exclusionsBusy = true) }
+            val failure = UiMessage.ofFailure(edit())
+            refreshExclusions()
+            // Never start a stopped proxy for this: only offer a restart when it runs.
+            val running = (repository.loadState() as? io.github.skofqq.dnscryptmanager.data.ModuleState.Ready)?.status?.running == true
+            _uiState.update { it.copy(exclusionsBusy = false, restartOffer = failure == null && running) }
+            when {
+                failure != null -> _messages.emit(failure)
+                !running -> _messages.emit(UiMessage.SavedForNextStart)
+            }
+        }
+    }
+
+    fun restartNow() {
+        _uiState.update { it.copy(restartOffer = false) }
+        viewModelScope.launch {
+            val restart = repository.restartIfRunning() ?: return@launch
+            val failure = UiMessage.ofFailure(restart)
+            if (failure != null) _messages.emit(failure) else _applied.emit(Unit)
+            load()
+        }
+    }
+
+    fun dismissRestartOffer() = _uiState.update { it.copy(restartOffer = false) }
+
+    fun toggleExcludedOnly() = _uiState.update { it.copy(showExcludedOnly = !it.showExcludedOnly) }
+
+    private companion object {
+        const val PREFS = "exclusions"
+        const val KEY_COUNTRIES = "countries"
+        const val KEY_COUNTRY_NAMES = "country_names"
     }
 }

@@ -343,4 +343,26 @@
         <item quantity="other">Праверана %1$d хв таму</item>
     </plurals>
     <string name="saved_for_next_start">Захавана. Проксі спынены — змены прыменяцца пры наступным запуску.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Выключаны</string>
+    <string name="exclusions_include">Вярнуць</string>
+    <string name="exclusions_exclude">Выключыць</string>
+    <string name="exclusions_title">Выключэнні</string>
+    <string name="exclusions_sub">Проксі прапускае іх нават у аўтаматычным рэжыме</string>
+    <string name="exclusions_countries">Выключыць краіны</string>
+    <string name="exclusions_countries_loading">Вызначаю краіны сервераў…</string>
+    <string name="exclusions_none">Няма</string>
+    <string name="exclusions_servers">Выключаныя серверы</string>
+    <string name="exclusions_restart_title">Перазапусціце, каб ужыць</string>
+    <string name="exclusions_restart_body">Проксі выкарыстоўвае ранейшыя серверы да перазапуску.</string>
+    <string name="exclusions_restart_now">Перазапусціць зараз</string>
+    <string name="exclusions_unknown_country">Невядома / Anycast</string>
+    <string name="settings_apply_short">Ужыць</string>
+    <string name="geoip_attribution">Геалакацыя IP: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">Выключаны %1$d сервер</item>
+        <item quantity="few">Выключана %1$d серверы</item>
+        <item quantity="many">Выключана %1$d сервераў</item>
+        <item quantity="other">Выключана %1$d сервераў</item>
+    </plurals>
 </resources>

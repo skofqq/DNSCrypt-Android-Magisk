@@ -333,4 +333,24 @@
         <item quantity="other">%1$d dk önce denetlendi</item>
     </plurals>
     <string name="saved_for_next_start">Kaydedildi. Proxy durdurulmuş; değişiklikler bir sonraki başlatmada uygulanır.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Hariç</string>
+    <string name="exclusions_include">Dahil et</string>
+    <string name="exclusions_exclude">Hariç tut</string>
+    <string name="exclusions_title">Hariç tutulanlar</string>
+    <string name="exclusions_sub">Proxy bunları otomatik modda bile atlar</string>
+    <string name="exclusions_countries">Ülkeleri hariç tut</string>
+    <string name="exclusions_countries_loading">Sunucuların ülkeleri belirleniyor…</string>
+    <string name="exclusions_none">Yok</string>
+    <string name="exclusions_servers">Hariç tutulan sunucular</string>
+    <string name="exclusions_restart_title">Uygulamak için yeniden başlatın</string>
+    <string name="exclusions_restart_body">Proxy yeniden başlayana kadar mevcut sunucularını kullanır.</string>
+    <string name="exclusions_restart_now">Şimdi yeniden başlat</string>
+    <string name="exclusions_unknown_country">Bilinmiyor / anycast</string>
+    <string name="settings_apply_short">Uygula</string>
+    <string name="geoip_attribution">IP konumu: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">%1$d sunucu hariç</item>
+        <item quantity="other">%1$d sunucu hariç</item>
+    </plurals>
 </resources>

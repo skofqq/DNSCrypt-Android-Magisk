@@ -29,7 +29,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 LogsViewModel(container.repository)
 
             modelClass.isAssignableFrom(ServersViewModel::class.java) ->
-                ServersViewModel(container.repository)
+                ServersViewModel(container.repository, container.appContext)
 
             modelClass.isAssignableFrom(io.github.skofqq.dnscryptmanager.ui.status.DnsCheckViewModel::class.java) ->
                 io.github.skofqq.dnscryptmanager.ui.status.DnsCheckViewModel(container.repository, container.appContext)

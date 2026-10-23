@@ -343,4 +343,26 @@
         <item quantity="other">Перевірено %1$d хв тому</item>
     </plurals>
     <string name="saved_for_next_start">Збережено. Проксі зупинено — зміни застосуються під час наступного запуску.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Виключено</string>
+    <string name="exclusions_include">Повернути</string>
+    <string name="exclusions_exclude">Виключити</string>
+    <string name="exclusions_title">Виключення</string>
+    <string name="exclusions_sub">Проксі пропускає їх навіть в автоматичному режимі</string>
+    <string name="exclusions_countries">Виключити країни</string>
+    <string name="exclusions_countries_loading">Визначаю країни серверів…</string>
+    <string name="exclusions_none">Немає</string>
+    <string name="exclusions_servers">Виключені сервери</string>
+    <string name="exclusions_restart_title">Перезапустіть, щоб застосувати</string>
+    <string name="exclusions_restart_body">Проксі використовує попередні сервери до перезапуску.</string>
+    <string name="exclusions_restart_now">Перезапустити зараз</string>
+    <string name="exclusions_unknown_country">Невідомо / Anycast</string>
+    <string name="settings_apply_short">Застосувати</string>
+    <string name="geoip_attribution">Геолокація IP: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">Виключено %1$d сервер</item>
+        <item quantity="few">Виключено %1$d сервери</item>
+        <item quantity="many">Виключено %1$d серверів</item>
+        <item quantity="other">Виключено %1$d серверів</item>
+    </plurals>
 </resources>

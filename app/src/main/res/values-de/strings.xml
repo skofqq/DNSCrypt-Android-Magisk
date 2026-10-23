@@ -333,4 +333,24 @@
         <item quantity="other">Vor %1$d Min. geprüft</item>
     </plurals>
     <string name="saved_for_next_start">Gespeichert. Der Proxy ist gestoppt – das gilt beim nächsten Start.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Ausgeschlossen</string>
+    <string name="exclusions_include">Zulassen</string>
+    <string name="exclusions_exclude">Ausschließen</string>
+    <string name="exclusions_title">Ausschlüsse</string>
+    <string name="exclusions_sub">Der Proxy überspringt sie auch im Automatikmodus</string>
+    <string name="exclusions_countries">Länder ausschließen</string>
+    <string name="exclusions_countries_loading">Server werden verortet…</string>
+    <string name="exclusions_none">Keine</string>
+    <string name="exclusions_servers">Ausgeschlossene Server</string>
+    <string name="exclusions_restart_title">Zum Anwenden neu starten</string>
+    <string name="exclusions_restart_body">Der Proxy nutzt bis zum Neustart seine bisherigen Server.</string>
+    <string name="exclusions_restart_now">Jetzt neu starten</string>
+    <string name="exclusions_unknown_country">Unbekannt / Anycast</string>
+    <string name="settings_apply_short">Anwenden</string>
+    <string name="geoip_attribution">IP-Geolokalisierung: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">%1$d Server ausgeschlossen</item>
+        <item quantity="other">%1$d Server ausgeschlossen</item>
+    </plurals>
 </resources>

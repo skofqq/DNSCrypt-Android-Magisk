@@ -231,6 +231,12 @@ fun AppRoot() {
                             onDiscard = serversViewModel::discard,
                             onApply = serversViewModel::apply,
                             onRefresh = { serversViewModel.load(force = true) },
+                            onExclude = serversViewModel::excludeServer,
+                            onInclude = serversViewModel::includeServer,
+                            onSetCountries = serversViewModel::setCountryRules,
+                            onRestartNow = serversViewModel::restartNow,
+                            onDismissRestart = serversViewModel::dismissRestartOffer,
+                            onToggleExcludedOnly = serversViewModel::toggleExcludedOnly,
                             onOpenReleases = { context.openUrl(ModuleContract.RELEASES_URL) },
                         )
                     }

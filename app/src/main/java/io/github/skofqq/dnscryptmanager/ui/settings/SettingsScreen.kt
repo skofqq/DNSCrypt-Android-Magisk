@@ -1,5 +1,6 @@
 package io.github.skofqq.dnscryptmanager.ui.settings
 
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -277,6 +278,14 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_about_sub),
                 ) {
                     ModuleVersionRow(state = updateState, onClick = onOpenUpdate)
+                    val uriHandler = LocalUriHandler.current
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_globe),
+                        title = stringResource(R.string.geoip_attribution),
+                        subtitle = "db-ip.com",
+                        showDivider = false,
+                        onClick = { uriHandler.openUri("https://db-ip.com") },
+                    )
                 }
             }
         }

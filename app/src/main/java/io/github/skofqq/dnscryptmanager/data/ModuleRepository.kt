@@ -154,6 +154,20 @@ class ModuleRepository(
 
     suspend fun serversAuto(): Result<ShellOutput> = ctl("servers", "auto")
 
+    /** disabled_server_names as a comma list; skipped even in automatic mode. */
+    suspend fun serversExcluded(): Result<ShellOutput> = ctl("servers", "excluded")
+
+    suspend fun serversExclude(names: Collection<String>): Result<ShellOutput> = editExcluded("exclude", names)
+
+    suspend fun serversInclude(names: Collection<String>): Result<ShellOutput> = editExcluded("include", names)
+
+    private suspend fun editExcluded(verb: String, names: Collection<String>): Result<ShellOutput> {
+        val invalid = names.firstOrNull { !ServerSelection.isValidName(it) }
+        if (invalid != null) return Result.failure(IllegalArgumentException("Invalid server name: $invalid"))
+        if (names.isEmpty()) return Result.success(ShellOutput(0, emptyList(), emptyList()))
+        return ctl("servers", verb, names.joinToString(","))
+    }
+
     /**
      * Writes the whole selection in one call. Doing this instead of a run of add/remove
      * keeps it to a single config backup and leaves no room for races between taps.

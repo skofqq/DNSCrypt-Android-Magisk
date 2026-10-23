@@ -397,4 +397,24 @@
     <string name="dnscard_server_stopped">Proxy stopped</string>
     <string name="dnscard_server_sub">%1$d of %2$d · %3$s</string>
     <string name="saved_for_next_start">Saved. The proxy is stopped, so this applies the next time it starts.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Excluded</string>
+    <string name="exclusions_include">Include</string>
+    <string name="exclusions_exclude">Exclude</string>
+    <string name="exclusions_title">Exclusions</string>
+    <string name="exclusions_sub">Skipped by the proxy even in automatic mode</string>
+    <string name="exclusions_countries">Exclude countries</string>
+    <string name="exclusions_countries_loading">Locating servers…</string>
+    <string name="exclusions_none">None</string>
+    <string name="exclusions_servers">Excluded servers</string>
+    <string name="exclusions_restart_title">Restart to apply</string>
+    <string name="exclusions_restart_body">The proxy keeps its current servers until it restarts.</string>
+    <string name="exclusions_restart_now">Restart now</string>
+    <string name="exclusions_unknown_country">Unknown / anycast</string>
+    <string name="settings_apply_short">Apply</string>
+    <string name="geoip_attribution">IP geolocation by DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">%1$d server excluded</item>
+        <item quantity="other">%1$d servers excluded</item>
+    </plurals>
 </resources>

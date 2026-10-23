@@ -338,4 +338,25 @@
         <item quantity="other">Vérifié il y a %1$d min</item>
     </plurals>
     <string name="saved_for_next_start">Enregistré. Le proxy est arrêté : cela s\'appliquera au prochain démarrage.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Exclu</string>
+    <string name="exclusions_include">Réintégrer</string>
+    <string name="exclusions_exclude">Exclure</string>
+    <string name="exclusions_title">Exclusions</string>
+    <string name="exclusions_sub">Ignorés par le proxy même en mode automatique</string>
+    <string name="exclusions_countries">Exclure des pays</string>
+    <string name="exclusions_countries_loading">Localisation des serveurs…</string>
+    <string name="exclusions_none">Aucun</string>
+    <string name="exclusions_servers">Serveurs exclus</string>
+    <string name="exclusions_restart_title">Redémarrez pour appliquer</string>
+    <string name="exclusions_restart_body">Le proxy garde ses serveurs actuels jusqu\'au redémarrage.</string>
+    <string name="exclusions_restart_now">Redémarrer maintenant</string>
+    <string name="exclusions_unknown_country">Inconnu / anycast</string>
+    <string name="settings_apply_short">Appliquer</string>
+    <string name="geoip_attribution">Géolocalisation IP : DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">%1$d serveur exclu</item>
+        <item quantity="many">%1$d serveurs exclus</item>
+        <item quantity="other">%1$d serveurs exclus</item>
+    </plurals>
 </resources>

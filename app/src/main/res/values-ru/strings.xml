@@ -403,4 +403,26 @@
         <item quantity="other">Проверено %1$d мин назад</item>
     </plurals>
     <string name="saved_for_next_start">Сохранено. Прокси остановлен — изменения применятся при следующем запуске.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Исключён</string>
+    <string name="exclusions_include">Вернуть</string>
+    <string name="exclusions_exclude">Исключить</string>
+    <string name="exclusions_title">Исключения</string>
+    <string name="exclusions_sub">Прокси пропускает их даже в автоматическом режиме</string>
+    <string name="exclusions_countries">Исключить страны</string>
+    <string name="exclusions_countries_loading">Определяю страны серверов…</string>
+    <string name="exclusions_none">Нет</string>
+    <string name="exclusions_servers">Исключённые серверы</string>
+    <string name="exclusions_restart_title">Перезапустите, чтобы применить</string>
+    <string name="exclusions_restart_body">Прокси использует прежние серверы до перезапуска.</string>
+    <string name="exclusions_restart_now">Перезапустить сейчас</string>
+    <string name="exclusions_unknown_country">Неизвестно / Anycast</string>
+    <string name="settings_apply_short">Применить</string>
+    <string name="geoip_attribution">Геолокация IP: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">Исключён %1$d сервер</item>
+        <item quantity="few">Исключено %1$d сервера</item>
+        <item quantity="many">Исключено %1$d серверов</item>
+        <item quantity="other">Исключено %1$d серверов</item>
+    </plurals>
 </resources>

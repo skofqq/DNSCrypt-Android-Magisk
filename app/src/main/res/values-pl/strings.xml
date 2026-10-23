@@ -343,4 +343,26 @@
         <item quantity="other">Sprawdzono %1$d min temu</item>
     </plurals>
     <string name="saved_for_next_start">Zapisano. Proxy jest zatrzymane — zmiany zadziałają przy następnym starcie.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Wykluczony</string>
+    <string name="exclusions_include">Przywróć</string>
+    <string name="exclusions_exclude">Wyklucz</string>
+    <string name="exclusions_title">Wykluczenia</string>
+    <string name="exclusions_sub">Proxy pomija je nawet w trybie automatycznym</string>
+    <string name="exclusions_countries">Wyklucz kraje</string>
+    <string name="exclusions_countries_loading">Ustalam kraje serwerów…</string>
+    <string name="exclusions_none">Brak</string>
+    <string name="exclusions_servers">Wykluczone serwery</string>
+    <string name="exclusions_restart_title">Uruchom ponownie, aby zastosować</string>
+    <string name="exclusions_restart_body">Proxy używa dotychczasowych serwerów do restartu.</string>
+    <string name="exclusions_restart_now">Uruchom ponownie teraz</string>
+    <string name="exclusions_unknown_country">Nieznany / anycast</string>
+    <string name="settings_apply_short">Zastosuj</string>
+    <string name="geoip_attribution">Geolokalizacja IP: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">Wykluczono %1$d serwer</item>
+        <item quantity="few">Wykluczono %1$d serwery</item>
+        <item quantity="many">Wykluczono %1$d serwerów</item>
+        <item quantity="other">Wykluczono %1$d serwerów</item>
+    </plurals>
 </resources>
