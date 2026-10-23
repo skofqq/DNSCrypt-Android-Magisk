@@ -239,6 +239,7 @@ fun AppRoot() {
                             onRestartNow = serversViewModel::restartNow,
                             onDismissRestart = serversViewModel::dismissRestartOffer,
                             onToggleExcludedOnly = serversViewModel::toggleExcludedOnly,
+                            onAssignCountry = serversViewModel::assignCountry,
                             onOpenReleases = { context.openUrl(ModuleContract.RELEASES_URL) },
                         )
                     }

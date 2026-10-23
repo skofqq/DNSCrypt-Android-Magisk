@@ -399,7 +399,7 @@
     <string name="exclusions_restart_title">Перезапустите, чтобы применить</string>
     <string name="exclusions_restart_body">Прокси использует прежние серверы до перезапуска.</string>
     <string name="exclusions_restart_now">Перезапустить сейчас</string>
-    <string name="exclusions_unknown_country">Неизвестно / Anycast</string>
+    <string name="exclusions_unknown_country">Страна не определена</string>
     <string name="settings_apply_short">Применить</string>
     <string name="geoip_attribution">Геолокация IP: DB-IP.com (CC BY 4.0)</string>
     <plurals name="exclusions_count">
@@ -451,4 +451,9 @@
     <string name="logs_added_blocked">%1$s добавлен в заблокированные</string>
     <string name="logs_added_allowed">%1$s добавлен в разрешённые</string>
     <string name="logs_already">%1$s уже есть в списке</string>
+    <string name="exclusions_unknown_sub">Отметьте сервер, чтобы исключить его, или укажите страну, чтобы перенести его в её группу.</string>
+    <string name="exclusions_unknown_none">У всех серверов определена страна.</string>
+    <string name="exclusions_set_country">Указать страну</string>
+    <string name="exclusions_pick_country">Страна сервера</string>
+    <string name="exclusions_search_country">Найти страну</string>
 </resources>

@@ -356,7 +356,7 @@
     <string name="exclusions_restart_title">Перезапустіть, щоб застосувати</string>
     <string name="exclusions_restart_body">Проксі використовує попередні сервери до перезапуску.</string>
     <string name="exclusions_restart_now">Перезапустити зараз</string>
-    <string name="exclusions_unknown_country">Невідомо / Anycast</string>
+    <string name="exclusions_unknown_country">Країну не визначено</string>
     <string name="settings_apply_short">Застосувати</string>
     <string name="geoip_attribution">Геолокація IP: DB-IP.com (CC BY 4.0)</string>
     <plurals name="exclusions_count">
@@ -408,4 +408,9 @@
     <string name="logs_added_blocked">%1$s додано до заблокованих</string>
     <string name="logs_added_allowed">%1$s додано до дозволених</string>
     <string name="logs_already">%1$s уже є в списку</string>
+    <string name="exclusions_unknown_sub">Позначте сервер, щоб виключити його, або вкажіть країну, щоб перенести його в її групу.</string>
+    <string name="exclusions_unknown_none">Для всіх серверів країну визначено.</string>
+    <string name="exclusions_set_country">Вказати країну</string>
+    <string name="exclusions_pick_country">Країна сервера</string>
+    <string name="exclusions_search_country">Знайти країну</string>
 </resources>

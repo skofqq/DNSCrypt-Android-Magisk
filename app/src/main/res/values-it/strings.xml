@@ -351,7 +351,7 @@
     <string name="exclusions_restart_title">Riavvia per applicare</string>
     <string name="exclusions_restart_body">Il proxy usa i server attuali fino al riavvio.</string>
     <string name="exclusions_restart_now">Riavvia ora</string>
-    <string name="exclusions_unknown_country">Sconosciuto / anycast</string>
+    <string name="exclusions_unknown_country">Paese non determinato</string>
     <string name="settings_apply_short">Applica</string>
     <string name="geoip_attribution">Geolocalizzazione IP: DB-IP.com (CC BY 4.0)</string>
     <plurals name="exclusions_count">
@@ -402,4 +402,9 @@
     <string name="logs_added_blocked">%1$s aggiunto ai bloccati</string>
     <string name="logs_added_allowed">%1$s aggiunto ai consentiti</string>
     <string name="logs_already">%1$s è già nella lista</string>
+    <string name="exclusions_unknown_sub">Seleziona un server per escluderlo, o indica il suo paese per spostarlo in quel gruppo.</string>
+    <string name="exclusions_unknown_none">Ogni server ha un paese.</string>
+    <string name="exclusions_set_country">Indica paese</string>
+    <string name="exclusions_pick_country">Paese del server</string>
+    <string name="exclusions_search_country">Cerca un paese</string>
 </resources>

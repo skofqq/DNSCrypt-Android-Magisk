@@ -1,5 +1,7 @@
 package io.github.skofqq.dnscryptmanager.ui.servers
 
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.TextButton
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -100,6 +102,7 @@ fun ServersScreen(
     onRestartNow: () -> Unit = {},
     onDismissRestart: () -> Unit = {},
     onToggleExcludedOnly: () -> Unit = {},
+    onAssignCountry: (String, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     var searchOpen by remember { mutableStateOf(false) }
@@ -178,6 +181,9 @@ fun ServersScreen(
                             ExclusionsCard(
                                 uiState = uiState,
                                 onSetCountries = onSetCountries,
+                                onExclude = onExclude,
+                                onInclude = onInclude,
+                                onAssignCountry = onAssignCountry,
                                 onToggleExcludedOnly = onToggleExcludedOnly,
                                 onRestartNow = onRestartNow,
                                 onDismissRestart = onDismissRestart,
@@ -611,11 +617,16 @@ private fun ExcludedRow(name: String, country: String?, busy: Boolean, onInclude
 private fun ExclusionsCard(
     uiState: ServersUiState,
     onSetCountries: (Set<String>) -> Unit,
+    onExclude: (String) -> Unit,
+    onInclude: (String) -> Unit,
+    onAssignCountry: (String, String) -> Unit,
     onToggleExcludedOnly: () -> Unit,
     onRestartNow: () -> Unit,
     onDismissRestart: () -> Unit,
 ) {
     var dialog by remember { mutableStateOf(false) }
+    var unknownDialog by remember { mutableStateOf(false) }
+    var assigning by remember { mutableStateOf<String?>(null) }
     SectionCard(
         title = stringResource(R.string.exclusions_title),
         subtitle = stringResource(R.string.exclusions_sub),
@@ -667,7 +678,32 @@ private fun ExclusionsCard(
                 dialog = false
                 onSetCountries(it)
             },
+            onOpenUnknown = {
+                dialog = false
+                unknownDialog = true
+            },
             onDismiss = { dialog = false },
+        )
+    }
+    if (unknownDialog) {
+        UnknownServersDialog(
+            names = uiState.countries.orEmpty().filterValues { it == ServerCountries.UNKNOWN }.keys.sorted(),
+            excluded = uiState.excluded,
+            busy = uiState.exclusionsBusy,
+            onExclude = onExclude,
+            onInclude = onInclude,
+            onSetCountry = { assigning = it },
+            onDismiss = { unknownDialog = false },
+        )
+    }
+    assigning?.let { name ->
+        CountryPickerDialog(
+            serverName = name,
+            onPick = { code ->
+                assigning = null
+                onAssignCountry(name, code)
+            },
+            onDismiss = { assigning = null },
         )
     }
 }
@@ -678,10 +714,12 @@ private fun CountryDialog(
     countries: Map<String, String>,
     selected: Set<String>,
     onApply: (Set<String>) -> Unit,
+    onOpenUnknown: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val counts = remember(countries) {
-        countries.values.groupingBy { it }.eachCount().entries
+        val found = countries.values.groupingBy { it }.eachCount()
+        (ServerCountries.ALWAYS_LISTED.associateWith { 0 } + found).entries
             .sortedWith(compareBy({ it.key == ServerCountries.UNKNOWN }, { -it.value }))
     }
     var picked by remember { mutableStateOf(selected) }
@@ -694,13 +732,15 @@ private fun CountryDialog(
     ) {
         LazyColumn(Modifier.height(420.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             items(counts, key = { it.key }) { (code, count) ->
-                val on = code in picked
+                val unknown = code == ServerCountries.UNKNOWN
+                val on = code in picked && !unknown
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
                         .background(if (on) Tints.red.bg else Boxy.colors.surface2)
-                        .clickable { picked = if (on) picked - code else picked + code }
+                        // Undetermined servers are excluded one by one, not as a group.
+                        .clickable { if (unknown) onOpenUnknown() else picked = if (on) picked - code else picked + code }
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -719,6 +759,106 @@ private fun CountryDialog(
                         Spacer(Modifier.width(8.dp))
                         Icon(painterResource(R.drawable.ic_block), null, Modifier.size(18.dp), tint = Tints.red.fg)
                     }
+                    if (unknown) {
+                        Spacer(Modifier.width(4.dp))
+                        Icon(painterResource(R.drawable.ic_chevron_right), null, Modifier.size(18.dp), tint = Boxy.colors.text2)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Servers without a country: excluded one by one, or given a country by hand. */
+@Composable
+private fun UnknownServersDialog(
+    names: List<String>,
+    excluded: Set<String>,
+    busy: Boolean,
+    onExclude: (String) -> Unit,
+    onInclude: (String) -> Unit,
+    onSetCountry: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    BoxyDialog(
+        title = stringResource(R.string.exclusions_unknown_country),
+        text = stringResource(if (names.isEmpty()) R.string.exclusions_unknown_none else R.string.exclusions_unknown_sub),
+        onDismiss = onDismiss,
+        confirmText = stringResource(R.string.action_ok),
+        onConfirm = onDismiss,
+    ) {
+        LazyColumn(Modifier.heightIn(max = 400.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            items(names, key = { it }) { name ->
+                val isExcluded = name in excluded
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Boxy.colors.surface2)
+                        .padding(start = 4.dp, end = 6.dp, top = 2.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = isExcluded,
+                        enabled = !busy,
+                        onCheckedChange = { if (it) onExclude(name) else onInclude(name) },
+                    )
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Boxy.colors.text,
+                        textDecoration = if (isExcluded) TextDecoration.LineThrough else null,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    TextButton(onClick = { onSetCountry(name) }) {
+                        Text(stringResource(R.string.exclusions_set_country), color = Boxy.colors.accent)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Every country with its flag, searchable, for placing one server by hand. */
+@Composable
+private fun CountryPickerDialog(serverName: String, onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val all = remember(locale) {
+        java.util.Locale.getISOCountries()
+            .map { it to java.util.Locale("", it).getDisplayCountry(locale) }
+            .sortedBy { it.second }
+    }
+    var query by remember { mutableStateOf("") }
+    val needle = query.trim()
+    val shown = all.filter { needle.isEmpty() || it.second.contains(needle, ignoreCase = true) || it.first.equals(needle, ignoreCase = true) }
+    BoxyDialog(
+        title = stringResource(R.string.exclusions_pick_country),
+        text = serverName,
+        onDismiss = onDismiss,
+        dismissText = stringResource(R.string.action_cancel),
+    ) {
+        io.github.skofqq.dnscryptmanager.ui.components.SearchField(
+            query = query,
+            hint = stringResource(R.string.exclusions_search_country),
+            onQuery = { query = it },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(8.dp))
+        LazyColumn(Modifier.height(360.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            items(shown, key = { it.first }) { (code, name) ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .clickable { onPick(code) }
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(ServerCountries.flag(code), fontSize = 20.sp)
+                    Spacer(Modifier.width(10.dp))
+                    Text(name, style = MaterialTheme.typography.bodyLarge, color = Boxy.colors.text)
                 }
             }
         }

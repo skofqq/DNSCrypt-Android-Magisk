@@ -346,7 +346,7 @@
     <string name="exclusions_restart_title">Uygulamak için yeniden başlatın</string>
     <string name="exclusions_restart_body">Proxy yeniden başlayana kadar mevcut sunucularını kullanır.</string>
     <string name="exclusions_restart_now">Şimdi yeniden başlat</string>
-    <string name="exclusions_unknown_country">Bilinmiyor / anycast</string>
+    <string name="exclusions_unknown_country">Ülke belirlenemedi</string>
     <string name="settings_apply_short">Uygula</string>
     <string name="geoip_attribution">IP konumu: DB-IP.com (CC BY 4.0)</string>
     <plurals name="exclusions_count">
@@ -396,4 +396,9 @@
     <string name="logs_added_blocked">%1$s engellenenlere eklendi</string>
     <string name="logs_added_allowed">%1$s izin verilenlere eklendi</string>
     <string name="logs_already">%1$s zaten listede</string>
+    <string name="exclusions_unknown_sub">Hariç tutmak için bir sunucuyu işaretleyin ya da o gruba taşımak için ülkesini belirtin.</string>
+    <string name="exclusions_unknown_none">Her sunucunun bir ülkesi var.</string>
+    <string name="exclusions_set_country">Ülkeyi belirt</string>
+    <string name="exclusions_pick_country">Sunucunun ülkesi</string>
+    <string name="exclusions_search_country">Ülke ara</string>
 </resources>

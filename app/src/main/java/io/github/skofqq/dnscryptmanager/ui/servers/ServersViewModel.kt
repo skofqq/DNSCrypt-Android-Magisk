@@ -281,7 +281,8 @@ class ServersViewModel(
     private suspend fun computeCountries() {
         val state = _uiState.value
         if (state.catalog.isEmpty() || state.countries != null) return
-        val cacheFile = java.io.File(context.cacheDir, "countries-${state.cacheEpochSeconds ?: 0}.txt")
+        // v2: location hints from names and descriptions now come before GeoIP.
+        val cacheFile = java.io.File(context.cacheDir, "countries-v2-${state.cacheEpochSeconds ?: 0}.txt")
         val cached = runCatching {
             cacheFile.readLines().mapNotNull { line -> line.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to it[1] } }.toMap()
         }.getOrNull()?.takeIf { it.isNotEmpty() }
@@ -294,15 +295,70 @@ class ServersViewModel(
                 }
             }
         }
-        _uiState.update { it.copy(countries = countries) }
+        _uiState.update { it.copy(countries = countries + assignedCountries()) }
+        syncCountryRules()
+    }
+
+    /**
+     * An excluded country also covers servers that land in it later: a new resolver list,
+     * or a better guess at where a server is. Servers the user let back in stay in.
+     */
+    private fun syncCountryRules() {
+        val state = _uiState.value
+        val countries = state.countries ?: return
+        val kept = prefs.getStringSet(KEY_KEPT, emptySet()).orEmpty()
+        val missing = countries.filter { (name, code) ->
+            code in state.countryRules && name !in state.excluded && name !in kept
+        }.keys
+        if (missing.isEmpty()) return
+        editExclusions {
+            val result = repository.serversExclude(missing)
+            if (result.getOrNull()?.isSuccess == true) {
+                val owned = prefs.getStringSet(KEY_COUNTRY_NAMES, emptySet()).orEmpty() + missing
+                prefs.edit().putStringSet(KEY_COUNTRY_NAMES, owned).apply()
+            }
+            result
+        }
+    }
+
+    /** Countries the user set by hand for servers the app could not place. */
+    private fun assignedCountries(): Map<String, String> =
+        prefs.getStringSet(KEY_ASSIGNED, emptySet()).orEmpty()
+            .mapNotNull { entry -> entry.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to it[1] } }
+            .toMap()
+
+    /**
+     * Puts a server into [code]'s group. If that country is excluded, the server is
+     * excluded with it, and lifting the country later gives it back.
+     */
+    fun assignCountry(name: String, code: String) {
+        val assigned = assignedCountries() + (name to code)
+        prefs.edit().putStringSet(KEY_ASSIGNED, assigned.map { "${it.key}=${it.value}" }.toSet()).apply()
+        _uiState.update { it.copy(countries = it.countries?.plus(name to code)) }
+        val state = _uiState.value
+        if (code in state.countryRules && name !in state.excluded) {
+            editExclusions {
+                val result = repository.serversExclude(listOf(name))
+                if (result.getOrNull()?.isSuccess == true) {
+                    val owned = prefs.getStringSet(KEY_COUNTRY_NAMES, emptySet()).orEmpty() + name
+                    prefs.edit().putStringSet(KEY_COUNTRY_NAMES, owned).apply()
+                }
+                result
+            }
+        }
     }
 
     fun excludeServer(name: String) = editExclusions { repository.serversExclude(listOf(name)) }
 
     fun includeServer(name: String) = editExclusions {
-        // A manual include also takes the name out of the country bookkeeping.
+        // A manual include also takes the name out of the country bookkeeping, and if
+        // its country is excluded, keeps it from being swept back in.
         val fromCountries = prefs.getStringSet(KEY_COUNTRY_NAMES, emptySet()).orEmpty() - name
-        prefs.edit().putStringSet(KEY_COUNTRY_NAMES, fromCountries).apply()
+        val state = _uiState.value
+        val kept = prefs.getStringSet(KEY_KEPT, emptySet()).orEmpty().let {
+            if (state.countries?.get(name) in state.countryRules) it + name else it
+        }
+        prefs.edit().putStringSet(KEY_COUNTRY_NAMES, fromCountries).putStringSet(KEY_KEPT, kept).apply()
         repository.serversInclude(listOf(name))
     }
 
@@ -329,7 +385,13 @@ class ServersViewModel(
             if (exclude.getOrNull()?.isSuccess == true) {
                 owned.removeAll(toInclude)
                 owned.addAll(toExclude)
-                prefs.edit().putStringSet(KEY_COUNTRIES, codes).putStringSet(KEY_COUNTRY_NAMES, owned).apply()
+                // Letting a country back in ends the exceptions made inside it.
+                val kept = prefs.getStringSet(KEY_KEPT, emptySet()).orEmpty().filterNot { countries[it] in removed }.toSet()
+                prefs.edit()
+                    .putStringSet(KEY_COUNTRIES, codes)
+                    .putStringSet(KEY_COUNTRY_NAMES, owned)
+                    .putStringSet(KEY_KEPT, kept)
+                    .apply()
             }
             exclude
         }
@@ -369,5 +431,7 @@ class ServersViewModel(
         const val PREFS = "exclusions"
         const val KEY_COUNTRIES = "countries"
         const val KEY_COUNTRY_NAMES = "country_names"
+        const val KEY_ASSIGNED = "assigned"
+        const val KEY_KEPT = "kept"
     }
 }

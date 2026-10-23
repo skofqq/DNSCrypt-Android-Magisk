@@ -346,7 +346,7 @@
     <string name="exclusions_restart_title">Қолдану үшін қайта қосыңыз</string>
     <string name="exclusions_restart_body">Прокси қайта қосылғанша бұрынғы серверлерді қолданады.</string>
     <string name="exclusions_restart_now">Қазір қайта қосу</string>
-    <string name="exclusions_unknown_country">Белгісіз / Anycast</string>
+    <string name="exclusions_unknown_country">Ел анықталмаған</string>
     <string name="settings_apply_short">Қолдану</string>
     <string name="geoip_attribution">IP геолокациясы: DB-IP.com (CC BY 4.0)</string>
     <plurals name="exclusions_count">
@@ -396,4 +396,9 @@
     <string name="logs_added_blocked">%1$s бұғатталғандарға қосылды</string>
     <string name="logs_added_allowed">%1$s рұқсат етілгендерге қосылды</string>
     <string name="logs_already">%1$s тізімде бар</string>
+    <string name="exclusions_unknown_sub">Серверді шығару үшін белгілеңіз немесе оны сол топқа ауыстыру үшін елін көрсетіңіз.</string>
+    <string name="exclusions_unknown_none">Барлық серверлердің елі анықталған.</string>
+    <string name="exclusions_set_country">Елді көрсету</string>
+    <string name="exclusions_pick_country">Сервер елі</string>
+    <string name="exclusions_search_country">Елді іздеу</string>
 </resources>
