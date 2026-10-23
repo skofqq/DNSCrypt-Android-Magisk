@@ -155,13 +155,13 @@
     <string name="status_conflict_body">DNS-Abfangen ist eingerichtet, aber box_for_magisk nimmt Port 53 zuerst, daher bleiben unsere Regeln wirkungslos.</string>
     <string name="status_open_conflicts">Konflikte öffnen</string>
     <string name="status_box_handover">DNS-Abfangen übernimmt box_for_magisk</string>
-    <string name="settings_advanced_header">Erweitert</string>
+    <string name="settings_advanced_header">Box-Kompatibilität</string>
     <string name="setting_run_gid">Prozessgruppe</string>
-    <string name="setting_run_gid_desc">Nur mit installiertem box_for_magisk nötig: Es lässt Verkehr von root:net_admin an seinem Abfangen vorbei, sonst laufen die Anfragen des Proxys an die Resolver wieder durch box.</string>
-    <string name="run_gid_default">Standard</string>
-    <string name="run_gid_custom">Eigener Wert</string>
-    <string name="run_gid_custom_label">GID oder Gruppenname</string>
-    <string name="run_gid_invalid">Nur Ziffern oder ein Gruppenname aus Buchstaben und Unterstrichen.</string>
+    <string name="setting_run_gid_desc">Box lässt Verkehr der Gruppe net_admin (GID 3005) an seiner Umleitung vorbei, sodass die Anfragen des Proxys an die Resolver direkt statt über Box laufen.</string>
+    <string name="run_gid_default">Normaler Start</string>
+    <string name="run_gid_custom">Eigene GID…</string>
+    <string name="run_gid_custom_label">Numerische GID</string>
+    <string name="run_gid_invalid">Nur Ziffern.</string>
     <string name="servers_applied">Serverliste angewendet, Proxy neu gestartet</string>
     <string name="settings_reset">Auf Standard zurücksetzen</string>
     <string name="settings_reset_title">Moduleinstellungen zurücksetzen?</string>
@@ -242,7 +242,7 @@
     <string name="settings_config_row">Konfigurationsdatei</string>
     <string name="settings_needs_module">Braucht Modul %1$s oder neuer</string>
     <string name="settings_module_sub">Abfangen, IPv6 und Autostart</string>
-    <string name="settings_advanced_sub">Nur neben box_for_magisk nötig</string>
+    <string name="settings_advanced_sub">Nur wenn Box DNS abfängt und an diesen Proxy weiterleitet. Beim Wechseln zwischen den Modulen nicht nötig.</string>
     <string name="settings_app_sub">Design, Sprache und Aktualisierung</string>
     <string name="settings_about_sub">Modulversion und Updates</string>
     <string name="setting_autostart_short">Proxy nach einem Neustart starten</string>
@@ -251,7 +251,7 @@
     <string name="setting_private_dns_short">Privates DNS (DoT) umgeht das Abfangen auf Port 53</string>
     <string name="ipv6_redirect_desc">IPv6-DNS immer umleiten, auch wenn der Kernel es scheinbar nicht kann.</string>
     <string name="ipv6_off_desc">IPv6-DNS in Ruhe lassen.</string>
-    <string name="run_gid_default_desc">Der Proxy läuft mit seiner eigenen Gruppe.</string>
+    <string name="run_gid_default_desc">Der Proxy läuft als root mit seiner üblichen Gruppe. Passend, wenn nur eines der Module aktiv ist.</string>
     <string name="logs_live">Live</string>
     <string name="logs_copy_all">Alles kopieren</string>
     <string name="logs_save">In Downloads speichern</string>
@@ -353,4 +353,13 @@
         <item quantity="one">%1$d Server ausgeschlossen</item>
         <item quantity="other">%1$d Server ausgeschlossen</item>
     </plurals>
+    <string name="run_gid_box">Box-Kompatibilität (net_admin)</string>
+    <string name="run_gid_custom_desc">Beliebige numerische Gruppen-ID.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Läuft mit GID %1$d</string>
+    <string name="run_gid_mismatch_title">Gruppe nicht angewendet</string>
+    <string name="run_gid_mismatch_body">Der Proxy läuft mit GID %1$d statt %2$d. Wende die Einstellung an oder starte den Proxy neu.</string>
+    <string name="run_gid_unsupported_body">Der Proxy läuft mit GID %1$d statt %2$d: su kann auf diesem Gerät die Gruppe nicht wechseln, daher hat das Modul ihn normal gestartet.</string>
+    <string name="experimental_badge">Experimentell</string>
+    <string name="run_gid_experimental_note">Experimentelle Einstellung: funktioniert eventuell nicht mit manchen Root-Managern und ROMs.</string>
 </resources>

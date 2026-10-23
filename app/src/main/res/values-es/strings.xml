@@ -158,13 +158,13 @@
     <string name="status_conflict_body">La intercepción DNS está configurada, pero box_for_magisk toma el puerto 53 primero, así que nuestras reglas no actúan.</string>
     <string name="status_open_conflicts">Abrir conflictos</string>
     <string name="status_box_handover">La intercepción DNS la hace box_for_magisk</string>
-    <string name="settings_advanced_header">Avanzado</string>
+    <string name="settings_advanced_header">Compatibilidad con Box</string>
     <string name="setting_run_gid">Grupo del proceso</string>
-    <string name="setting_run_gid_desc">Solo hace falta con box_for_magisk instalado: deja pasar el tráfico de root:net_admin sin interceptarlo; sin esto, las consultas del proxy a los resolutores vuelven a pasar por box.</string>
-    <string name="run_gid_default">Predeterminado</string>
-    <string name="run_gid_custom">Valor propio</string>
-    <string name="run_gid_custom_label">GID o nombre de grupo</string>
-    <string name="run_gid_invalid">Solo dígitos, o un nombre de grupo de letras y guiones bajos.</string>
+    <string name="setting_run_gid_desc">Box deja pasar sin interceptar el tráfico del grupo net_admin (GID 3005), así las consultas del propio proxy a los resolvers salen directas y no a través de Box.</string>
+    <string name="run_gid_default">Inicio normal</string>
+    <string name="run_gid_custom">GID propio…</string>
+    <string name="run_gid_custom_label">GID numérico</string>
+    <string name="run_gid_invalid">Solo dígitos.</string>
     <string name="servers_applied">Lista de servidores aplicada, proxy reiniciado</string>
     <string name="settings_reset">Restablecer valores</string>
     <string name="settings_reset_title">¿Restablecer los ajustes del módulo?</string>
@@ -246,7 +246,7 @@
     <string name="settings_config_row">Archivo de configuración</string>
     <string name="settings_needs_module">Requiere el módulo %1$s o posterior</string>
     <string name="settings_module_sub">Intercepción, IPv6 e inicio automático</string>
-    <string name="settings_advanced_sub">Solo necesario junto a box_for_magisk</string>
+    <string name="settings_advanced_sub">Solo si Box intercepta el DNS y lo reenvía a este proxy. No hace falta si alternas entre los dos módulos.</string>
     <string name="settings_app_sub">Tema, idioma y actualización</string>
     <string name="settings_about_sub">Versión del módulo y actualizaciones</string>
     <string name="setting_autostart_short">Iniciar el proxy tras reiniciar</string>
@@ -255,7 +255,7 @@
     <string name="setting_private_dns_short">El DNS privado (DoT) evita la intercepción del puerto 53</string>
     <string name="ipv6_redirect_desc">Redirigir siempre el DNS IPv6, aunque el kernel parezca no poder.</string>
     <string name="ipv6_off_desc">No tocar el DNS IPv6.</string>
-    <string name="run_gid_default_desc">El proxy se ejecuta con su propio grupo.</string>
+    <string name="run_gid_default_desc">El proxy se ejecuta como root con su grupo habitual. Adecuado cuando solo uno de los módulos está activo.</string>
     <string name="logs_live">En vivo</string>
     <string name="logs_copy_all">Copiar todo</string>
     <string name="logs_save">Guardar en Descargas</string>
@@ -359,4 +359,13 @@
         <item quantity="many">%1$d servidores excluidos</item>
         <item quantity="other">%1$d servidores excluidos</item>
     </plurals>
+    <string name="run_gid_box">Compatibilidad con Box (net_admin)</string>
+    <string name="run_gid_custom_desc">Cualquier ID de grupo numérico.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Se ejecuta con GID %1$d</string>
+    <string name="run_gid_mismatch_title">Grupo no aplicado</string>
+    <string name="run_gid_mismatch_body">El proxy se ejecuta con GID %1$d en lugar de %2$d. Aplica el ajuste o reinicia el proxy.</string>
+    <string name="run_gid_unsupported_body">El proxy se ejecuta con GID %1$d en lugar de %2$d: su en este dispositivo no puede cambiar el grupo, así que el módulo lo inició de forma normal.</string>
+    <string name="experimental_badge">Experimental</string>
+    <string name="run_gid_experimental_note">Ajuste experimental: puede no funcionar con algunos gestores root y ROMs.</string>
 </resources>

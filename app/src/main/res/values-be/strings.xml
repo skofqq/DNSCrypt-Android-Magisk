@@ -161,13 +161,13 @@
     <string name="status_conflict_body">Перахоп DNS наладжаны, але box_for_magisk забірае порт 53 першым, таму нашы правілы прастойваюць.</string>
     <string name="status_open_conflicts">Адкрыць канфлікты</string>
     <string name="status_box_handover">Перахоп DNS выконвае box_for_magisk</string>
-    <string name="settings_advanced_header">Дадаткова</string>
+    <string name="settings_advanced_header">Сумяшчальнасць з Box</string>
     <string name="setting_run_gid">Група працэсу</string>
-    <string name="setting_run_gid_desc">Патрэбна толькі разам з box_for_magisk: ён прапускае трафік root:net_admin міма свайго перахопу, інакш запыты проксі да рэзолвераў вяртаюцца праз box.</string>
-    <string name="run_gid_default">Па змаўчанні</string>
-    <string name="run_gid_custom">Сваё значэнне</string>
-    <string name="run_gid_custom_label">GID або назва групы</string>
-    <string name="run_gid_invalid">Толькі лічбы або назва групы з лацінскіх літар і падкрэсліванняў.</string>
+    <string name="setting_run_gid_desc">Box прапускае міма перахопу трафік групы net_admin (GID 3005), таму запыты самога проксі да рэзолвераў ідуць напрамую, а не праз Box.</string>
+    <string name="run_gid_default">Звычайны запуск</string>
+    <string name="run_gid_custom">Свой GID…</string>
+    <string name="run_gid_custom_label">Лікавы GID</string>
+    <string name="run_gid_invalid">Толькі лічбы.</string>
     <string name="servers_applied">Спіс сервераў ужыты, проксі перазапушчаны</string>
     <string name="settings_reset">Скінуць налады</string>
     <string name="settings_reset_title">Скінуць налады модуля?</string>
@@ -250,7 +250,7 @@
     <string name="settings_config_row">Файл канфігурацыі</string>
     <string name="settings_needs_module">Патрэбны модуль %1$s або навейшы</string>
     <string name="settings_module_sub">Перахоп, IPv6 і аўтазапуск</string>
-    <string name="settings_advanced_sub">Патрэбна толькі побач з box_for_magisk</string>
+    <string name="settings_advanced_sub">Толькі калі Box перахоплівае DNS і перасылае яго ў гэты проксі. Пры пераключэнні паміж модулямі не патрэбна.</string>
     <string name="settings_app_sub">Тэма, мова і абнаўленне</string>
     <string name="settings_about_sub">Версія модуля і абнаўленні</string>
     <string name="setting_autostart_short">Запускаць проксі пасля перазагрузкі</string>
@@ -259,7 +259,7 @@
     <string name="setting_private_dns_short">Прыватны DNS (DoT) абыходзіць перахоп порта 53</string>
     <string name="ipv6_redirect_desc">Заўсёды перанакіроўваць IPv6 DNS, нават калі ядро, здаецца, не ўмее.</string>
     <string name="ipv6_off_desc">Не чапаць IPv6 DNS.</string>
-    <string name="run_gid_default_desc">Проксі працуе са сваёй групай.</string>
+    <string name="run_gid_default_desc">Проксі працуе ад root са сваёй звычайнай групай. Падыходзіць, калі актыўны толькі адзін з модуляў.</string>
     <string name="logs_live">Жыўцом</string>
     <string name="logs_copy_all">Скапіяваць усё</string>
     <string name="logs_save">Захаваць у Спампоўкі</string>
@@ -365,4 +365,13 @@
         <item quantity="many">Выключана %1$d сервераў</item>
         <item quantity="other">Выключана %1$d сервераў</item>
     </plurals>
+    <string name="run_gid_box">Сумяшчальнасць з Box (net_admin)</string>
+    <string name="run_gid_custom_desc">Любы лікавы ідэнтыфікатар групы.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Працуе з GID %1$d</string>
+    <string name="run_gid_mismatch_title">Група не ўжыта</string>
+    <string name="run_gid_mismatch_body">Проксі працуе з GID %1$d замест %2$d. Ужыйце наладу або перазапусціце проксі.</string>
+    <string name="run_gid_unsupported_body">Проксі працуе з GID %1$d замест %2$d: su на гэтай прыладзе не ўмее мяняць групу, таму модуль запусціў яго звычайным спосабам.</string>
+    <string name="experimental_badge">Эксперыментальна</string>
+    <string name="run_gid_experimental_note">Эксперыментальная налада: можа не працаваць з некаторымі root-менеджарамі і прашыўкамі.</string>
 </resources>

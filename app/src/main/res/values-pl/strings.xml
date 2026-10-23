@@ -161,13 +161,13 @@
     <string name="status_conflict_body">Przechwytywanie DNS jest skonfigurowane, ale box_for_magisk zajmuje port 53 pierwszy, więc nasze reguły są bezczynne.</string>
     <string name="status_open_conflicts">Otwórz konflikty</string>
     <string name="status_box_handover">Przechwytywaniem DNS zajmuje się box_for_magisk</string>
-    <string name="settings_advanced_header">Zaawansowane</string>
+    <string name="settings_advanced_header">Zgodność z Box</string>
     <string name="setting_run_gid">Grupa procesu</string>
-    <string name="setting_run_gid_desc">Potrzebne tylko z zainstalowanym box_for_magisk: przepuszcza ruch root:net_admin obok własnego przechwytywania; bez tego zapytania proxy do resolverów wracają przez box.</string>
-    <string name="run_gid_default">Domyślna</string>
-    <string name="run_gid_custom">Własna wartość</string>
-    <string name="run_gid_custom_label">GID lub nazwa grupy</string>
-    <string name="run_gid_invalid">Tylko cyfry albo nazwa grupy z liter i podkreśleń.</string>
+    <string name="setting_run_gid_desc">Box przepuszcza bez przechwytywania ruch grupy net_admin (GID 3005), więc zapytania samego proxy do resolverów idą bezpośrednio, a nie przez Box.</string>
+    <string name="run_gid_default">Zwykłe uruchomienie</string>
+    <string name="run_gid_custom">Własny GID…</string>
+    <string name="run_gid_custom_label">Liczbowy GID</string>
+    <string name="run_gid_invalid">Tylko cyfry.</string>
     <string name="servers_applied">Lista serwerów zastosowana, proxy zrestartowane</string>
     <string name="settings_reset">Przywróć domyślne</string>
     <string name="settings_reset_title">Przywrócić ustawienia modułu?</string>
@@ -250,7 +250,7 @@
     <string name="settings_config_row">Plik konfiguracji</string>
     <string name="settings_needs_module">Wymaga modułu %1$s lub nowszego</string>
     <string name="settings_module_sub">Przechwytywanie, IPv6 i autostart</string>
-    <string name="settings_advanced_sub">Potrzebne tylko obok box_for_magisk</string>
+    <string name="settings_advanced_sub">Tylko gdy Box przechwytuje DNS i przekazuje go do tego proxy. Niepotrzebne przy przełączaniu między modułami.</string>
     <string name="settings_app_sub">Motyw, język i odświeżanie</string>
     <string name="settings_about_sub">Wersja modułu i aktualizacje</string>
     <string name="setting_autostart_short">Uruchamiaj proxy po restarcie</string>
@@ -259,7 +259,7 @@
     <string name="setting_private_dns_short">Prywatny DNS (DoT) omija przechwytywanie portu 53</string>
     <string name="ipv6_redirect_desc">Zawsze przekierowuj DNS IPv6, nawet jeśli jądro chyba tego nie umie.</string>
     <string name="ipv6_off_desc">Nie ruszaj DNS IPv6.</string>
-    <string name="run_gid_default_desc">Proxy działa z własną grupą.</string>
+    <string name="run_gid_default_desc">Proxy działa jako root ze swoją zwykłą grupą. Odpowiednie, gdy aktywny jest tylko jeden z modułów.</string>
     <string name="logs_live">Na żywo</string>
     <string name="logs_copy_all">Kopiuj wszystko</string>
     <string name="logs_save">Zapisz w Pobranych</string>
@@ -365,4 +365,13 @@
         <item quantity="many">Wykluczono %1$d serwerów</item>
         <item quantity="other">Wykluczono %1$d serwerów</item>
     </plurals>
+    <string name="run_gid_box">Zgodność z Box (net_admin)</string>
+    <string name="run_gid_custom_desc">Dowolny liczbowy identyfikator grupy.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Działa z GID %1$d</string>
+    <string name="run_gid_mismatch_title">Grupa nie została zastosowana</string>
+    <string name="run_gid_mismatch_body">Proxy działa z GID %1$d zamiast %2$d. Zastosuj ustawienie lub uruchom proxy ponownie.</string>
+    <string name="run_gid_unsupported_body">Proxy działa z GID %1$d zamiast %2$d: su na tym urządzeniu nie potrafi zmienić grupy, więc moduł uruchomił je zwyczajnie.</string>
+    <string name="experimental_badge">Eksperymentalne</string>
+    <string name="run_gid_experimental_note">Ustawienie eksperymentalne: może nie działać z niektórymi menedżerami root i ROM-ami.</string>
 </resources>

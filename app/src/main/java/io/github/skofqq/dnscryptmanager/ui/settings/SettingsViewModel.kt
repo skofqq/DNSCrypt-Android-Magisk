@@ -6,6 +6,7 @@ import io.github.skofqq.dnscryptmanager.data.AppPreferences
 import io.github.skofqq.dnscryptmanager.data.AppSettings
 import io.github.skofqq.dnscryptmanager.data.ModuleRepository
 import io.github.skofqq.dnscryptmanager.data.ModuleSettings
+import io.github.skofqq.dnscryptmanager.data.ProxyGroup
 import io.github.skofqq.dnscryptmanager.data.UiMessage
 import io.github.skofqq.dnscryptmanager.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class ModuleSettingsUiState(
@@ -25,6 +27,8 @@ data class ModuleSettingsUiState(
     val draft: Map<String, String> = emptyMap(),
     val applying: Boolean = false,
     val error: String? = null,
+    /** Group of the running proxy as /proc reports it; null while it is stopped. */
+    val group: ProxyGroup? = null,
 ) {
     val pendingKeys: Set<String>
         get() = draft.filter { (key, value) -> saved[key] != value }.keys
@@ -64,6 +68,7 @@ class SettingsViewModel(
                         loading = false,
                         saved = conf,
                         draft = conf,
+                        group = repository.proxyGroup(),
                     )
                 },
                 onFailure = { error ->
@@ -73,6 +78,14 @@ class SettingsViewModel(
                     )
                 },
             )
+        }
+    }
+
+    /** Re-reads the proxy's group, which changes with every start from any screen. */
+    fun refreshGroup() {
+        viewModelScope.launch {
+            val group = repository.proxyGroup()
+            _uiState.value = _uiState.value.copy(group = group)
         }
     }
 
@@ -111,7 +124,22 @@ class SettingsViewModel(
                 else -> onApplied()
             }
             reload()
+            if (restart != null) refreshGroupAfterStart()
         }
+    }
+
+    /** The new process needs a moment after a restart before /proc has it. */
+    private suspend fun refreshGroupAfterStart() {
+        for (wait in GROUP_RETRY_DELAYS_MS) {
+            delay(wait)
+            val group = repository.proxyGroup()
+            _uiState.value = _uiState.value.copy(group = group)
+            if (group != null) return
+        }
+    }
+
+    private companion object {
+        val GROUP_RETRY_DELAYS_MS = listOf(2_000L, 3_000L, 5_000L)
     }
 
     /** Puts every module setting back to the value the module ships with. */
@@ -129,6 +157,7 @@ class SettingsViewModel(
                 else -> onDone()
             }
             reload()
+            if (restart != null) refreshGroupAfterStart()
         }
     }
 

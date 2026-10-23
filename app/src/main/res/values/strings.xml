@@ -199,13 +199,13 @@
     <string name="status_box_handover">DNS interception handled by box_for_magisk</string>
 
     <!-- Advanced settings -->
-    <string name="settings_advanced_header">Advanced</string>
+    <string name="settings_advanced_header">Box compatibility</string>
     <string name="setting_run_gid">Process group</string>
-    <string name="setting_run_gid_desc">Only needed with box_for_magisk installed: it lets traffic owned by root:net_admin past its own interception, and without this the proxy queries to resolvers go back through box.</string>
-    <string name="run_gid_default">Default</string>
-    <string name="run_gid_custom">Custom value</string>
-    <string name="run_gid_custom_label">GID or group name</string>
-    <string name="run_gid_invalid">Digits only, or a group name of letters and underscores.</string>
+    <string name="setting_run_gid_desc">Box lets traffic of group net_admin (GID 3005) past its interception, so the proxy\'s own queries to resolvers go out directly instead of through Box.</string>
+    <string name="run_gid_default">Normal start</string>
+    <string name="run_gid_custom">Custom GID…</string>
+    <string name="run_gid_custom_label">Numeric GID</string>
+    <string name="run_gid_invalid">Digits only.</string>
     <string name="servers_applied">Server list applied, proxy restarted</string>
     <string name="settings_reset">Reset to defaults</string>
     <string name="settings_reset_title">Reset module settings?</string>
@@ -301,7 +301,7 @@
     <string name="settings_config_row">Config file</string>
     <string name="settings_needs_module">Needs module %1$s or newer</string>
     <string name="settings_module_sub">Interception, IPv6 and autostart</string>
-    <string name="settings_advanced_sub">Only needed next to box_for_magisk</string>
+    <string name="settings_advanced_sub">Only when Box intercepts DNS and forwards it to this proxy. Not needed when you switch between the two modules.</string>
     <string name="settings_app_sub">Theme, language and refresh</string>
     <string name="settings_about_sub">Module version and updates</string>
     <string name="setting_autostart_short">Start the proxy after a reboot</string>
@@ -310,7 +310,7 @@
     <string name="setting_private_dns_short">Private DNS (DoT) bypasses port 53 interception</string>
     <string name="ipv6_redirect_desc">Always redirect IPv6 DNS, even if the kernel looks unable to.</string>
     <string name="ipv6_off_desc">Leave IPv6 DNS alone.</string>
-    <string name="run_gid_default_desc">The proxy runs with its own group.</string>
+    <string name="run_gid_default_desc">The proxy runs as root with its usual group. Right when only one of the modules is active.</string>
 
     <!-- Logs, Status tiles, update sheet -->
     <string name="logs_live">Live</string>
@@ -417,4 +417,13 @@
         <item quantity="one">%1$d server excluded</item>
         <item quantity="other">%1$d servers excluded</item>
     </plurals>
+    <string name="run_gid_box">Box compatibility (net_admin)</string>
+    <string name="run_gid_custom_desc">Any numeric group ID.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Running with GID %1$d</string>
+    <string name="run_gid_mismatch_title">Group not applied</string>
+    <string name="run_gid_mismatch_body">The proxy runs with GID %1$d instead of %2$d. Apply the setting or restart the proxy.</string>
+    <string name="run_gid_unsupported_body">The proxy runs with GID %1$d instead of %2$d: su on this device cannot change the group, so the module started it normally.</string>
+    <string name="experimental_badge">Experimental</string>
+    <string name="run_gid_experimental_note">Experimental setting: it may not work with some root managers and ROMs.</string>
 </resources>

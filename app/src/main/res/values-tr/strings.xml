@@ -155,13 +155,13 @@
     <string name="status_conflict_body">DNS yakalama ayarlı, ancak box_for_magisk 53 numaralı portu önce alıyor, bu yüzden kurallarımız boşta.</string>
     <string name="status_open_conflicts">Çakışmaları aç</string>
     <string name="status_box_handover">DNS yakalamayı box_for_magisk yapıyor</string>
-    <string name="settings_advanced_header">Gelişmiş</string>
+    <string name="settings_advanced_header">Box uyumluluğu</string>
     <string name="setting_run_gid">İşlem grubu</string>
-    <string name="setting_run_gid_desc">Yalnızca box_for_magisk yüklüyken gerekir: root:net_admin trafiğini kendi yakalamasından geçirir; bu olmadan proxy\'nin çözümleyicilere sorguları yine box\'tan geçer.</string>
-    <string name="run_gid_default">Varsayılan</string>
-    <string name="run_gid_custom">Özel değer</string>
-    <string name="run_gid_custom_label">GID veya grup adı</string>
-    <string name="run_gid_invalid">Yalnızca rakam veya harf ve alt çizgiden oluşan bir grup adı.</string>
+    <string name="setting_run_gid_desc">Box, net_admin grubunun (GID 3005) trafiğini yakalamadan geçirir; böylece proxy\'nin çözümleyicilere sorguları Box üzerinden değil doğrudan gider.</string>
+    <string name="run_gid_default">Normal başlatma</string>
+    <string name="run_gid_custom">Özel GID…</string>
+    <string name="run_gid_custom_label">Sayısal GID</string>
+    <string name="run_gid_invalid">Yalnızca rakam.</string>
     <string name="servers_applied">Sunucu listesi uygulandı, proxy yeniden başlatıldı</string>
     <string name="settings_reset">Varsayılana sıfırla</string>
     <string name="settings_reset_title">Modül ayarları sıfırlansın mı?</string>
@@ -242,7 +242,7 @@
     <string name="settings_config_row">Yapılandırma dosyası</string>
     <string name="settings_needs_module">%1$s veya daha yeni modül gerekir</string>
     <string name="settings_module_sub">Yakalama, IPv6 ve otomatik başlatma</string>
-    <string name="settings_advanced_sub">Yalnızca box_for_magisk varken gerekir</string>
+    <string name="settings_advanced_sub">Yalnızca Box DNS\'i yakalayıp bu proxy\'ye iletiyorsa. İki modül arasında geçiş yapıyorsanız gerekmez.</string>
     <string name="settings_app_sub">Tema, dil ve yenileme</string>
     <string name="settings_about_sub">Modül sürümü ve güncellemeler</string>
     <string name="setting_autostart_short">Yeniden başlatmadan sonra proxy\'yi başlat</string>
@@ -251,7 +251,7 @@
     <string name="setting_private_dns_short">Özel DNS (DoT) 53 numaralı port yakalamasını atlar</string>
     <string name="ipv6_redirect_desc">Çekirdek yapamıyor gibi görünse bile IPv6 DNS\'i her zaman yönlendir.</string>
     <string name="ipv6_off_desc">IPv6 DNS\'e dokunma.</string>
-    <string name="run_gid_default_desc">Proxy kendi grubuyla çalışır.</string>
+    <string name="run_gid_default_desc">Proxy root olarak her zamanki grubuyla çalışır. Modüllerden yalnızca biri etkinken uygundur.</string>
     <string name="logs_live">Canlı</string>
     <string name="logs_copy_all">Tümünü kopyala</string>
     <string name="logs_save">İndirilenler\'e kaydet</string>
@@ -353,4 +353,13 @@
         <item quantity="one">%1$d sunucu hariç</item>
         <item quantity="other">%1$d sunucu hariç</item>
     </plurals>
+    <string name="run_gid_box">Box uyumluluğu (net_admin)</string>
+    <string name="run_gid_custom_desc">Herhangi bir sayısal grup kimliği.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">GID %1$d ile çalışıyor</string>
+    <string name="run_gid_mismatch_title">Grup uygulanmadı</string>
+    <string name="run_gid_mismatch_body">Proxy %2$d yerine GID %1$d ile çalışıyor. Ayarı uygulayın veya proxy\'yi yeniden başlatın.</string>
+    <string name="run_gid_unsupported_body">Proxy %2$d yerine GID %1$d ile çalışıyor: bu cihazdaki su grubu değiştiremiyor, bu yüzden modül onu normal şekilde başlattı.</string>
+    <string name="experimental_badge">Deneysel</string>
+    <string name="run_gid_experimental_note">Deneysel ayar: bazı root yöneticileri ve ROM\'larla çalışmayabilir.</string>
 </resources>

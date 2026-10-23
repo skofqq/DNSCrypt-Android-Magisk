@@ -387,6 +387,7 @@ fun AppRoot() {
                                         onPollInterval = settingsViewModel::setPollInterval,
                                         updateState = updateState,
                                         onOpenUpdate = { updateSheet = true },
+                                        onShown = settingsViewModel::refreshGroup,
                                     )
                                 }
                             }

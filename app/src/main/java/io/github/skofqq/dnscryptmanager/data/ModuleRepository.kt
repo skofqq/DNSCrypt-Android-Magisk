@@ -16,6 +16,9 @@ data class ConfigBackup(
     val isPending: Boolean,
 )
 
+/** Effective group of the proxy process; see [ModuleRepository.proxyGroup]. */
+data class ProxyGroup(val gid: Int, val suRefusedGroup: Boolean)
+
 class ModuleRepository(
     private val shell: RootShell,
     private val cacheDir: File,
@@ -113,6 +116,24 @@ class ModuleRepository(
         val ready = loadState() as? ModuleState.Ready
         if (ready?.status?.running != true) return null
         return restart()
+    }
+
+    /**
+     * Primary group the running proxy really has, from `/proc`. The module drops run_gid
+     * and starts normally when `su -g` is not supported, and says so in its log. Null
+     * when the proxy is not running.
+     */
+    suspend fun proxyGroup(): ProxyGroup? {
+        val status = (loadState() as? ModuleState.Ready)?.status ?: return null
+        val pid = status.pid?.takeIf { status.running } ?: return null
+        val out = shell.execLine(
+            "grep '^Gid:' /proc/$pid/status; " +
+                "tail -n 200 ${RootShell.quote(ModuleContract.MODULE_LOG)} | grep -c '${ModuleContract.RUN_GID_FALLBACK_MARKER}'"
+        ).getOrNull() ?: return null
+        val gid = out.stdout.firstOrNull { it.startsWith("Gid:") }
+            ?.trim()?.split(Regex("\\s+"))?.getOrNull(1)?.toIntOrNull() ?: return null
+        val fallbacks = out.stdout.lastOrNull()?.trim()?.toIntOrNull() ?: 0
+        return ProxyGroup(gid, suRefusedGroup = fallbacks > 0)
     }
 
     suspend fun test(): Result<ShellOutput> = ctl("test")

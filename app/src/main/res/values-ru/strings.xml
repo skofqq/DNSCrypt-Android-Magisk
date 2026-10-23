@@ -205,13 +205,13 @@
     <string name="status_box_handover">Перехват DNS ведёт box_for_magisk</string>
 
     <!-- Для опытных -->
-    <string name="settings_advanced_header">Для опытных пользователей</string>
+    <string name="settings_advanced_header">Совместимость с Box</string>
     <string name="setting_run_gid">Группа процесса</string>
-    <string name="setting_run_gid_desc">Нужно только когда установлен box_for_magisk: он пропускает мимо своего перехвата трафик с владельцем root:net_admin, и без этой настройки запросы прокси к резолверам пойдут через прокси box.</string>
-    <string name="run_gid_default">По умолчанию</string>
-    <string name="run_gid_custom">Своё значение</string>
-    <string name="run_gid_custom_label">GID или имя группы</string>
-    <string name="run_gid_invalid">Только цифры либо имя группы из букв и подчёркиваний.</string>
+    <string name="setting_run_gid_desc">Box пропускает мимо перехвата трафик группы net_admin (GID 3005), поэтому запросы самого прокси к резолверам идут напрямую, а не через Box.</string>
+    <string name="run_gid_default">Обычный запуск</string>
+    <string name="run_gid_custom">Свой GID…</string>
+    <string name="run_gid_custom_label">Числовой GID</string>
+    <string name="run_gid_invalid">Только цифры.</string>
     <string name="servers_applied">Список серверов применён, прокси перезапущен</string>
     <string name="settings_reset">Сбросить к умолчаниям</string>
     <string name="settings_reset_title">Сбросить настройки модуля?</string>
@@ -308,7 +308,7 @@
     <string name="settings_config_row">Файл конфигурации</string>
     <string name="settings_needs_module">Нужен модуль %1$s или новее</string>
     <string name="settings_module_sub">Перехват, IPv6 и автозапуск</string>
-    <string name="settings_advanced_sub">Нужно только рядом с box_for_magisk</string>
+    <string name="settings_advanced_sub">Только если Box перехватывает DNS и пересылает его в этот прокси. При переключении между модулями не нужно.</string>
     <string name="settings_app_sub">Тема, язык и обновление</string>
     <string name="settings_about_sub">Версия модуля и обновления</string>
     <string name="setting_autostart_short">Запускать прокси после перезагрузки</string>
@@ -317,7 +317,7 @@
     <string name="setting_private_dns_short">Частный DNS (DoT) обходит перехват порта 53</string>
     <string name="ipv6_redirect_desc">Всегда перенаправлять IPv6 DNS, даже если ядро вроде бы не умеет.</string>
     <string name="ipv6_off_desc">Не трогать IPv6 DNS.</string>
-    <string name="run_gid_default_desc">Прокси работает со своей группой.</string>
+    <string name="run_gid_default_desc">Прокси работает от root со своей обычной группой. Подходит, когда активен только один из модулей.</string>
 
     <!-- Logs, Status tiles, update sheet -->
     <string name="logs_live">Live</string>
@@ -425,4 +425,13 @@
         <item quantity="many">Исключено %1$d серверов</item>
         <item quantity="other">Исключено %1$d серверов</item>
     </plurals>
+    <string name="run_gid_box">Совместимость с Box (net_admin)</string>
+    <string name="run_gid_custom_desc">Любой числовой идентификатор группы.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Работает с GID %1$d</string>
+    <string name="run_gid_mismatch_title">Группа не применена</string>
+    <string name="run_gid_mismatch_body">Прокси работает с GID %1$d вместо %2$d. Примените настройку или перезапустите прокси.</string>
+    <string name="run_gid_unsupported_body">Прокси работает с GID %1$d вместо %2$d: su на этом устройстве не умеет менять группу, поэтому модуль запустил его обычным способом.</string>
+    <string name="experimental_badge">Экспериментально</string>
+    <string name="run_gid_experimental_note">Экспериментальная настройка: может не работать с некоторыми root-менеджерами и прошивками.</string>
 </resources>

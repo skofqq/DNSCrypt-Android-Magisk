@@ -155,13 +155,13 @@
     <string name="status_conflict_body">DNS ұстау бапталған, бірақ box_for_magisk 53-портты бірінші алады, сондықтан біздің ережелер бос тұр.</string>
     <string name="status_open_conflicts">Қақтығыстарды ашу</string>
     <string name="status_box_handover">DNS ұстауды box_for_magisk орындайды</string>
-    <string name="settings_advanced_header">Қосымша</string>
+    <string name="settings_advanced_header">Box үйлесімділігі</string>
     <string name="setting_run_gid">Процесс тобы</string>
-    <string name="setting_run_gid_desc">Тек box_for_magisk орнатылғанда керек: ол root:net_admin трафигін өз ұстауынан өткізеді, әйтпесе проксидің резолверлерге сұраулары box арқылы қайтады.</string>
-    <string name="run_gid_default">Әдепкі</string>
-    <string name="run_gid_custom">Өз мәні</string>
-    <string name="run_gid_custom_label">GID немесе топ атауы</string>
-    <string name="run_gid_invalid">Тек сандар немесе латын әріптері мен астын сызудан тұратын топ атауы.</string>
+    <string name="setting_run_gid_desc">Box net_admin тобының (GID 3005) трафигін ұстамайды, сондықтан проксидің резолверлерге сұраулары Box арқылы емес, тікелей жүреді.</string>
+    <string name="run_gid_default">Қалыпты іске қосу</string>
+    <string name="run_gid_custom">Өз GID…</string>
+    <string name="run_gid_custom_label">Сандық GID</string>
+    <string name="run_gid_invalid">Тек сандар.</string>
     <string name="servers_applied">Серверлер тізімі қолданылды, прокси қайта қосылды</string>
     <string name="settings_reset">Баптауларды тастау</string>
     <string name="settings_reset_title">Модуль баптауларын тастау керек пе?</string>
@@ -242,7 +242,7 @@
     <string name="settings_config_row">Конфигурация файлы</string>
     <string name="settings_needs_module">%1$s немесе жаңа модуль керек</string>
     <string name="settings_module_sub">Ұстау, IPv6 және автоқосылу</string>
-    <string name="settings_advanced_sub">Тек box_for_magisk бар кезде керек</string>
+    <string name="settings_advanced_sub">Тек Box DNS-ті ұстап, осы проксиге жіберсе ғана. Модульдер арасында ауысқанда қажет емес.</string>
     <string name="settings_app_sub">Тақырып, тіл және жаңарту</string>
     <string name="settings_about_sub">Модуль нұсқасы және жаңартулар</string>
     <string name="setting_autostart_short">Қайта жүктелгеннен кейін проксиді қосу</string>
@@ -251,7 +251,7 @@
     <string name="setting_private_dns_short">Жеке DNS (DoT) 53-порт ұстауын айналып өтеді</string>
     <string name="ipv6_redirect_desc">Ядро қабілетсіз болып көрінсе де, IPv6 DNS-ті әрдайым бағыттау.</string>
     <string name="ipv6_off_desc">IPv6 DNS-ке тимеу.</string>
-    <string name="run_gid_default_desc">Прокси өз тобымен жұмыс істейді.</string>
+    <string name="run_gid_default_desc">Прокси root атынан әдеттегі тобымен жұмыс істейді. Тек бір модуль белсенді болғанда лайық.</string>
     <string name="logs_live">Тікелей</string>
     <string name="logs_copy_all">Бәрін көшіру</string>
     <string name="logs_save">Жүктеулерге сақтау</string>
@@ -353,4 +353,13 @@
         <item quantity="one">%1$d сервер шығарылды</item>
         <item quantity="other">%1$d сервер шығарылды</item>
     </plurals>
+    <string name="run_gid_box">Box үйлесімділігі (net_admin)</string>
+    <string name="run_gid_custom_desc">Кез келген сандық топ идентификаторы.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">GID %1$d арқылы жұмыс істейді</string>
+    <string name="run_gid_mismatch_title">Топ қолданылмады</string>
+    <string name="run_gid_mismatch_body">Прокси %2$d орнына GID %1$d арқылы жұмыс істейді. Баптауды қолданыңыз немесе проксиді қайта қосыңыз.</string>
+    <string name="run_gid_unsupported_body">Прокси %2$d орнына GID %1$d арқылы жұмыс істейді: бұл құрылғыдағы su топты өзгерте алмайды, сондықтан модуль оны қалыпты түрде іске қосты.</string>
+    <string name="experimental_badge">Эксперименттік</string>
+    <string name="run_gid_experimental_note">Эксперименттік баптау: кейбір root-менеджерлер мен микробағдарламаларда жұмыс істемеуі мүмкін.</string>
 </resources>

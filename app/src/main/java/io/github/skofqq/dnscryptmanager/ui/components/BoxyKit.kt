@@ -93,13 +93,23 @@ fun SectionCard(
 }
 
 @Composable
-private fun RowTexts(title: String, subtitle: String?, enabled: Boolean, modifier: Modifier) {
+private fun RowTexts(
+    title: String,
+    subtitle: String?,
+    enabled: Boolean,
+    modifier: Modifier,
+    titleBadge: (@Composable () -> Unit)? = null,
+) {
     Column(modifier) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            color = Boxy.colors.text.copy(alpha = if (enabled) 1f else 0.45f),
-        )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleMedium,
+                color = Boxy.colors.text.copy(alpha = if (enabled) 1f else 0.45f),
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            titleBadge?.invoke()
+        }
         if (!subtitle.isNullOrEmpty()) {
             Text(
                 subtitle,
@@ -130,6 +140,7 @@ fun NavRow(
     showDivider: Boolean = true,
     iconTint: Color = Boxy.colors.text,
     enabled: Boolean = true,
+    titleBadge: (@Composable () -> Unit)? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
@@ -143,7 +154,7 @@ fun NavRow(
         ) {
             IconTile(icon, tint = iconTint.copy(alpha = if (enabled) 1f else 0.4f))
             Spacer(Modifier.width(14.dp))
-            RowTexts(title, subtitle, enabled, Modifier.weight(1f))
+            RowTexts(title, subtitle, enabled, Modifier.weight(1f), titleBadge)
             Spacer(Modifier.width(8.dp))
             if (trailing != null) {
                 trailing()
@@ -282,11 +293,15 @@ fun <T> ChoiceDialog(
     selected: T,
     onSelect: (T) -> Unit,
     onDismiss: () -> Unit,
+    titleBadge: (@Composable () -> Unit)? = null,
+    text: String? = null,
 ) {
     BoxyDialog(
         title = title,
         onDismiss = onDismiss,
+        text = text,
         dismissText = stringResource(R.string.action_cancel),
+        titleBadge = titleBadge,
     ) {
         Column(
             Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()),
@@ -332,6 +347,7 @@ fun BoxyDialog(
     confirmText: String? = null,
     confirmTint: Tint? = null,
     onConfirm: () -> Unit = {},
+    titleBadge: (@Composable () -> Unit)? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     Dialog(onDismissRequest = onDismiss) {
@@ -342,7 +358,19 @@ fun BoxyDialog(
                 .background(Boxy.colors.card)
                 .padding(22.dp),
         ) {
-            Text(title, style = MaterialTheme.typography.titleLarge, color = Boxy.colors.text)
+            if (titleBadge == null) {
+                Text(title, style = MaterialTheme.typography.titleLarge, color = Boxy.colors.text)
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Boxy.colors.text,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    titleBadge()
+                }
+            }
             if (text != null) {
                 Spacer(Modifier.height(10.dp))
                 Text(text, style = MaterialTheme.typography.bodyMedium, color = Boxy.colors.text2)

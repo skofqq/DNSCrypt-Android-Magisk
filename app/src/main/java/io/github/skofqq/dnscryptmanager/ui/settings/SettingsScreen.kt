@@ -1,5 +1,14 @@
 package io.github.skofqq.dnscryptmanager.ui.settings
 
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import io.github.skofqq.dnscryptmanager.ui.components.CardInset
+import io.github.skofqq.dnscryptmanager.ui.components.Badge
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -85,8 +94,10 @@ fun SettingsScreen(
     updateState: ModuleUpdateUiState,
     onOpenUpdate: () -> Unit,
     modifier: Modifier = Modifier,
+    onShown: () -> Unit = {},
 ) {
     var dialog by remember { mutableStateOf<SettingDialog?>(null) }
+    LaunchedEffect(Unit) { onShown() }
     val barPadding = LocalBarPadding.current
     val context = LocalContext.current
     val activity = context as? Activity
@@ -226,13 +237,37 @@ fun SettingsScreen(
                         title = stringResource(R.string.settings_advanced_header),
                         subtitle = stringResource(R.string.settings_advanced_sub),
                     ) {
+                        val group = uiState.group
                         NavRow(
                             icon = painterResource(R.drawable.ic_group),
                             title = stringResource(R.string.setting_run_gid),
-                            subtitle = runGidValue(uiState.text(ModuleSettings.RUN_GID, "")),
+                            titleBadge = { ExperimentalBadge() },
+                            subtitle = runGidValue(uiState.text(ModuleSettings.RUN_GID, "")) +
+                                (group?.let { " · " + stringResource(R.string.run_gid_effective, it.gid) } ?: ""),
                             showDivider = false,
                             onClick = { dialog = SettingDialog.RUN_GID },
                         )
+                        // What the module was asked for vs what the process got: a normal
+                        // start runs with root's group 0.
+                        val expected = ModuleSettings.expectedGid(uiState.saved[ModuleSettings.RUN_GID].orEmpty()) ?: 0
+                        AnimatedVisibility(
+                            visible = group != null && group.gid != expected,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            if (group == null) return@AnimatedVisibility
+                            NoticeCard(
+                                title = stringResource(R.string.run_gid_mismatch_title),
+                                body = if (group.suRefusedGroup && expected != 0) {
+                                    stringResource(R.string.run_gid_unsupported_body, group.gid, expected)
+                                } else {
+                                    stringResource(R.string.run_gid_mismatch_body, group.gid, expected)
+                                },
+                                tint = Tints.amber,
+                                icon = painterResource(R.drawable.ic_warning),
+                                modifier = Modifier.padding(start = CardInset, end = CardInset, bottom = CardInset),
+                            )
+                        }
                     }
                 }
             }
@@ -335,10 +370,12 @@ fun SettingsScreen(
             val current = uiState.text(ModuleSettings.RUN_GID, "")
             ChoiceDialog(
                 title = stringResource(R.string.setting_run_gid),
+                titleBadge = { ExperimentalBadge() },
+                text = stringResource(R.string.setting_run_gid_desc) + "\n\n" + stringResource(R.string.run_gid_experimental_note),
                 choices = listOf(
                     Choice("", stringResource(R.string.run_gid_default), stringResource(R.string.run_gid_default_desc)),
-                    Choice(ModuleSettings.RUN_GID_NET_ADMIN, ModuleSettings.RUN_GID_NET_ADMIN, stringResource(R.string.setting_run_gid_desc)),
-                    Choice(CUSTOM, stringResource(R.string.run_gid_custom), stringResource(R.string.run_gid_custom_label)),
+                    Choice(ModuleSettings.RUN_GID_NET_ADMIN, stringResource(R.string.run_gid_box), "GID ${ModuleSettings.NET_ADMIN_GID}"),
+                    Choice(CUSTOM, stringResource(R.string.run_gid_custom), stringResource(R.string.run_gid_custom_desc)),
                 ),
                 selected = if (current.isEmpty() || current == ModuleSettings.RUN_GID_NET_ADMIN) current else CUSTOM,
                 onSelect = { if (it == CUSTOM) dialog = SettingDialog.RUN_GID_CUSTOM else onEdit(ModuleSettings.RUN_GID, it) },
@@ -347,7 +384,7 @@ fun SettingsScreen(
         }
 
         SettingDialog.RUN_GID_CUSTOM -> RunGidCustomDialog(
-            initial = uiState.text(ModuleSettings.RUN_GID, "").takeIf { it != ModuleSettings.RUN_GID_NET_ADMIN }.orEmpty(),
+            initial = uiState.text(ModuleSettings.RUN_GID, "").takeIf { value -> value.all { it.isDigit() } }.orEmpty(),
             onConfirm = { onEdit(ModuleSettings.RUN_GID, it) },
             onDismiss = { dialog = null },
         )
@@ -427,7 +464,8 @@ private fun RestartDelayDialog(seconds: Int, onConfirm: (Int) -> Unit, onDismiss
 @Composable
 private fun RunGidCustomDialog(initial: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(initial) }
-    val normalized = ModuleSettings.SPECS[ModuleSettings.RUN_GID]?.normalize(text)
+    // Numeric only: names other than net_admin are the module's business, not the UI's.
+    val normalized = text.trim().takeIf { it.isNotEmpty() && it.all(Char::isDigit) }
     BoxyDialog(
         title = stringResource(R.string.run_gid_custom),
         onDismiss = onDismiss,
@@ -446,6 +484,7 @@ private fun RunGidCustomDialog(initial: String, onConfirm: (String) -> Unit, onD
             singleLine = true,
             isError = text.isNotEmpty() && normalized == null,
             label = { Text(stringResource(R.string.run_gid_custom_label)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             supportingText = {
                 if (text.isNotEmpty() && normalized == null) Text(stringResource(R.string.run_gid_invalid))
             },
@@ -457,7 +496,14 @@ private fun RunGidCustomDialog(initial: String, onConfirm: (String) -> Unit, onD
 @Composable
 private fun runGidValue(value: String): String = when {
     value.isEmpty() -> stringResource(R.string.run_gid_default)
+    value == ModuleSettings.RUN_GID_NET_ADMIN -> stringResource(R.string.run_gid_box)
+    value.all { it.isDigit() } -> stringResource(R.string.run_gid_value, value)
     else -> value
+}
+
+@Composable
+private fun ExperimentalBadge() {
+    Badge(stringResource(R.string.experimental_badge), Tints.amber)
 }
 
 private fun themeLabel(mode: ThemeMode) = when (mode) {

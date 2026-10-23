@@ -161,13 +161,13 @@
     <string name="status_conflict_body">Перехоплення DNS налаштовано, але box_for_magisk забирає порт 53 першим, тож наші правила простоюють.</string>
     <string name="status_open_conflicts">Відкрити конфлікти</string>
     <string name="status_box_handover">Перехоплення DNS виконує box_for_magisk</string>
-    <string name="settings_advanced_header">Додатково</string>
+    <string name="settings_advanced_header">Сумісність із Box</string>
     <string name="setting_run_gid">Група процесу</string>
-    <string name="setting_run_gid_desc">Потрібно лише разом із box_for_magisk: він пропускає трафік root:net_admin повз своє перехоплення, інакше запити проксі до резолверів повертаються через box.</string>
-    <string name="run_gid_default">За замовчуванням</string>
-    <string name="run_gid_custom">Своє значення</string>
-    <string name="run_gid_custom_label">GID або назва групи</string>
-    <string name="run_gid_invalid">Лише цифри або назва групи з латинських літер і підкреслень.</string>
+    <string name="setting_run_gid_desc">Box пропускає повз перехоплення трафік групи net_admin (GID 3005), тому запити самого проксі до резолверів ідуть напряму, а не через Box.</string>
+    <string name="run_gid_default">Звичайний запуск</string>
+    <string name="run_gid_custom">Свій GID…</string>
+    <string name="run_gid_custom_label">Числовий GID</string>
+    <string name="run_gid_invalid">Лише цифри.</string>
     <string name="servers_applied">Список серверів застосовано, проксі перезапущено</string>
     <string name="settings_reset">Скинути налаштування</string>
     <string name="settings_reset_title">Скинути налаштування модуля?</string>
@@ -250,7 +250,7 @@
     <string name="settings_config_row">Файл конфігурації</string>
     <string name="settings_needs_module">Потрібен модуль %1$s або новіший</string>
     <string name="settings_module_sub">Перехоплення, IPv6 і автозапуск</string>
-    <string name="settings_advanced_sub">Потрібно лише поряд із box_for_magisk</string>
+    <string name="settings_advanced_sub">Лише якщо Box перехоплює DNS і пересилає його в цей проксі. Під час перемикання між модулями не потрібно.</string>
     <string name="settings_app_sub">Тема, мова й оновлення</string>
     <string name="settings_about_sub">Версія модуля й оновлення</string>
     <string name="setting_autostart_short">Запускати проксі після перезавантаження</string>
@@ -259,7 +259,7 @@
     <string name="setting_private_dns_short">Приватний DNS (DoT) обходить перехоплення порту 53</string>
     <string name="ipv6_redirect_desc">Завжди перенаправляти IPv6 DNS, навіть якщо ядро, схоже, не вміє.</string>
     <string name="ipv6_off_desc">Не чіпати IPv6 DNS.</string>
-    <string name="run_gid_default_desc">Проксі працює зі своєю групою.</string>
+    <string name="run_gid_default_desc">Проксі працює від root зі своєю звичайною групою. Підходить, коли активний лише один із модулів.</string>
     <string name="logs_live">Наживо</string>
     <string name="logs_copy_all">Копіювати все</string>
     <string name="logs_save">Зберегти в Завантаження</string>
@@ -365,4 +365,13 @@
         <item quantity="many">Виключено %1$d серверів</item>
         <item quantity="other">Виключено %1$d серверів</item>
     </plurals>
+    <string name="run_gid_box">Сумісність із Box (net_admin)</string>
+    <string name="run_gid_custom_desc">Будь-який числовий ідентифікатор групи.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Працює з GID %1$d</string>
+    <string name="run_gid_mismatch_title">Групу не застосовано</string>
+    <string name="run_gid_mismatch_body">Проксі працює з GID %1$d замість %2$d. Застосуйте налаштування або перезапустіть проксі.</string>
+    <string name="run_gid_unsupported_body">Проксі працює з GID %1$d замість %2$d: su на цьому пристрої не вміє змінювати групу, тому модуль запустив його звичайним способом.</string>
+    <string name="experimental_badge">Експериментально</string>
+    <string name="run_gid_experimental_note">Експериментальне налаштування: може не працювати з деякими root-менеджерами та прошивками.</string>
 </resources>

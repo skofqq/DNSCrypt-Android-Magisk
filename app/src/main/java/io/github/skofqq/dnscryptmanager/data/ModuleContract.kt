@@ -55,6 +55,9 @@ object ModuleContract {
      * The one stable line the app looks for in `dnscrypt-ctl conflicts`. Everything else
      * in that output is shown verbatim and never parsed.
      */
+    /** Logged by the supervisor when `su -g` is refused and it starts without run_gid. */
+    const val RUN_GID_FALLBACK_MARKER = "смена первичной группы"
+
     const val BOX_MARKER = "box_for_magisk: обнаружен"
 
     /** A resolver cache older than this is worth a gentle note. */
@@ -134,6 +137,21 @@ object ModuleSettings {
     const val RUN_GID = "run_gid"
 
     const val RUN_GID_NET_ADMIN = "net_admin"
+
+    /** Android's AID_NET_ADMIN, the group box_for_magisk lets past its interception. */
+    const val NET_ADMIN_GID = 3005
+
+    /**
+     * The GID [RUN_GID] asks for, as the module's run_gid_numeric() reads it: null for a
+     * normal start or a name the module does not know.
+     */
+    fun expectedGid(value: String): Int? = when (value) {
+        "" -> null
+        RUN_GID_NET_ADMIN -> NET_ADMIN_GID
+        "inet" -> 3003
+        "net_raw" -> 3004
+        else -> value.toIntOrNull()
+    }
 
     val IPV6_MODES = listOf("auto", "redirect", "off")
 
