@@ -428,4 +428,9 @@
     <string name="ipv6_short_bypass">міма</string>
     <string name="private_dns_warning_title">Уключаны прыватны DNS</string>
     <string name="private_dns_warning_body">Android адпраўляе DNS праз TLS міма проксі. Націсніце, каб выключыць яго ў наладах сеткі.</string>
+    <string name="settings_display_header">Адлюстраванне</string>
+    <string name="settings_display_sub">Тэма, колеры і памер</string>
+    <string name="setting_ui_scale">Маштаб інтэрфейсу (%1$d%%)</string>
+    <string name="setting_ui_scale_desc">Маштаб усяго інтэрфейсу (%1$d–%2$d%%)</string>
+    <string name="setting_ui_scale_reset">Скінуць</string>
 </resources>

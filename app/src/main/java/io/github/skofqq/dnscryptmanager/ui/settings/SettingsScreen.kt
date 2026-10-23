@@ -1,5 +1,16 @@
 package io.github.skofqq.dnscryptmanager.ui.settings
 
+import androidx.compose.runtime.CompositionLocalProvider
+import io.github.skofqq.dnscryptmanager.ui.components.LocalBaseDensity
+import io.github.skofqq.dnscryptmanager.ui.components.IconTile
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import io.github.skofqq.dnscryptmanager.ui.components.LocalSnackbarLift
@@ -98,6 +109,7 @@ fun SettingsScreen(
     onThemeMode: (ThemeMode) -> Unit,
     onDynamicColor: (Boolean) -> Unit,
     onPollInterval: (Int) -> Unit,
+    onUiScale: (Int) -> Unit,
     updateState: ModuleUpdateUiState,
     onOpenUpdate: () -> Unit,
     modifier: Modifier = Modifier,
@@ -303,8 +315,8 @@ fun SettingsScreen(
 
             item {
                 SectionCard(
-                    title = stringResource(R.string.settings_app_header),
-                    subtitle = stringResource(R.string.settings_app_sub),
+                    title = stringResource(R.string.settings_display_header),
+                    subtitle = stringResource(R.string.settings_display_sub),
                 ) {
                     NavRow(
                         icon = painterResource(R.drawable.ic_palette),
@@ -312,19 +324,28 @@ fun SettingsScreen(
                         subtitle = stringResource(themeLabel(appSettings.themeMode)),
                         onClick = { dialog = SettingDialog.THEME },
                     )
-                    NavRow(
-                        icon = painterResource(R.drawable.ic_translate),
-                        title = stringResource(R.string.setting_language),
-                        subtitle = AppLanguage.OPTIONS.firstOrNull { it.tag == language }?.label
-                            ?: (AppLanguage.SYSTEM_FLAG + " " + stringResource(R.string.language_system)),
-                        onClick = { dialog = SettingDialog.LANGUAGE },
-                    )
                     SwitchRow(
                         icon = painterResource(R.drawable.ic_wallpaper),
                         title = stringResource(R.string.setting_dynamic_color),
                         subtitle = stringResource(R.string.setting_dynamic_color_desc),
                         checked = appSettings.dynamicColor,
                         onCheckedChange = onDynamicColor,
+                    )
+                    UiScaleRow(percent = appSettings.uiScalePercent, onScale = onUiScale)
+                }
+            }
+
+            item {
+                SectionCard(
+                    title = stringResource(R.string.settings_app_header),
+                    subtitle = stringResource(R.string.settings_app_sub),
+                ) {
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_translate),
+                        title = stringResource(R.string.setting_language),
+                        subtitle = AppLanguage.OPTIONS.firstOrNull { it.tag == language }?.label
+                            ?: (AppLanguage.SYSTEM_FLAG + " " + stringResource(R.string.language_system)),
+                        onClick = { dialog = SettingDialog.LANGUAGE },
                     )
                     NavRow(
                         icon = painterResource(R.drawable.ic_schedule),
@@ -488,6 +509,66 @@ private fun RestartDelayDialog(seconds: Int, onConfirm: (Int) -> Unit, onDismiss
             onValueChange = { value = it.roundToInt() },
             valueRange = ModuleSettings.RESTART_DELAY_MIN_SECONDS.toFloat()..ModuleSettings.RESTART_DELAY_MAX_SECONDS.toFloat(),
         )
+    }
+}
+
+/**
+ * Boxy's "Interface scale": the value in the title, the range underneath, a stepped
+ * slider applied live. Reset, or a long press on the row, goes back to 100%.
+ */
+@Composable
+private fun UiScaleRow(percent: Int, onScale: (Int) -> Unit) {
+    // Follows the finger at once; the stored value (and so the whole app) follows each step.
+    var dragged by remember(percent) { mutableFloatStateOf(percent.toFloat()) }
+    val haptics = LocalHapticFeedback.current
+    Column(Modifier.padding(horizontal = CardInset, vertical = 10.dp)) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onScale(AppSettings.DEFAULT_UI_SCALE)
+                    },
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconTile(painterResource(R.drawable.ic_tune))
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.setting_ui_scale, dragged.roundToInt()),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Boxy.colors.text,
+                )
+                Text(
+                    stringResource(R.string.setting_ui_scale_desc, AppSettings.MIN_UI_SCALE, AppSettings.MAX_UI_SCALE),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Boxy.colors.text2,
+                )
+            }
+            if (percent != AppSettings.DEFAULT_UI_SCALE) {
+                TextButton(onClick = { onScale(AppSettings.DEFAULT_UI_SCALE) }) {
+                    Text(stringResource(R.string.setting_ui_scale_reset), color = Boxy.colors.accent)
+                }
+            }
+        }
+        val baseDensity = LocalBaseDensity.current ?: LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides baseDensity) {
+        Slider(
+            value = dragged,
+            onValueChange = { value ->
+                val stepped = (value / AppSettings.UI_SCALE_STEP).roundToInt() * AppSettings.UI_SCALE_STEP
+                if (stepped != dragged.roundToInt()) onScale(stepped)
+                dragged = stepped.toFloat()
+            },
+            valueRange = AppSettings.MIN_UI_SCALE.toFloat()..AppSettings.MAX_UI_SCALE.toFloat(),
+            // 80, 85 ... 120: nine positions, seven between the ends.
+            steps = (AppSettings.MAX_UI_SCALE - AppSettings.MIN_UI_SCALE) / AppSettings.UI_SCALE_STEP - 1,
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+        )
+        }
     }
 }
 

@@ -446,6 +446,7 @@ fun AppRoot() {
                                         onThemeMode = settingsViewModel::setThemeMode,
                                         onDynamicColor = settingsViewModel::setDynamicColor,
                                         onPollInterval = settingsViewModel::setPollInterval,
+                                        onUiScale = settingsViewModel::setUiScale,
                                         updateState = updateState,
                                         onOpenUpdate = { updateSheet = true },
                                         onShown = settingsViewModel::refreshGroup,

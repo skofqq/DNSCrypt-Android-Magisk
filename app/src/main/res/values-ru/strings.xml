@@ -471,4 +471,9 @@
     <string name="ipv6_short_bypass">мимо</string>
     <string name="private_dns_warning_title">Включён частный DNS</string>
     <string name="private_dns_warning_body">Android отправляет DNS через TLS мимо прокси. Нажмите, чтобы выключить его в настройках сети.</string>
+    <string name="settings_display_header">Отображение</string>
+    <string name="settings_display_sub">Тема, цвета и размер</string>
+    <string name="setting_ui_scale">Масштаб интерфейса (%1$d%%)</string>
+    <string name="setting_ui_scale_desc">Масштаб всего интерфейса (%1$d–%2$d%%)</string>
+    <string name="setting_ui_scale_reset">Сбросить</string>
 </resources>

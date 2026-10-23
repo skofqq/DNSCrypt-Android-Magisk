@@ -1,5 +1,9 @@
 package io.github.skofqq.dnscryptmanager
 
+import io.github.skofqq.dnscryptmanager.ui.components.LocalBaseDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.CompositionLocalProvider
 import android.content.Context
 import android.os.Bundle
 import android.os.SystemClock
@@ -53,8 +57,17 @@ class MainActivity : ComponentActivity() {
             val settings by container.preferences.settings
                 .collectAsStateWithLifecycle(initialValue = AppSettings())
             DnsCryptTheme(themeMode = settings.themeMode, dynamicColor = settings.dynamicColor) {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    AppRoot()
+                // The app's own scale: a denser or looser LocalDensity for the whole tree.
+                // Text follows, since sp is built on density; fontScale stays the user's.
+                val base = LocalDensity.current
+                val factor = settings.uiScalePercent / 100f
+                CompositionLocalProvider(
+                    LocalDensity provides Density(base.density * factor, base.fontScale),
+                    LocalBaseDensity provides base,
+                ) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        AppRoot()
+                    }
                 }
             }
         }

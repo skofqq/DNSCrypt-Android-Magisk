@@ -428,4 +428,9 @@
     <string name="ipv6_short_bypass">повз</string>
     <string name="private_dns_warning_title">Увімкнено приватний DNS</string>
     <string name="private_dns_warning_body">Android надсилає DNS через TLS повз проксі. Натисніть, щоб вимкнути його в налаштуваннях мережі.</string>
+    <string name="settings_display_header">Відображення</string>
+    <string name="settings_display_sub">Тема, кольори й розмір</string>
+    <string name="setting_ui_scale">Масштаб інтерфейсу (%1$d%%)</string>
+    <string name="setting_ui_scale_desc">Масштаб усього інтерфейсу (%1$d–%2$d%%)</string>
+    <string name="setting_ui_scale_reset">Скинути</string>
 </resources>

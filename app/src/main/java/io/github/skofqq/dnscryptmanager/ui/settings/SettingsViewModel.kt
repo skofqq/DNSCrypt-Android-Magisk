@@ -171,6 +171,10 @@ class SettingsViewModel(
         viewModelScope.launch { preferences.setDynamicColor(enabled) }
     }
 
+    fun setUiScale(percent: Int) {
+        viewModelScope.launch { preferences.setUiScale(percent) }
+    }
+
     fun setPollInterval(seconds: Int) {
         viewModelScope.launch { preferences.setPollInterval(seconds) }
     }

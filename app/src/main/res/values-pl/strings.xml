@@ -428,4 +428,9 @@
     <string name="ipv6_short_bypass">omija</string>
     <string name="private_dns_warning_title">Prywatny DNS jest włączony</string>
     <string name="private_dns_warning_body">Android wysyła DNS przez TLS z pominięciem proxy. Dotknij, aby wyłączyć go w ustawieniach sieci.</string>
+    <string name="settings_display_header">Wygląd</string>
+    <string name="settings_display_sub">Motyw, kolory i rozmiar</string>
+    <string name="setting_ui_scale">Skala interfejsu (%1$d%%)</string>
+    <string name="setting_ui_scale_desc">Rozmiar całego interfejsu (%1$d–%2$d%%)</string>
+    <string name="setting_ui_scale_reset">Resetuj</string>
 </resources>

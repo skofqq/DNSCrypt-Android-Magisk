@@ -61,6 +61,12 @@ val TextInset: Dp = 20.dp
  */
 val LocalBarPadding = compositionLocalOf { 0.dp }
 
+/**
+ * The density before the app's own scale. The scale slider is laid out with it, so a
+ * live change of scale does not restart its gesture under the finger.
+ */
+val LocalBaseDensity = compositionLocalOf<androidx.compose.ui.unit.Density?> { null }
+
 /** Text on an accent fill: white in light mode, near-black on the light dark-mode accent (WCAG AA). */
 @Composable
 fun onAccent(): Color = if (Boxy.colors.isDark) Color(0xFF0A0C0F) else Color.White
