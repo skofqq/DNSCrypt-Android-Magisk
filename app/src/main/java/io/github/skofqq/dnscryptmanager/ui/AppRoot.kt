@@ -343,13 +343,6 @@ fun AppRoot() {
                                         contentDescription = stringResource(R.string.action_refresh),
                                         onClick = { statusViewModel.refresh(showSpinner = true) },
                                     )
-                                    HeaderAction(
-                                        icon = painterResource(R.drawable.ic_system_update),
-                                        contentDescription = stringResource(R.string.update_row_title),
-                                        tint = if (updateState.updateAvailable) Boxy.colors.accent else Boxy.colors.text,
-                                        dot = updateState.updateAvailable,
-                                        onClick = { updateSheet = true },
-                                    )
                                 },
                             ) {
                                 LifecycleResumeEffect(Unit) {

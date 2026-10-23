@@ -407,19 +407,10 @@
     <string name="exclusions_set_country">Indica paese</string>
     <string name="exclusions_pick_country">Paese del server</string>
     <string name="exclusions_search_country">Cerca un paese</string>
-    <string name="details_stopped">Proxy fermo</string>
-    <string name="details_interception">Intercettazione</string>
     <string name="private_dns_off">Disattivato</string>
     <string name="private_dns_auto">Automatico</string>
     <string name="private_dns_hostname">Provider scelto</string>
     <string name="private_dns_default">Predefinito</string>
-    <string name="details_running_for">Attivo da %1$s</string>
-    <string name="details_off">Spento</string>
-    <string name="details_rules">IPv4 %1$s · IPv6 %2$s</string>
-    <string name="details_ipv6_short">IPv6: %1$s</string>
-    <string name="ipv6_short_redirected">intercettato</string>
-    <string name="ipv6_short_blocked">bloccato</string>
-    <string name="ipv6_short_bypass">aggira</string>
     <string name="private_dns_warning_title">DNS privato attivo</string>
     <string name="private_dns_warning_body">Android invia il DNS via TLS aggirando il proxy. Tocca per disattivarlo nelle impostazioni di rete.</string>
     <string name="settings_display_header">Visualizzazione</string>
@@ -427,4 +418,13 @@
     <string name="setting_ui_scale">Scala dell\'interfaccia (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Dimensione di tutta l\'interfaccia (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Ripristina</string>
+    <string name="version_card_title">Versione</string>
+    <string name="version_badge_update">Aggiornamento</string>
+    <string name="version_update_available">Aggiornamento disponibile: %1$s</string>
+    <string name="version_checking">Controllo…</string>
+    <string name="version_up_to_date">Aggiornato</string>
+    <string name="version_check_failed">Controllo non riuscito</string>
+    <string name="version_tap_to_check">Tocca per cercare aggiornamenti</string>
+    <string name="rules_missing_title">Il DNS non è intercettato</string>
+    <string name="rules_missing_body">Il proxy è attivo, ma mancano le regole IPv4 e le query lo aggirano. Riavvia il proxy.</string>
 </resources>

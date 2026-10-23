@@ -401,19 +401,10 @@
     <string name="exclusions_set_country">Елді көрсету</string>
     <string name="exclusions_pick_country">Сервер елі</string>
     <string name="exclusions_search_country">Елді іздеу</string>
-    <string name="details_stopped">Прокси тоқтатылған</string>
-    <string name="details_interception">Ұстау</string>
     <string name="private_dns_off">Өшірулі</string>
     <string name="private_dns_auto">Автоматты</string>
     <string name="private_dns_hostname">Өз провайдері</string>
     <string name="private_dns_default">Жүйедегідей</string>
-    <string name="details_running_for">Жұмыс істеп тұр %1$s</string>
-    <string name="details_off">Өшірулі</string>
-    <string name="details_rules">IPv4 %1$s · IPv6 %2$s</string>
-    <string name="details_ipv6_short">IPv6: %1$s</string>
-    <string name="ipv6_short_redirected">ұсталады</string>
-    <string name="ipv6_short_blocked">бұғатталған</string>
-    <string name="ipv6_short_bypass">айналып өтеді</string>
     <string name="private_dns_warning_title">Жеке DNS қосулы</string>
     <string name="private_dns_warning_body">Android DNS-ті TLS арқылы проксиді айналып жібереді. Желі баптауларында өшіру үшін түртіңіз.</string>
     <string name="settings_display_header">Көрініс</string>
@@ -421,4 +412,13 @@
     <string name="setting_ui_scale">Интерфейс масштабы (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Бүкіл интерфейс масштабы (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Қалпына келтіру</string>
+    <string name="version_card_title">Нұсқа</string>
+    <string name="version_badge_update">Жаңарту</string>
+    <string name="version_update_available">Жаңарту бар: %1$s</string>
+    <string name="version_checking">Тексерілуде…</string>
+    <string name="version_up_to_date">Соңғы нұсқа</string>
+    <string name="version_check_failed">Жаңартуларды тексеру мүмкін болмады</string>
+    <string name="version_tap_to_check">Жаңартуларды тексеру үшін түртіңіз</string>
+    <string name="rules_missing_title">DNS ұсталмайды</string>
+    <string name="rules_missing_body">Прокси жұмыс істеп тұр, бірақ IPv4 ережелері жоқ, сұраулар оны айналып өтеді. Проксиді қайта қосыңыз.</string>
 </resources>

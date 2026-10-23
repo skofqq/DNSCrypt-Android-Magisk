@@ -465,19 +465,10 @@
     <string name="exclusions_set_country">Set country</string>
     <string name="exclusions_pick_country">Server country</string>
     <string name="exclusions_search_country">Find a country</string>
-    <string name="details_stopped">Proxy stopped</string>
-    <string name="details_interception">Interception</string>
     <string name="private_dns_off">Off</string>
     <string name="private_dns_auto">Automatic</string>
     <string name="private_dns_hostname">Own provider</string>
     <string name="private_dns_default">System default</string>
-    <string name="details_running_for">Running %1$s</string>
-    <string name="details_off">Off</string>
-    <string name="details_rules">IPv4 %1$s · IPv6 %2$s</string>
-    <string name="details_ipv6_short">IPv6: %1$s</string>
-    <string name="ipv6_short_redirected">intercepted</string>
-    <string name="ipv6_short_blocked">blocked</string>
-    <string name="ipv6_short_bypass">bypass</string>
     <string name="private_dns_warning_title">Private DNS is on</string>
     <string name="private_dns_warning_body">Android sends DNS over TLS around the proxy. Tap to turn it off in network settings.</string>
     <string name="settings_display_header">Display</string>
@@ -485,4 +476,13 @@
     <string name="setting_ui_scale">Interface scale (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Size of the whole interface (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Reset</string>
+    <string name="version_card_title">Version</string>
+    <string name="version_badge_update">Update</string>
+    <string name="version_update_available">Update available: %1$s</string>
+    <string name="version_checking">Checking…</string>
+    <string name="version_up_to_date">Up to date</string>
+    <string name="version_check_failed">Couldn\'t check for updates</string>
+    <string name="version_tap_to_check">Tap to check for updates</string>
+    <string name="rules_missing_title">DNS is not intercepted</string>
+    <string name="rules_missing_body">The proxy runs, but its IPv4 rules are missing, so queries go past it. Restart the proxy.</string>
 </resources>

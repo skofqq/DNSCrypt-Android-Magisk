@@ -413,19 +413,10 @@
     <string name="exclusions_set_country">Пазначыць краіну</string>
     <string name="exclusions_pick_country">Краіна сервера</string>
     <string name="exclusions_search_country">Знайсці краіну</string>
-    <string name="details_stopped">Проксі спынены</string>
-    <string name="details_interception">Перахоп</string>
     <string name="private_dns_off">Выключаны</string>
     <string name="private_dns_auto">Аўтаматычна</string>
     <string name="private_dns_hostname">Свой правайдар</string>
     <string name="private_dns_default">Як у сістэме</string>
-    <string name="details_running_for">Працуе %1$s</string>
-    <string name="details_off">Выключаны</string>
-    <string name="details_rules">IPv4 %1$s · IPv6 %2$s</string>
-    <string name="details_ipv6_short">IPv6: %1$s</string>
-    <string name="ipv6_short_redirected">перахоп</string>
-    <string name="ipv6_short_blocked">заблакіраваны</string>
-    <string name="ipv6_short_bypass">міма</string>
     <string name="private_dns_warning_title">Уключаны прыватны DNS</string>
     <string name="private_dns_warning_body">Android адпраўляе DNS праз TLS міма проксі. Націсніце, каб выключыць яго ў наладах сеткі.</string>
     <string name="settings_display_header">Адлюстраванне</string>
@@ -433,4 +424,13 @@
     <string name="setting_ui_scale">Маштаб інтэрфейсу (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Маштаб усяго інтэрфейсу (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Скінуць</string>
+    <string name="version_card_title">Версія</string>
+    <string name="version_badge_update">Абнаўленне</string>
+    <string name="version_update_available">Даступна абнаўленне: %1$s</string>
+    <string name="version_checking">Правяраю…</string>
+    <string name="version_up_to_date">Апошняя версія</string>
+    <string name="version_check_failed">Не ўдалося праверыць абнаўленні</string>
+    <string name="version_tap_to_check">Націсніце, каб праверыць абнаўленні</string>
+    <string name="rules_missing_title">DNS не перахопліваецца</string>
+    <string name="rules_missing_body">Проксі працуе, але правіл IPv4 няма, і запыты ідуць міма яго. Перазапусціце проксі.</string>
 </resources>

@@ -1,5 +1,6 @@
 package io.github.skofqq.dnscryptmanager.ui.status
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -98,6 +99,7 @@ fun StatusScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Spacer(Modifier.height(0.dp))
+            var allDetails by rememberSaveable { mutableStateOf(false) }
             HeroCard(
                 status = status,
                 phase = phase,
@@ -108,7 +110,14 @@ fun StatusScreen(
                 onStop = { confirmStop = true },
                 onRestart = { onAction(ProxyAction.RESTART) },
                 onOpenLogs = onOpenLogs,
+                onOpenDetails = { allDetails = true },
             )
+
+            // Warnings appear only when something is wrong; a healthy proxy shows none.
+            if (status.running && !status.rulesV4 && !boxCapturesDns) {
+                RulesMissingCard()
+            }
+            PrivateDnsWarning(status)
 
             if (status.ipv6Bypass) {
                 Ipv6BypassCard()
@@ -116,10 +125,6 @@ fun StatusScreen(
 
             if (boxCapturesDns && status.rulesV4) {
                 BoxConflictCard(onOpenConflicts = onOpenConflicts)
-            }
-
-            if (updateState.updateAvailable || updateState.phase == UpdatePhase.INSTALLED) {
-                ModuleUpdateCard(updateState, onOpenUpdate)
             }
 
             DnsCardsRow(
@@ -130,9 +135,7 @@ fun StatusScreen(
                 onOpenServers = onOpenServers,
             )
 
-            var allDetails by rememberSaveable { mutableStateOf(false) }
-            PrivateDnsWarning(status)
-            DetailsCards(status = status, uptimeSeconds = ready.uptimeSeconds, onOpenAll = { allDetails = true })
+            VersionCard(status = status, update = updateState, onClick = onOpenUpdate)
             if (allDetails) {
                 BoxyDialog(
                     title = stringResource(R.string.status_details),
@@ -182,6 +185,7 @@ private fun HeroCard(
     onStop: () -> Unit,
     onRestart: () -> Unit,
     onOpenLogs: () -> Unit,
+    onOpenDetails: () -> Unit,
 ) {
     val colors = Boxy.colors
     val busy = busyAction != null
@@ -225,6 +229,8 @@ private fun HeroCard(
                     .width(150.dp)
                     .clip(RoundedCornerShape(22.dp))
                     .background(colors.surface2)
+                    // The technical list (PIDs, ports, rules, config) sits behind these facts.
+                    .clickable(onClick = onOpenDetails)
                     .padding(vertical = 8.dp),
             ) {
                 MiniRow(
@@ -244,7 +250,6 @@ private fun HeroCard(
                     if (ipv6 == Ipv6Dns.BYPASS && status.running) Tints.red.fg else colors.text,
                 )
                 MiniRow(stringResource(R.string.hero_port), status.port.toString())
-                MiniRow(stringResource(R.string.hero_module), status.versionOrNull ?: "—")
             }
         }
 
@@ -312,28 +317,6 @@ private fun MiniRow(label: String, value: String, color: Color = Boxy.colors.tex
 }
 
 /** Shown on the home screen while update.json offers something newer, or a reboot is pending. */
-@Composable
-private fun ModuleUpdateCard(state: ModuleUpdateUiState, onClick: () -> Unit) {
-    val installed = state.phase == UpdatePhase.INSTALLED
-    BoxyCard(onClick = onClick) {
-        CardTitle(
-            stringResource(R.string.update_card_title),
-            badge = stringResource(if (installed) R.string.update_badge_reboot else R.string.update_badge_new),
-            tint = if (installed) Tints.amber else Tints.green,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            "${state.installed?.version.orEmpty()} → ${state.release?.version.orEmpty()}",
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 26.sp),
-            color = Boxy.colors.text,
-        )
-        Text(
-            stringResource(if (installed) R.string.update_reboot_hint else R.string.update_card_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Boxy.colors.text2,
-        )
-    }
-}
 
 /**
  * The proxy runs, but IPv6 queries go around it. Shown instead of the reassuring
