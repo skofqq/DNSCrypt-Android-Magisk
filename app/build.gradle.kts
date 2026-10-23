@@ -32,8 +32,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // One universal APK. The app has no native code of its own; the few .so files
-        // from AndroidX ship for every ABI and stay that way, whatever a library adds later.
+        // The app has no native code of its own; the few .so files come from AndroidX.
+        // Debug builds keep every ABI so they run on x86_64 emulators; release is ARM only.
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
         }
@@ -74,6 +74,15 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+// Releases are for Android devices on ARM (arm64-v8a, armeabi-v7a). A build-type
+// abiFilters only adds to the default list, so the x86 libraries are dropped at
+// packaging instead; debug builds keep them for x86_64 emulators.
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.packaging.jniLibs.excludes.addAll(listOf("lib/x86/**", "lib/x86_64/**"))
     }
 }
 
