@@ -55,12 +55,13 @@ android {
 
     buildTypes {
         release {
-            // R8 stays off: this build cannot be smoke-tested on a rooted device here,
-            // and shrinking Compose plus reflection-driven serialization unverified is
-            // not worth the size it saves.
-            optimization {
-                enable = false
-            }
+            // R8 shrinks code and resources. Smoke-tested on a rooted emulator: status,
+            // servers, logs, settings, blocklists and the module update sheet. The flags,
+            // not AGP 9's optimization block: the baselineprofile plugin turns these off
+            // for its nonMinifiedRelease copy, which must keep real class names.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release")
         }
     }
