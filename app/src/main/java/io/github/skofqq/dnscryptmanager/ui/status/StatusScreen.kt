@@ -1,5 +1,6 @@
 package io.github.skofqq.dnscryptmanager.ui.status
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -129,19 +130,21 @@ fun StatusScreen(
                 onOpenServers = onOpenServers,
             )
 
-            var expanded by rememberSaveable { mutableStateOf(false) }
-            BoxyCard(modifier = Modifier.animateContentSize()) {
-                CardTitle(stringResource(R.string.status_details))
-                Spacer(Modifier.height(6.dp))
-                StatusDetails(status = status, uptimeSeconds = ready.uptimeSeconds, expanded = expanded)
-                Spacer(Modifier.height(8.dp))
-                ActionPill(
-                    stringResource(if (expanded) R.string.status_less_details else R.string.status_more_details),
-                    Tints.gray,
-                    enabled = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { expanded = !expanded },
-                )
+            var allDetails by rememberSaveable { mutableStateOf(false) }
+            PrivateDnsWarning(status)
+            DetailsCards(status = status, uptimeSeconds = ready.uptimeSeconds, onOpenAll = { allDetails = true })
+            if (allDetails) {
+                BoxyDialog(
+                    title = stringResource(R.string.status_details),
+                    onDismiss = { allDetails = false },
+                    confirmText = stringResource(R.string.action_ok),
+                    onConfirm = { allDetails = false },
+                ) {
+                    // Scrolls with large font scaling instead of pushing the button off screen.
+                    Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState())) {
+                        StatusDetails(status = status, uptimeSeconds = ready.uptimeSeconds)
+                    }
+                }
             }
 
             Spacer(Modifier.height(LocalBarPadding.current))
@@ -365,14 +368,14 @@ private fun BoxConflictCard(onOpenConflicts: () -> Unit) {
     }
 }
 
-/** The four facts people look for first; the rest folds under "More details". */
+/** Every fact the module reports, for the dialog behind the detail cards. */
 @Composable
-private fun StatusDetails(status: ModuleStatus, uptimeSeconds: Long?, expanded: Boolean) {
+private fun StatusDetails(status: ModuleStatus, uptimeSeconds: Long?) {
     val unknown = stringResource(R.string.value_unknown)
     val error = Tints.red.fg
     InfoRow(
         label = stringResource(R.string.label_uptime),
-        value = uptimeSeconds?.let { formatUptime(it) } ?: unknown,
+        value = uptimeSeconds?.takeIf { status.running }?.let { formatUptime(it) } ?: unknown,
     )
     InfoRow(label = stringResource(R.string.label_version), value = status.versionOrNull ?: unknown)
     // Only modules from 2.4.2 on report where IPv6 queries actually go.
@@ -389,15 +392,21 @@ private fun StatusDetails(status: ModuleStatus, uptimeSeconds: Long?, expanded: 
             valueColor = if (dns == Ipv6Dns.BYPASS) error else Boxy.colors.text,
         )
     }
-    InfoRow(label = stringResource(R.string.label_private_dns), value = status.privateDns ?: unknown)
-    if (!expanded) return
+    InfoRow(label = stringResource(R.string.label_private_dns), value = privateDnsLabel(status.privateDns))
 
     InfoRow(label = stringResource(R.string.label_port), value = status.port.toString())
     InfoRow(label = stringResource(R.string.label_port6), value = status.port6?.toString() ?: unknown)
     InfoRow(
         label = stringResource(R.string.label_rules),
-        value = stringResource(if (status.rulesV4) R.string.value_present else R.string.value_absent),
-        valueColor = if (status.rulesV4) Boxy.colors.text else error,
+        value = stringResource(
+            when {
+                status.rulesV4 -> R.string.value_present
+                status.running -> R.string.value_absent
+                else -> R.string.value_off
+            }
+        ),
+        // Missing rules are only a problem while the proxy runs.
+        valueColor = if (status.rulesV4 || !status.running) Boxy.colors.text else error,
     )
     InfoRow(label = stringResource(R.string.label_ipv6), value = stringResource(ipv6Label(status.redirectIpv6)))
     InfoRow(
@@ -520,7 +529,7 @@ fun ipv6Label(mode: String) = when (mode) {
 }
 
 @Composable
-private fun formatUptime(seconds: Long): String {
+internal fun formatUptime(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     return if (hours > 0) {

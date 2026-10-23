@@ -401,4 +401,19 @@
     <string name="exclusions_set_country">Land festlegen</string>
     <string name="exclusions_pick_country">Land des Servers</string>
     <string name="exclusions_search_country">Land suchen</string>
+    <string name="details_stopped">Proxy gestoppt</string>
+    <string name="details_interception">Umleitung</string>
+    <string name="private_dns_off">Aus</string>
+    <string name="private_dns_auto">Automatisch</string>
+    <string name="private_dns_hostname">Eigener Anbieter</string>
+    <string name="private_dns_default">Systemstandard</string>
+    <string name="details_running_for">Läuft seit %1$s</string>
+    <string name="details_off">Aus</string>
+    <string name="details_rules">IPv4 %1$s · IPv6 %2$s</string>
+    <string name="details_ipv6_short">IPv6: %1$s</string>
+    <string name="ipv6_short_redirected">umgeleitet</string>
+    <string name="ipv6_short_blocked">blockiert</string>
+    <string name="ipv6_short_bypass">vorbei</string>
+    <string name="private_dns_warning_title">Privates DNS ist an</string>
+    <string name="private_dns_warning_body">Android schickt DNS per TLS am Proxy vorbei. Tippen, um es in den Netzwerkeinstellungen auszuschalten.</string>
 </resources>

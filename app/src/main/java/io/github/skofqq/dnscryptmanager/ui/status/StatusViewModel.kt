@@ -107,15 +107,17 @@ class StatusViewModel(
      */
     private fun applyServers(polled: PolledStatus) {
         val ready = _uiState.value.state as? ModuleState.Ready ?: return
-        if (polled.liveJson != null || polled.activeServer != null) {
-            serversFetchedAt = System.currentTimeMillis()
-            serversPid = ready.status.pid
-        }
         if (!ready.status.supportsServers || !ready.status.running) {
             _uiState.update { it.copy(activeServer = null, live = null, rttHistory = emptyList()) }
             return
         }
         val live = polled.liveJson?.let(LiveServers::parseJson)
+        // Right after a start the proxy is still probing and has no live list: ask again
+        // on the next poll instead of showing "0 servers" for a minute.
+        if (live != null && live.servers.isNotEmpty()) {
+            serversFetchedAt = System.currentTimeMillis()
+            serversPid = ready.status.pid
+        }
         _uiState.update {
             it.copy(activeServer = polled.activeServer?.let(ActiveServer::parse) ?: it.activeServer, live = live ?: it.live)
         }

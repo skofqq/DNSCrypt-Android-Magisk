@@ -401,4 +401,19 @@
     <string name="exclusions_set_country">Елді көрсету</string>
     <string name="exclusions_pick_country">Сервер елі</string>
     <string name="exclusions_search_country">Елді іздеу</string>
+    <string name="details_stopped">Прокси тоқтатылған</string>
+    <string name="details_interception">Ұстау</string>
+    <string name="private_dns_off">Өшірулі</string>
+    <string name="private_dns_auto">Автоматты</string>
+    <string name="private_dns_hostname">Өз провайдері</string>
+    <string name="private_dns_default">Жүйедегідей</string>
+    <string name="details_running_for">Жұмыс істеп тұр %1$s</string>
+    <string name="details_off">Өшірулі</string>
+    <string name="details_rules">IPv4 %1$s · IPv6 %2$s</string>
+    <string name="details_ipv6_short">IPv6: %1$s</string>
+    <string name="ipv6_short_redirected">ұсталады</string>
+    <string name="ipv6_short_blocked">бұғатталған</string>
+    <string name="ipv6_short_bypass">айналып өтеді</string>
+    <string name="private_dns_warning_title">Жеке DNS қосулы</string>
+    <string name="private_dns_warning_body">Android DNS-ті TLS арқылы проксиді айналып жібереді. Желі баптауларында өшіру үшін түртіңіз.</string>
 </resources>

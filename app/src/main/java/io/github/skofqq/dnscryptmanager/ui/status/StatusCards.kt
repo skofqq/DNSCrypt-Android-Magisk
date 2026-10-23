@@ -1,5 +1,9 @@
 package io.github.skofqq.dnscryptmanager.ui.status
 
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -153,7 +157,7 @@ private fun ServerCard(status: ModuleStatus, uiState: StatusUiState, modifier: M
 
 /** Title with a pill, a big value, a grey subtitle with a chevron: Boxy's IpCard layout. */
 @Composable
-private fun MetricCard(
+internal fun MetricCard(
     title: String,
     badge: String?,
     tint: Tint?,
@@ -162,17 +166,28 @@ private fun MetricCard(
     modifier: Modifier,
     onClick: () -> Unit,
     extra: @Composable () -> Unit = {},
+    /** A state dot before the value; unlike a badge it keeps the card's rows in line. */
+    dot: Color? = null,
+    subtitleMaxLines: Int = 2,
 ) {
     BoxyCard(modifier = modifier, onClick = onClick) {
         CardTitle(title, badge = badge, tint = tint)
         Spacer(Modifier.height(14.dp))
-        Text(
-            value,
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 21.sp),
-            color = Boxy.colors.text,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (dot != null) {
+                Box(Modifier.size(10.dp).clip(RoundedCornerShape(50)).background(dot))
+                Spacer(Modifier.width(8.dp))
+            }
+            // Shrinks before it cuts: "Running 2 h 14 min" has to fit half a 360 dp screen
+            // at large font sizes. The step range keeps it a headline even at its smallest.
+            BasicText(
+                value,
+                style = MaterialTheme.typography.titleLarge.copy(color = Boxy.colors.text),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                autoSize = TextAutoSize.StepBased(minFontSize = 14.sp, maxFontSize = 21.sp),
+            )
+        }
         Spacer(Modifier.height(2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -180,7 +195,7 @@ private fun MetricCard(
                 Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Boxy.colors.text2,
-                maxLines = 2,
+                maxLines = subtitleMaxLines,
                 overflow = TextOverflow.Ellipsis,
             )
             Icon(
