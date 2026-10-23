@@ -1,5 +1,8 @@
 package io.github.skofqq.dnscryptmanager.ui.settings
 
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
@@ -21,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -99,6 +101,18 @@ fun SettingsScreen(
     var dialog by remember { mutableStateOf<SettingDialog?>(null) }
     LaunchedEffect(Unit) { onShown() }
     val barPadding = LocalBarPadding.current
+    // The list makes room for the unsaved-changes bar by its measured height, so the
+    // last rows are never covered, and grows with it instead of jumping.
+    val pendingShown = uiState.pendingKeys.isNotEmpty()
+    var pendingBarHeight by remember { mutableIntStateOf(0) }
+    // While the bar slides out the count is already 0; keep showing the last one.
+    var shownCount by remember { mutableIntStateOf(0) }
+    if (pendingShown) shownCount = uiState.pendingKeys.size
+    val density = LocalDensity.current
+    val pendingInset by animateDpAsState(
+        if (pendingShown) with(density) { pendingBarHeight.toDp() } else 0.dp,
+        label = "pendingInset",
+    )
     val context = LocalContext.current
     val activity = context as? Activity
     // Read once per composition; changing it recreates the activity anyway.
@@ -116,7 +130,7 @@ fun SettingsScreen(
                 start = PageInset,
                 end = PageInset,
                 top = 4.dp,
-                bottom = barPadding + if (uiState.pendingKeys.isNotEmpty()) 110.dp else 0.dp,
+                bottom = barPadding + pendingInset,
             ),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
@@ -326,17 +340,18 @@ fun SettingsScreen(
         }
 
         AnimatedVisibility(
-            visible = uiState.pendingKeys.isNotEmpty(),
-            enter = slideInVertically { it },
-            exit = slideOutVertically { it },
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = barPadding - 16.dp),
+            visible = pendingShown,
+            enter = slideInVertically { it / 2 } + fadeIn(),
+            exit = slideOutVertically { it / 2 } + fadeOut(),
+            // Sits on top of the floating nav bar, not over it.
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = barPadding - 8.dp)
+                .onSizeChanged { pendingBarHeight = it.height },
         ) {
             Column {
-                if (uiState.applying) {
-                    LinearWavyProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = 32.dp))
-                }
                 PendingBar(
-                    label = pluralStringResource(R.plurals.settings_pending, uiState.pendingKeys.size, uiState.pendingKeys.size) +
+                    label = pluralStringResource(R.plurals.settings_pending, shownCount, shownCount) +
                         " · " + stringResource(R.string.settings_restart_note),
                     applying = uiState.applying,
                     applyText = stringResource(R.string.settings_apply),

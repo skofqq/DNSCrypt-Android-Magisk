@@ -1,5 +1,6 @@
 package io.github.skofqq.dnscryptmanager.ui.components
 
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.shadow
@@ -492,6 +493,10 @@ fun PendingBar(
             color = Boxy.colors.text2,
             modifier = Modifier.padding(start = 6.dp, bottom = 8.dp),
         )
+        // Progress stays inside the card: drawn outside it, it crossed the rows behind.
+        if (applying) {
+            LinearWavyProgressIndicator(Modifier.fillMaxWidth().padding(start = 6.dp, end = 6.dp, bottom = 10.dp))
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             PrimaryPill(
                 stringResource(R.string.action_cancel),
