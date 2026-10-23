@@ -15,22 +15,30 @@ import java.util.Locale
  */
 object AppLanguage {
 
-    /** Language tag and its own name; an empty tag means "follow the system". */
-    data class Option(val tag: String, val nativeName: String)
+    /**
+     * Language tag and its own name; an empty tag means "follow the system". [country]
+     * picks the flag shown before the name in the picker.
+     */
+    data class Option(val tag: String, val nativeName: String, val country: String) {
+        val label: String get() = ServerCountries.flag(country) + " " + nativeName
+    }
+
+    /** Globe before "System default", matching the flags of the other entries. */
+    const val SYSTEM_FLAG = "🌐"
 
     val OPTIONS = listOf(
-        Option("en", "English"),
-        Option("ru", "Русский"),
-        Option("uk", "Українська"),
-        Option("be", "Беларуская"),
-        Option("kk", "Қазақша"),
-        Option("es", "Español"),
-        Option("fr", "Français"),
-        Option("it", "Italiano"),
-        Option("pt", "Português"),
-        Option("de", "Deutsch"),
-        Option("pl", "Polski"),
-        Option("tr", "Türkçe"),
+        Option("en", "English", "GB"),
+        Option("ru", "Русский", "RU"),
+        Option("uk", "Українська", "UA"),
+        Option("be", "Беларуская", "BY"),
+        Option("kk", "Қазақша", "KZ"),
+        Option("es", "Español", "ES"),
+        Option("fr", "Français", "FR"),
+        Option("it", "Italiano", "IT"),
+        Option("pt", "Português", "PT"),
+        Option("de", "Deutsch", "DE"),
+        Option("pl", "Polski", "PL"),
+        Option("tr", "Türkçe", "TR"),
     )
 
     private const val PREFS = "app_language"

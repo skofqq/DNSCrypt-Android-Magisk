@@ -300,8 +300,8 @@ fun SettingsScreen(
                     NavRow(
                         icon = painterResource(R.drawable.ic_translate),
                         title = stringResource(R.string.setting_language),
-                        subtitle = AppLanguage.OPTIONS.firstOrNull { it.tag == language }?.nativeName
-                            ?: stringResource(R.string.language_system),
+                        subtitle = AppLanguage.OPTIONS.firstOrNull { it.tag == language }?.label
+                            ?: (AppLanguage.SYSTEM_FLAG + " " + stringResource(R.string.language_system)),
                         onClick = { dialog = SettingDialog.LANGUAGE },
                     )
                     SwitchRow(
@@ -406,8 +406,8 @@ fun SettingsScreen(
 
         SettingDialog.LANGUAGE -> ChoiceDialog(
             title = stringResource(R.string.setting_language),
-            choices = listOf(Choice("", stringResource(R.string.language_system))) +
-                AppLanguage.OPTIONS.map { Choice(it.tag, it.nativeName) },
+            choices = listOf(Choice("", AppLanguage.SYSTEM_FLAG + " " + stringResource(R.string.language_system))) +
+                AppLanguage.OPTIONS.map { Choice(it.tag, it.label) },
             selected = language,
             onSelect = { tag -> activity?.let { AppLanguage.set(it, tag) } },
             onDismiss = { dialog = null },
