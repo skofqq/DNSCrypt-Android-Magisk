@@ -62,12 +62,11 @@ fun DnsCardsRow(
     onCheck: () -> Unit,
     onOpenServers: () -> Unit,
 ) {
-    Row(
-        Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        DnsCheckCard(dnsCheck, Modifier.weight(1f).fillMaxHeight(), onCheck)
-        ServerCard(status, uiState, Modifier.weight(1f).fillMaxHeight(), onOpenServers)
+    // One under the other at full width, like the Version card: the titles keep their
+    // badges on one line and long server names fit.
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        DnsCheckCard(dnsCheck, Modifier.fillMaxWidth(), onCheck)
+        ServerCard(status, uiState, Modifier.fillMaxWidth(), onOpenServers)
     }
 }
 
@@ -136,10 +135,10 @@ private fun ServerCard(status: ModuleStatus, uiState: StatusUiState, modifier: M
         subtitle = subtitle,
         modifier = modifier,
         onClick = onClick,
-        extra = {
-            if (rtt != null || uiState.rttHistory.size > 1) {
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+        subtitleMaxLines = 1,
+        trailing = if (rtt != null || uiState.rttHistory.size > 1) {
+            {
+                Column(horizontalAlignment = Alignment.End) {
                     rtt?.let {
                         Text(
                             stringResource(R.string.servers_rtt_short, it),
@@ -147,10 +146,11 @@ private fun ServerCard(status: ModuleStatus, uiState: StatusUiState, modifier: M
                             color = rttTint(it).fg,
                         )
                     }
-                    Spacer(Modifier.weight(1f))
-                    Sparkline(uiState.rttHistory, Tints.teal.fg, Modifier.width(64.dp).height(26.dp))
+                    Sparkline(uiState.rttHistory, Tints.teal.fg, Modifier.width(64.dp).height(22.dp))
                 }
             }
+        } else {
+            null
         },
     )
 }
@@ -169,10 +169,14 @@ internal fun MetricCard(
     /** A state dot before the value; unlike a badge it keeps the card's rows in line. */
     dot: Color? = null,
     subtitleMaxLines: Int = 2,
+    /** Shown right of the value and subtitle, before the chevron (the server's RTT). */
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     BoxyCard(modifier = modifier, onClick = onClick) {
         CardTitle(title, badge = badge, tint = tint)
         Spacer(Modifier.height(14.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (dot != null) {
                 Box(Modifier.size(10.dp).clip(RoundedCornerShape(50)).background(dot))
@@ -189,15 +193,19 @@ internal fun MetricCard(
             )
         }
         Spacer(Modifier.height(2.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                subtitle,
-                Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Boxy.colors.text2,
-                maxLines = subtitleMaxLines,
-                overflow = TextOverflow.Ellipsis,
-            )
+        Text(
+            subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Boxy.colors.text2,
+            maxLines = subtitleMaxLines,
+            overflow = TextOverflow.Ellipsis,
+        )
+        }
+            if (trailing != null) {
+                Spacer(Modifier.width(12.dp))
+                trailing()
+                Spacer(Modifier.width(8.dp))
+            }
             Icon(
                 painterResource(R.drawable.ic_chevron_right),
                 null,

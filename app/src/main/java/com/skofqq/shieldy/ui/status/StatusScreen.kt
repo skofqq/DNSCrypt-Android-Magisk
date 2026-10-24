@@ -113,6 +113,16 @@ fun StatusScreen(
                 onOpenDetails = { allDetails = true },
             )
 
+            DnsCardsRow(
+                status = status,
+                uiState = uiState,
+                dnsCheck = dnsCheck,
+                onCheck = onProbe,
+                onOpenServers = onOpenServers,
+            )
+
+            VersionCard(status = status, update = updateState, onClick = onOpenUpdate)
+
             // Warnings appear only when something is wrong; a healthy proxy shows none.
             if (status.running && !status.rulesV4 && !boxCapturesDns) {
                 RulesMissingCard()
@@ -126,16 +136,6 @@ fun StatusScreen(
             if (boxCapturesDns && status.rulesV4) {
                 BoxConflictCard(onOpenConflicts = onOpenConflicts)
             }
-
-            DnsCardsRow(
-                status = status,
-                uiState = uiState,
-                dnsCheck = dnsCheck,
-                onCheck = onProbe,
-                onOpenServers = onOpenServers,
-            )
-
-            VersionCard(status = status, update = updateState, onClick = onOpenUpdate)
             if (allDetails) {
                 BoxyDialog(
                     title = stringResource(R.string.status_details),
