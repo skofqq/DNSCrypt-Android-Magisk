@@ -57,17 +57,53 @@ CI ([.github/workflows/build.yml](.github/workflows/build.yml)) проверяе
 `shellcheck`, собирает zip, проверяет наличие бинарников arm64 и arm и при push тега
 прикладывает zip к релизу.
 
-## Файлы и каталоги
+## Структура папок
 
-| Путь | Содержимое |
-|---|---|
-| `/data/adb/dnscrypt-proxy/dnscrypt-proxy.toml` | конфиг dnscrypt-proxy |
-| `/data/adb/dnscrypt-proxy/module.conf` | параметры модуля |
-| `/data/adb/dnscrypt-proxy/*.txt` | `blocked-names`, `blocked-ips`, `allowed-names`, `allowed-ips`, `exclude-ips` |
-| `/data/adb/dnscrypt-proxy/public-resolvers.md` | кэш списка резолверов, загружается и проверяется подписью minisign самим dnscrypt-proxy |
-| `/system/bin/dnscrypt-proxy`, `/system/bin/dnscrypt-ctl` | бинарники, монтируются Magisk |
+Рабочий каталог модуля: `/data/adb/dnscrypt-proxy/`
 
-Каталог имеет права `0700`. Во внутренней памяти (`/storage/emulated/0`) модуль ничего
+```
+/data/adb/dnscrypt-proxy/
+├── dnscrypt-proxy.toml       # конфиг dnscrypt-proxy
+├── dnscrypt-proxy.toml.new   # новый конфиг по умолчанию, кладётся при обновлении модуля
+├── module.conf               # параметры модуля (dnscrypt-ctl set / reset)
+├── blocked-names.txt         # заблокированные домены (и блок-листы, добавленные Shieldy)
+├── blocked-ips.txt           # заблокированные IP-адреса
+├── allowed-names.txt         # домены, которые никогда не блокируются
+├── allowed-ips.txt           # IP-адреса, которые никогда не блокируются
+├── exclude-ips.txt           # адреса, исключённые из перехвата
+├── public-resolvers.md       # кэш списка резолверов (проверен minisign)
+├── relays.md                 # кэш списка релеев Anonymized DNSCrypt
+├── dnscrypt-proxy.log        # журнал dnscrypt-proxy (dnscrypt-ctl proxylog)
+├── stdout.log                # консольный вывод dnscrypt-proxy
+├── module.log                # журнал модуля (dnscrypt-ctl log), ротация в module.log.1
+├── dnscrypt-proxy.pid        # PID dnscrypt-proxy
+├── supervisor.pid            # PID супервизора
+├── .private_dns_mode         # исходный режим Private DNS, восстанавливается при stop / удалении
+├── .manual_stop              # если есть, прокси не запускается при загрузке
+├── .route_localnet.*         # исходные значения route_localnet, восстанавливаются при остановке
+└── *.bak                     # резервные копии конфига и настроек перед каждой записью
+```
+
+Файлы модуля находятся в `/data/adb/modules/dnscrypt-proxy-android/`:
+
+```
+/data/adb/modules/dnscrypt-proxy-android/
+├── module.prop               # id, версия, updateJson
+├── post-fs-data.sh           # готовит рабочий каталог, сеть не трогает
+├── service.sh                # запускает супервизор при загрузке
+├── uninstall.sh              # снимает правила, удаляет рабочий каталог, восстанавливает Private DNS;
+│                             # копия конфига остаётся в /sdcard/dnscrypt-proxy.toml.bak
+├── scripts/
+│   ├── common.sh             # пути, настройки, журнал, Private DNS, исключение серверов
+│   ├── netfilter.sh          # цепочки nat/DNSCRYPT для IPv4 и IPv6, защита IPv6
+│   └── supervisor.sh         # запускает dnscrypt-proxy и следит за ним, восстанавливает правила после netd
+├── config/                   # конфиги по умолчанию, копируются в рабочий каталог при установке
+└── system/bin/
+    ├── dnscrypt-proxy        # бинарник dnscrypt-proxy для архитектуры устройства
+    └── dnscrypt-ctl          # утилита управления
+```
+
+Рабочий каталог имеет права `0700`. Пока модуль установлен, во внутренней памяти (`/storage/emulated/0`) он ничего
 не хранит, поэтому конфиг доступен до первой разблокировки после загрузки (FBE).
 
 ## Параметры модуля

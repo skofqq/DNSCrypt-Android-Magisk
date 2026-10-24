@@ -56,18 +56,54 @@ CI ([.github/workflows/build.yml](.github/workflows/build.yml)) runs `shellcheck
 scripts, builds the zip, checks that the arm64 and arm binaries are present, and attaches
 the zip to the release when a tag is pushed.
 
-## Files and directories
+## Folder structure
 
-| Path | Contents |
-|---|---|
-| `/data/adb/dnscrypt-proxy/dnscrypt-proxy.toml` | dnscrypt-proxy config |
-| `/data/adb/dnscrypt-proxy/module.conf` | module settings |
-| `/data/adb/dnscrypt-proxy/*.txt` | `blocked-names`, `blocked-ips`, `allowed-names`, `allowed-ips`, `exclude-ips` |
-| `/data/adb/dnscrypt-proxy/public-resolvers.md` | resolver list cache, downloaded and verified with minisign by dnscrypt-proxy itself |
-| `/system/bin/dnscrypt-proxy`, `/system/bin/dnscrypt-ctl` | binaries, mounted by Magisk |
+Module working directory: `/data/adb/dnscrypt-proxy/`
 
-The directory has mode `0700`. Nothing is stored in internal storage (`/storage/emulated/0`),
-so the config is available before the first unlock after boot (FBE).
+```
+/data/adb/dnscrypt-proxy/
+├── dnscrypt-proxy.toml       # dnscrypt-proxy config
+├── dnscrypt-proxy.toml.new   # new default config placed on module update
+├── module.conf               # module settings (dnscrypt-ctl set / reset)
+├── blocked-names.txt         # blocked domains (and blocklists added by Shieldy)
+├── blocked-ips.txt           # blocked IP addresses
+├── allowed-names.txt         # domains that are never blocked
+├── allowed-ips.txt           # IP addresses that are never blocked
+├── exclude-ips.txt           # addresses excluded from interception
+├── public-resolvers.md       # resolver list cache (minisign-verified)
+├── relays.md                 # Anonymized DNSCrypt relay list cache
+├── dnscrypt-proxy.log        # dnscrypt-proxy log (dnscrypt-ctl proxylog)
+├── stdout.log                # dnscrypt-proxy console output
+├── module.log                # module log (dnscrypt-ctl log), rotated to module.log.1
+├── dnscrypt-proxy.pid        # dnscrypt-proxy PID
+├── supervisor.pid            # supervisor PID
+├── .private_dns_mode         # original Private DNS mode, restored on stop / removal
+├── .manual_stop              # when present, the proxy does not start at boot
+├── .route_localnet.*         # original route_localnet values, restored on stop
+└── *.bak                     # backups of the config and settings made before each write
+```
+
+Module files are in `/data/adb/modules/dnscrypt-proxy-android/`:
+
+```
+/data/adb/modules/dnscrypt-proxy-android/
+├── module.prop               # id, version, updateJson
+├── post-fs-data.sh           # prepares the working directory, does not touch the network
+├── service.sh                # starts the supervisor at boot
+├── uninstall.sh              # removes the rules and the working directory, restores Private DNS;
+│                             # a copy of the config is left in /sdcard/dnscrypt-proxy.toml.bak
+├── scripts/
+│   ├── common.sh             # paths, settings, logging, Private DNS, server exclusion
+│   ├── netfilter.sh          # nat/DNSCRYPT chains for IPv4 and IPv6, IPv6 guard
+│   └── supervisor.sh         # starts and watches dnscrypt-proxy, restores rules after netd
+├── config/                   # default configs copied to the working directory on install
+└── system/bin/
+    ├── dnscrypt-proxy        # dnscrypt-proxy binary for the device architecture
+    └── dnscrypt-ctl          # control utility
+```
+
+The working directory has mode `0700`. While installed, the module stores nothing in internal storage
+(`/storage/emulated/0`), so the config is available before the first unlock after boot (FBE).
 
 ## Module settings
 
