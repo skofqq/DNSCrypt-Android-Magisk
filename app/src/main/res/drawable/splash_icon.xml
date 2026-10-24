@@ -1,45 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash: the gradient shield pops in on its night-blue disc, then the check is drawn (about 700 ms). -->
+<!-- Splash: the shield pops in on a slate disc, the links are drawn, then the three
+     resolver nodes pop in one by one (about 750 ms). -->
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt">
     <aapt:attr name="android:drawable">
         <vector android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
             <!-- Disc drawn here rather than via windowSplashScreenIconBackgroundColor, which this emulator ignored. -->
-            <path android:pathData="M54,18 a36,36 0 1,0 0.01,0 Z" android:fillColor="#FF0D1422" />
             <path android:pathData="M54,18 a36,36 0 1,0 0.01,0 Z">
                 <aapt:attr name="android:fillColor">
-                    <gradient android:type="radial" android:centerX="54" android:centerY="56" android:gradientRadius="36">
-                        <item android:offset="0" android:color="#663B82F6" />
-                        <item android:offset="1" android:color="#003B82F6" />
+                    <gradient android:type="linear" android:startX="18" android:startY="18" android:endX="90" android:endY="90">
+                        <item android:offset="0" android:color="#FF111827" />
+                        <item android:offset="1" android:color="#FF1E293B" />
                     </gradient>
                 </aapt:attr>
             </path>
-            <group android:name="shield" android:pivotX="54" android:pivotY="54" android:scaleX="0.45" android:scaleY="0.45">
+            <group android:name="shield" android:pivotX="54" android:pivotY="54" android:scaleX="0.5" android:scaleY="0.5">
                 <path android:name="shield_fill"
-                    android:pathData="M54,22 C60.6,26.6 68.2,29.2 76.4,29.7 Q80,29.9 80,33.5 V50 C80,66.6 69.3,78.4 54,85 C38.7,78.4 28,66.6 28,50 V33.5 Q28,29.9 31.6,29.7 C39.8,29.2 47.4,26.6 54,22 Z"
+                    android:pathData="M54,26 L76,34 V52 C76,67 66,78 54,83 C42,78 32,67 32,52 V34 Z"
                     android:fillAlpha="0">
                     <aapt:attr name="android:fillColor">
-                        <gradient android:type="linear" android:startX="28" android:startY="22" android:endX="80" android:endY="85">
-                            <item android:offset="0" android:color="#FF5EA8FF" />
-                            <item android:offset="0.55" android:color="#FF3B6CF6" />
-                            <item android:offset="1" android:color="#FF22D3C5" />
+                        <gradient android:type="linear" android:startX="32" android:startY="26" android:endX="76" android:endY="83">
+                            <item android:offset="0" android:color="#FF38BDF8" />
+                            <item android:offset="1" android:color="#FF6366F1" />
                         </gradient>
                     </aapt:attr>
                 </path>
-                <path android:pathData="M54,22 C60.6,26.6 68.2,29.2 76.4,29.7 Q80,29.9 80,33.5 V50 C80,66.6 69.3,78.4 54,85 Z" android:fillColor="#1AFFFFFF" />
-                <path android:name="check"
-                    android:pathData="M41.5,53.5 L50,62 L67,44.5"
-                    android:strokeColor="#FFFFFFFF" android:strokeWidth="6"
+                <path android:pathData="M54,26 L54,83 C42,78 32,67 32,52 V34 Z" android:fillColor="#1FFFFFFF" />
+                <path android:name="links"
+                    android:pathData="M54,45 L45,62 L63,62 Z"
+                    android:strokeColor="#FFFFFFFF" android:strokeWidth="2.6"
                     android:strokeLineCap="round" android:strokeLineJoin="round"
                     android:trimPathEnd="0" />
+                <group android:name="node_top" android:pivotX="54" android:pivotY="45" android:scaleX="0" android:scaleY="0">
+                    <path android:pathData="M54,41 a4,4 0 1,0 0.01,0 Z" android:fillColor="#FFFFFFFF" />
+                </group>
+                <group android:name="node_left" android:pivotX="45" android:pivotY="62" android:scaleX="0" android:scaleY="0">
+                    <path android:pathData="M45,58 a4,4 0 1,0 0.01,0 Z" android:fillColor="#FFFFFFFF" />
+                </group>
+                <group android:name="node_right" android:pivotX="63" android:pivotY="62" android:scaleX="0" android:scaleY="0">
+                    <path android:pathData="M63,58 a4,4 0 1,0 0.01,0 Z" android:fillColor="#FFFFFFFF" />
+                </group>
             </group>
         </vector>
     </aapt:attr>
     <target android:name="shield">
         <aapt:attr name="android:animation">
             <set>
-                <objectAnimator android:propertyName="scaleX" android:valueFrom="0.45" android:valueTo="0.8" android:duration="360" android:interpolator="@android:interpolator/overshoot" />
-                <objectAnimator android:propertyName="scaleY" android:valueFrom="0.45" android:valueTo="0.8" android:duration="360" android:interpolator="@android:interpolator/overshoot" />
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="0.5" android:valueTo="0.9" android:duration="360" android:interpolator="@android:interpolator/overshoot" />
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="0.5" android:valueTo="0.9" android:duration="360" android:interpolator="@android:interpolator/overshoot" />
             </set>
         </aapt:attr>
     </target>
@@ -48,10 +56,34 @@
             <objectAnimator android:propertyName="fillAlpha" android:valueFrom="0" android:valueTo="1" android:duration="240" />
         </aapt:attr>
     </target>
-    <target android:name="check">
+    <target android:name="links">
         <aapt:attr name="android:animation">
             <objectAnimator android:propertyName="trimPathEnd" android:valueFrom="0" android:valueTo="1"
-                android:startOffset="320" android:duration="340" android:interpolator="@android:interpolator/fast_out_slow_in" />
+                android:startOffset="260" android:duration="300" android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+    <target android:name="node_top">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="0" android:valueTo="1" android:startOffset="340" android:duration="220" android:interpolator="@android:interpolator/overshoot" />
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="0" android:valueTo="1" android:startOffset="340" android:duration="220" android:interpolator="@android:interpolator/overshoot" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="node_left">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="0" android:valueTo="1" android:startOffset="440" android:duration="220" android:interpolator="@android:interpolator/overshoot" />
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="0" android:valueTo="1" android:startOffset="440" android:duration="220" android:interpolator="@android:interpolator/overshoot" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="node_right">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator android:propertyName="scaleX" android:valueFrom="0" android:valueTo="1" android:startOffset="540" android:duration="220" android:interpolator="@android:interpolator/overshoot" />
+                <objectAnimator android:propertyName="scaleY" android:valueFrom="0" android:valueTo="1" android:startOffset="540" android:duration="220" android:interpolator="@android:interpolator/overshoot" />
+            </set>
         </aapt:attr>
     </target>
 </animated-vector>

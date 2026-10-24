@@ -258,7 +258,7 @@
     <string name="update_error_install">The installer stopped with code %1$d. Its output is below.</string>
 
     <!-- Boxy-style page headers and cards -->
-    <string name="page_status_title" translatable="false">DNSCrypt</string>
+    <string name="page_status_title" translatable="false">Shieldy</string>
     <string name="page_status_sub">Status and checks</string>
     <string name="page_settings_sub">Module and app</string>
     <string name="status_service">Service status</string>

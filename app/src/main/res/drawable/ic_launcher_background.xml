@@ -4,30 +4,17 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Night blue, a shade darker at the bottom. -->
+    <!-- Slate, darkest at the top left. -->
     <path android:pathData="M0,0h108v108h-108z">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="linear"
                 android:startX="0"
                 android:startY="0"
-                android:endX="0"
+                android:endX="108"
                 android:endY="108">
-                <item android:offset="0" android:color="#FF121A2B" />
-                <item android:offset="1" android:color="#FF070B14" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <!-- Soft blue glow behind the shield. -->
-    <path android:pathData="M54,14 a42,42 0 1,0 0.01,0 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="radial"
-                android:centerX="54"
-                android:centerY="56"
-                android:gradientRadius="42">
-                <item android:offset="0" android:color="#733B82F6" />
-                <item android:offset="1" android:color="#003B82F6" />
+                <item android:offset="0" android:color="#FF111827" />
+                <item android:offset="1" android:color="#FF1E293B" />
             </gradient>
         </aapt:attr>
     </path>

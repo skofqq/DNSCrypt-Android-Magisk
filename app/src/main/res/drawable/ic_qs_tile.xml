@@ -4,18 +4,21 @@
     android:viewportWidth="108"
     android:viewportHeight="108"
     android:tint="?android:attr/colorControlNormal">
-    <!-- The launcher shield and check as one colour: proxy on. -->
-    <group android:pivotX="54" android:pivotY="53.5" android:scaleX="1.45" android:scaleY="1.45">
+    <!-- The launcher shield and resolver network as one colour: proxy on. -->
+    <group android:pivotX="54" android:pivotY="54.5" android:scaleX="1.6" android:scaleY="1.6">
         <path
-            android:pathData="M54,22 C60.6,26.6 68.2,29.2 76.4,29.7 Q80,29.9 80,33.5 V50 C80,66.6 69.3,78.4 54,85 C38.7,78.4 28,66.6 28,50 V33.5 Q28,29.9 31.6,29.7 C39.8,29.2 47.4,26.6 54,22 Z"
+            android:pathData="M54,26 L76,34 V52 C76,67 66,78 54,83 C42,78 32,67 32,52 V34 Z"
             android:strokeColor="@android:color/white"
-            android:strokeWidth="5"
+            android:strokeWidth="4"
             android:strokeLineJoin="round" />
         <path
-            android:pathData="M41.5,53.5 L50,62 L67,44.5"
+            android:pathData="M54,45 L45,62 L63,62 Z"
             android:strokeColor="@android:color/white"
-            android:strokeWidth="6"
+            android:strokeWidth="3"
             android:strokeLineCap="round"
             android:strokeLineJoin="round" />
+        <path android:pathData="M54,40.5 a4.5,4.5 0 1,0 0.01,0 Z" android:fillColor="@android:color/white" />
+        <path android:pathData="M45,57.5 a4.5,4.5 0 1,0 0.01,0 Z" android:fillColor="@android:color/white" />
+        <path android:pathData="M63,57.5 a4.5,4.5 0 1,0 0.01,0 Z" android:fillColor="@android:color/white" />
     </group>
 </vector>
