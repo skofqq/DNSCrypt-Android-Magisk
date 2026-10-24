@@ -4,12 +4,17 @@
     android:viewportWidth="108"
     android:viewportHeight="108"
     android:tint="?android:attr/colorControlNormal">
-    <!-- Same shield and lettering as the launcher icon, as one colour. -->
-    <path android:pathData="M54,8 L94,21.5 V50 C94,71 78,88 54,100 C30,88 14,71 14,50 V21.5 Z" android:strokeColor="@android:color/white" android:strokeWidth="5" android:strokeLineJoin="round" />
-    <path android:pathData="M14,98 L94,10" android:strokeColor="@android:color/white" android:strokeWidth="6" android:strokeLineCap="round" />
-    <group android:pivotX="54.25" android:pivotY="54" android:scaleX="1.08" android:scaleY="1.08" android:translateX="-0.25" android:translateY="-1">
-        <path android:pathData="M38.5,47.5 V60.5 H41 C45.5,60.5 47,57.5 47,54 C47,50.5 45.5,47.5 41,47.5 Z" android:strokeColor="@android:color/white" android:strokeWidth="4.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
-        <path android:pathData="M51,60.5 V47.5 L58,60.5 V47.5" android:strokeColor="@android:color/white" android:strokeWidth="4.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
-        <path android:pathData="M70,49.6 C69.2,48.2 67.8,47.5 66,47.5 C63.6,47.5 62,48.9 62,50.8 C62,54.6 70,53.2 70,57.2 C70,59.2 68.4,60.5 66,60.5 C64.2,60.5 62.8,59.8 62,58.4" android:strokeColor="@android:color/white" android:strokeWidth="4.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <!-- Proxy off: a thinner shield, no check, struck through. -->
+    <group android:pivotX="54" android:pivotY="53.5" android:scaleX="1.45" android:scaleY="1.45">
+        <path
+            android:pathData="M54,22 C60.6,26.6 68.2,29.2 76.4,29.7 Q80,29.9 80,33.5 V50 C80,66.6 69.3,78.4 54,85 C38.7,78.4 28,66.6 28,50 V33.5 Q28,29.9 31.6,29.7 C39.8,29.2 47.4,26.6 54,22 Z"
+            android:strokeColor="@android:color/white"
+            android:strokeWidth="3.4"
+            android:strokeLineJoin="round" />
     </group>
+    <path
+        android:pathData="M14,98 L94,10"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
 </vector>

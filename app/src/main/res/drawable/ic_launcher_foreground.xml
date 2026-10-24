@@ -1,16 +1,34 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Scaled down so the shield keeps a margin inside the launcher mask. -->
-    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.84" android:scaleY="0.84">
-    <!-- Variant 1 (in use): shield with DNS, inside the 66 dp safe zone. -->
-    <path android:pathData="M54,25 L79,33.5 V52 C79,65.5 68.5,76 54,83 C39.5,76 29,65.5 29,52 V33.5 Z" android:fillColor="#FFFFFFFF" />
-    <group android:translateY="-1">
-        <path android:pathData="M38.5,47.5 V60.5 H41 C45.5,60.5 47,57.5 47,54 C47,50.5 45.5,47.5 41,47.5 Z" android:strokeColor="#FF0969DA" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
-        <path android:pathData="M51,60.5 V47.5 L58,60.5 V47.5" android:strokeColor="#FF0969DA" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
-        <path android:pathData="M70,49.6 C69.2,48.2 67.8,47.5 66,47.5 C63.6,47.5 62,48.9 62,50.8 C62,54.6 70,53.2 70,57.2 C70,59.2 68.4,60.5 66,60.5 C64.2,60.5 62.8,59.8 62,58.4" android:strokeColor="#FF0969DA" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
-    </group>
+    <!-- Gradient shield with a check, kept inside the 66 dp safe circle. -->
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.9" android:scaleY="0.9">
+        <path android:pathData="M54,22 C60.6,26.6 68.2,29.2 76.4,29.7 Q80,29.9 80,33.5 V50 C80,66.6 69.3,78.4 54,85 C38.7,78.4 28,66.6 28,50 V33.5 Q28,29.9 31.6,29.7 C39.8,29.2 47.4,26.6 54,22 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="28"
+                    android:startY="22"
+                    android:endX="80"
+                    android:endY="85">
+                    <item android:offset="0" android:color="#FF5EA8FF" />
+                    <item android:offset="0.55" android:color="#FF3B6CF6" />
+                    <item android:offset="1" android:color="#FF22D3C5" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- Lit right half: the facet that gives the shield its depth. -->
+        <path
+            android:pathData="M54,22 C60.6,26.6 68.2,29.2 76.4,29.7 Q80,29.9 80,33.5 V50 C80,66.6 69.3,78.4 54,85 Z"
+            android:fillColor="#1AFFFFFF" />
+        <path
+            android:pathData="M41.5,53.5 L50,62 L67,44.5"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
     </group>
 </vector>
