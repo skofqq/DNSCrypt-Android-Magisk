@@ -19,7 +19,7 @@ Package contents:
 |---|---|
 | Magisk module | installs dnscrypt-proxy 2.1.18, DNS interception, process supervisor, rule recovery after netd |
 | `dnscrypt-ctl` | command-line control: status, settings, server selection and exclusion, logs, diagnostics |
-| Shieldy | Android app with a graphical interface on top of `dnscrypt-ctl`, the APK is published in [releases](https://github.com/skofqq/DNSCrypt-2-Magisk-Module/releases/latest) |
+| Shieldy | Android app with a graphical interface on top of `dnscrypt-ctl`, the APK is published in [releases](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest) |
 
 ## Requirements
 
@@ -35,7 +35,7 @@ One zip covers both architectures.
 
 ## Installation
 
-1. Download `dnscrypt-proxy-android-<version>.zip` from the [releases page](https://github.com/skofqq/DNSCrypt-2-Magisk-Module/releases/latest).
+1. Download `dnscrypt-proxy-android-<version>.zip` from the [releases page](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest).
 2. Magisk → Modules → Install from storage → select the zip.
 3. Reboot the device.
 4. Verify: `su -c dnscrypt-ctl test`.
@@ -165,7 +165,7 @@ with the clash core via `nat/CLASH_DNS_LOCAL` (port 1053), with other cores via 
 Two port 53 interceptors cannot work at the same time. Two setups are supported.
 
 **Switching.** Both modules are enabled in Magisk, one of them is active. Switching is done
-with the Start/Stop buttons in the apps (Shieldy and Box) or with `dnscrypt-ctl stop` / `start`.
+with the Start/Stop buttons in the apps (Shieldy and Boxy) or with `dnscrypt-ctl stop` / `start`.
 Stopping dnscrypt-proxy removes the rules, restores Private DNS and persists across reboots.
 Box in tproxy mode does not take port 53 (`BOX_LOCAL` returns it); this is recognized by
 `conflicts` and the `box_dns` field.
@@ -238,8 +238,8 @@ is not enabled in the presets.
 
 ## Shieldy (formerly DNSCrypt Manager)
 
-The `Shieldy-<version>.apk` app from the release, package `com.skofqq.shieldy`. It controls the
-module through `dnscrypt-ctl` and does not install the module itself.
+Shieldy is published as `Shieldy-<version>.apk` in the releases (package `com.skofqq.shieldy`).
+It controls the module through `dnscrypt-ctl` and does not install the module itself.
 
 On first launch Shieldy migrates settings from DNSCrypt Manager (`io.github.skofqq.dnscryptmanager`)
 if it is installed; after that the old app can be removed. Magisk asks for root for the new package.

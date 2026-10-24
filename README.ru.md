@@ -20,7 +20,7 @@
 |---|---|
 | модуль Magisk | установка dnscrypt-proxy 2.1.18, перехват DNS, супервизор процесса, восстановление правил после netd |
 | `dnscrypt-ctl` | управление из командной строки: состояние, настройки, выбор и исключение серверов, журналы, диагностика |
-| Shieldy | приложение для Android с графическим интерфейсом поверх `dnscrypt-ctl`, APK публикуется в [релизах](https://github.com/skofqq/DNSCrypt-2-Magisk-Module/releases/latest) |
+| Shieldy | приложение для Android с графическим интерфейсом поверх `dnscrypt-ctl`, APK публикуется в [релизах](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest) |
 
 ## Требования
 
@@ -36,7 +36,7 @@
 
 ## Установка
 
-1. Скачать `dnscrypt-proxy-android-<версия>.zip` со [страницы релизов](https://github.com/skofqq/DNSCrypt-2-Magisk-Module/releases/latest).
+1. Скачать `dnscrypt-proxy-android-<версия>.zip` со [страницы релизов](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest).
 2. Magisk → Модули → Установить из хранилища → выбрать zip.
 3. Перезагрузить устройство.
 4. Проверить работу: `su -c dnscrypt-ctl test`.
@@ -166,7 +166,7 @@ dnscrypt-ctl servers exclude|include a,b
 Два перехватчика порта 53 одновременно не работают. Поддерживаются две схемы.
 
 **Переключение.** Оба модуля включены в Magisk, активен один из них. Переключение
-выполняется кнопками Start/Stop в приложениях (Shieldy и Box) или командами
+выполняется кнопками Start/Stop в приложениях (Shieldy и Boxy) или командами
 `dnscrypt-ctl stop` / `start`. Остановка dnscrypt-proxy снимает правила, восстанавливает
 Private DNS и сохраняется после перезагрузки. Box в режиме tproxy не забирает
 порт 53 (`BOX_LOCAL` возвращает его), такая конфигурация распознаётся `conflicts` и полем `box_dns`.
@@ -239,8 +239,8 @@ dns:
 
 ## Shieldy (ранее DNSCrypt Manager)
 
-Приложение `Shieldy-<версия>.apk` из релиза, пакет `com.skofqq.shieldy`. Управляет модулем через
-`dnscrypt-ctl` и не устанавливает модуль самостоятельно.
+Shieldy публикуется в релизах как `Shieldy-<версия>.apk` (пакет `com.skofqq.shieldy`).
+Приложение управляет модулем через `dnscrypt-ctl` и не устанавливает модуль самостоятельно.
 
 При первом запуске Shieldy переносит настройки из DNSCrypt Manager (`io.github.skofqq.dnscryptmanager`),
 если тот установлен; после переноса старое приложение можно удалить. Magisk запрашивает root для нового пакета.
