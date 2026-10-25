@@ -1,0 +1,479 @@
+<resources>
+
+    <!-- Навигация -->
+    <string name="nav_status">Состояние</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="nav_config">Конфиг</string>
+    <string name="nav_logs">Журналы</string>
+
+    <!-- Общие действия -->
+    <string name="action_retry">Повторить</string>
+    <string name="action_start">Запустить</string>
+    <string name="action_stop">Остановить</string>
+    <string name="action_restart">Перезапустить</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_more">Ещё</string>
+    <string name="action_share">Поделиться</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_clear">Очистить</string>
+    <string name="action_open_releases">Открыть страницу релизов</string>
+    <string name="action_next_match">Следующее совпадение</string>
+    <string name="action_previous_match">Предыдущее совпадение</string>
+
+    <!-- Экраны-заглушки -->
+    <string name="gate_loading">Читаю состояние модуля…</string>
+    <string name="gate_no_root_title">Нет доступа root</string>
+    <string name="gate_no_root_body">Приложение общается с модулем через root-шелл. Выдайте разрешение в менеджере root и повторите.</string>
+    <string name="gate_missing_title">Модуль не установлен</string>
+    <string name="gate_missing_body">Утилита dnscrypt-ctl не найдена. Установите Magisk-модуль DNSCrypt-Proxy 2 и перезагрузитесь.</string>
+    <string name="gate_disabled_title">Модуль выключен</string>
+    <string name="gate_disabled_body">Модуль установлен, но выключен в Magisk, поэтому ничего не смонтировано. Включите его в Magisk и перезагрузитесь.</string>
+    <string name="gate_outdated_title">Модуль слишком старый</string>
+    <string name="gate_outdated_body">Приложению нужна версия модуля %1$s или новее — в ней впервые появилась команда json.</string>
+    <string name="gate_outdated_installed">Установлена: %1$s</string>
+    <string name="gate_outdated_unknown">Установленную версию прочитать не удалось.</string>
+
+    <!-- Состояние -->
+    <string name="status_running">Работает</string>
+    <string name="status_stopped">Остановлен</string>
+    <string name="status_restarting">Перезапускается</string>
+    <string name="status_running_hint">DNS-запросы идут через прокси.</string>
+    <string name="status_stopped_hint">Прокси не работает, правила перехвата сняты.</string>
+    <string name="status_restarting_hint">Присмотр поднимает прокси обратно. Если это затянулось — откройте журнал.</string>
+    <string name="status_open_logs">Открыть журнал</string>
+
+    <string name="label_uptime">Время работы</string>
+    <string name="label_version">Версия модуля</string>
+    <string name="label_port">Порт</string>
+    <string name="label_port6">Порт IPv6</string>
+    <string name="label_rules">Правила перехвата IPv4</string>
+    <string name="label_ipv6">Перехват IPv6</string>
+    <string name="label_private_dns">Private DNS</string>
+    <string name="label_supervisor">PID присмотра</string>
+    <string name="label_tether">Перехват для хотспота</string>
+    <string name="label_config">Файл конфига</string>
+
+    <string name="value_present">На месте</string>
+    <string name="value_absent">Отсутствуют</string>
+    <string name="value_on">Включено</string>
+    <string name="value_off">Выключено</string>
+    <string name="value_unknown">Нет данных</string>
+    <string name="value_seconds">%1$d с</string>
+    <string name="uptime_format">%1$d ч %2$02d мин</string>
+    <string name="uptime_format_short">%1$d мин %2$02d с</string>
+
+    <string name="ipv6_auto">Авто</string>
+    <string name="ipv6_redirect">Перехват</string>
+    <string name="ipv6_off">Выкл.</string>
+
+    <string name="confirm_stop_title">Остановить прокси?</string>
+    <string name="confirm_stop_message">Прокси будет остановлен, а правила перехвата DNS сняты. Запросы снова пойдут на DNS сети.</string>
+
+    <string name="dns_check_title">Проверка DNS</string>
+    <string name="dns_check_subtitle">Отправляет один A-запрос для %1$s на 127.0.0.1:%2$d. Без root.</string>
+    <string name="dns_check_run">Проверить</string>
+    <string name="dns_check_answered">Ответ получен · %1$d мс</string>
+    <string name="dns_check_empty">Ответ получен, записей нет · %1$d мс</string>
+    <string name="dns_check_rcode">Код ответа %1$d</string>
+    <string name="dns_check_timeout">Ответа нет в течение 2 секунд</string>
+    <string name="dns_check_failed">Проверка не удалась: %1$s</string>
+
+    <!-- Настройки -->
+    <string name="settings_module_header">Модуль</string>
+    <string name="settings_app_header">Приложение</string>
+    <string name="settings_restart_note">Настройки модуля применяются только после перезапуска.</string>
+
+    <string name="setting_redirect_ipv4">Перехват IPv4 DNS</string>
+    <string name="setting_redirect_ipv6_desc">Авто перехватывает, только если ядро умеет ip6tables nat.</string>
+    <string name="setting_tether">Перехват DNS хотспота</string>
+    <string name="setting_private_dns">Отключать Private DNS</string>
+    <string name="setting_mirror">Копия конфига</string>
+    <string name="setting_mirror_desc">Держать копию конфига на внутренней памяти для правки.</string>
+    <string name="setting_restart_delay">Потолок паузы перезапуска</string>
+    <string name="setting_restart_delay_desc">Самая длинная пауза между попытками поднять упавший прокси.</string>
+
+    <string name="settings_apply">Применить и перезапустить</string>
+    <plurals name="settings_pending">
+        <item quantity="one">%1$d несохранённая правка</item>
+        <item quantity="few">%1$d несохранённые правки</item>
+        <item quantity="many">%1$d несохранённых правок</item>
+        <item quantity="other">%1$d несохранённых правок</item>
+    </plurals>
+    <string name="settings_applied">Настройки применены, прокси перезапущен</string>
+
+    <string name="setting_theme">Тема</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_system">Системная</string>
+    <string name="setting_dynamic_color">Цвета системы</string>
+    <string name="setting_dynamic_color_desc">Палитра берётся из обоев.</string>
+    <string name="setting_poll">Интервал опроса</string>
+
+    <!-- Конфиг -->
+    <string name="config_search_hint">Найти в файле</string>
+    <string name="config_match_count">%1$d из %2$d</string>
+    <string name="config_no_matches">Ничего не найдено</string>
+    <string name="config_save_restart">Сохранить и перезапустить</string>
+    <string name="config_create_backup">Создать копию</string>
+    <string name="config_backups">Резервные копии</string>
+    <string name="config_export">Выгрузить в память</string>
+    <string name="config_import">Загрузить из памяти</string>
+    <string name="config_saved">Конфиг сохранён, прокси перезапущен</string>
+    <string name="config_invalid_empty">Файл пуст. Ничего не сохранено.</string>
+    <string name="config_invalid_listen">В файле нет listen_addresses. Ничего не сохранено.</string>
+    <string name="config_unsaved">Несохранённые изменения</string>
+    <string name="backup_created">Создана копия: %1$s</string>
+    <string name="backup_restored">Копия восстановлена</string>
+    <string name="backups_title">Копии конфига</string>
+    <string name="backups_empty">Копий пока нет.</string>
+    <string name="backup_pending">Осталась после обновления модуля</string>
+    <string name="confirm_restore_title">Восстановить копию?</string>
+    <string name="confirm_restore_message">%1$s заменит текущий конфиг. Текущий файл будет сохранён в копию.</string>
+    <string name="action_restore">Восстановить</string>
+
+    <!-- Журналы -->
+    <string name="logs_tab_rules">Правила</string>
+    <string name="logs_empty">Показывать нечего.</string>
+    <string name="logs_copied">Скопировано в буфер обмена</string>
+    <plurals name="logs_lines">
+        <item quantity="one">Последняя %1$d строка</item>
+        <item quantity="few">Последние %1$d строки</item>
+        <item quantity="many">Последние %1$d строк</item>
+        <item quantity="other">Последние %1$d строк</item>
+    </plurals>
+    <string name="logs_share_title">Поделиться журналом</string>
+
+    <!-- Ошибки -->
+    <string name="error_prefix">Ошибка: %1$s</string>
+    <string name="error_timeout">Команда не завершилась за 10 секунд.</string>
+    <string name="error_no_root">Доступ root потерян.</string>
+    <string name="working">Выполняется…</string>
+
+    <!-- Серверы -->
+    <string name="nav_servers">Серверы</string>
+    <string name="servers_mode_auto">Автоподбор</string>
+    <string name="servers_mode_manual">Выбранные вручную</string>
+    <string name="servers_auto_explained">Прокси сам выбирает серверы по фильтрам require_dnssec, require_nolog и require_nofilter из конфига.</string>
+    <string name="servers_search_label">Поиск по имени или описанию</string>
+    <string name="servers_found">%1$d из %2$d</string>
+    <string name="servers_selected_title">Выбранные</string>
+    <string name="servers_selected_empty">Ничего не выбрано. Пустой список равнозначен автоподбору.</string>
+    <string name="servers_order_hint">Порядок важен: прокси пробует их сверху вниз.</string>
+    <string name="servers_move_up">Выше</string>
+    <string name="servers_move_down">Ниже</string>
+    <string name="servers_unknown_chip">Нет в списке</string>
+    <string name="servers_unknown_note">Отмеченных серверов нет в кэше списка. Так бывает: имя могло прийти из другого источника.</string>
+    <string name="servers_cache_missing_title">Список резолверов ещё не скачан</string>
+    <string name="servers_cache_missing_body">Список появится после первого успешного запуска прокси с работающей сетью. Прокси качает его сам и проверяет подпись minisign, поэтому приложение его не скачивает.</string>
+    <string name="servers_cache_stale">Кэш списка старше недели. Прокси обновляет его сам.</string>
+    <string name="servers_empty_title">Перейти к автоподбору?</string>
+    <string name="servers_empty_message">Список пуст, а это то же самое, что автоподбор. Прокси станет выбирать серверы по фильтрам require_*.</string>
+    <string name="servers_unsupported_title">Модуль слишком старый</string>
+    <string name="servers_unsupported_body">Для выбора резолверов нужен модуль %1$s или новее — в нём впервые появляется dnscrypt-ctl servers.</string>
+    <string name="servers_flag_nolog">Без логов</string>
+    <string name="servers_flag_nofilter">Без фильтрации</string>
+    <plurals name="servers_pending">
+        <item quantity="one">%1$d изменение</item>
+        <item quantity="few">%1$d изменения</item>
+        <item quantity="many">%1$d изменений</item>
+        <item quantity="other">%1$d изменений</item>
+    </plurals>
+
+    <string name="protocol_plain">Обычный DNS</string>
+    <string name="protocol_relay">Релей</string>
+    <string name="protocol_unknown">Неизвестно</string>
+
+    <!-- Конфликты -->
+    <string name="logs_tab_conflicts">Конфликты</string>
+    <string name="status_conflict_title">Порт 53 забрал другой модуль</string>
+    <string name="status_conflict_body">Перехват DNS настроен, но порт 53 первым забирает box_for_magisk, и наши правила простаивают.</string>
+    <string name="status_open_conflicts">Открыть конфликты</string>
+    <string name="status_box_handover">Перехват DNS ведёт box_for_magisk</string>
+
+    <!-- Для опытных -->
+    <string name="settings_advanced_header">Совместимость с Box</string>
+    <string name="setting_run_gid">Группа процесса</string>
+    <string name="setting_run_gid_desc">Box пропускает мимо перехвата трафик группы net_admin (GID 3005), поэтому запросы самого прокси к резолверам идут напрямую, а не через Box.</string>
+    <string name="run_gid_default">Обычный запуск</string>
+    <string name="run_gid_custom">Свой GID…</string>
+    <string name="run_gid_custom_label">Числовой GID</string>
+    <string name="run_gid_invalid">Только цифры.</string>
+    <string name="servers_applied">Список серверов применён, прокси перезапущен</string>
+    <string name="settings_reset">Сбросить к умолчаниям</string>
+    <string name="settings_reset_title">Сбросить настройки модуля?</string>
+    <string name="settings_reset_message">Все настройки модуля вернутся к значениям из поставки. Прежние сохранятся рядом с module.conf в файл .bak. Прокси перезапустится.</string>
+    <string name="settings_reset_done">Настройки сброшены, прокси перезапущен</string>
+    <string name="setting_autostart">Запуск при загрузке</string>
+
+    <!-- IPv6 DNS, модуль сообщает с 2.4.2 -->
+    <string name="ipv6_dns_redirected">Через прокси</string>
+    <string name="ipv6_dns_blocked">Заблокирован, система уходит на IPv4</string>
+    <string name="ipv6_dns_bypass">Мимо прокси</string>
+    <string name="status_ipv6_bypass_title">IPv6 DNS идёт мимо прокси</string>
+    <string name="status_ipv6_bypass_body">Ядро не умеет перенаправлять IPv6, поэтому запросы к IPv6-резолверу сети не шифруются и не фильтруются. Обновите модуль: новые версии в такой ситуации блокируют IPv6 DNS, и система переходит на IPv4.</string>
+
+    <!-- Текущий сервер -->
+
+    <!-- Обновление модуля -->
+    <string name="settings_about_header">О модуле</string>
+    <string name="update_row_title">Версия модуля</string>
+    <string name="update_row_available">%1$s → %2$s, есть обновление</string>
+    <string name="update_row_reboot_pending">%1$s установлена, нужна перезагрузка</string>
+    <string name="update_sheet_title">Модуль DNSCrypt-Proxy 2</string>
+    <string name="update_current_version">Установлена версия %1$s</string>
+    <string name="update_checking">Проверяю обновления…</string>
+    <string name="update_latest">Установлена последняя версия</string>
+    <string name="update_check_again">Проверить ещё раз</string>
+    <string name="update_retry">Повторить</string>
+    <string name="update_whats_new">Что нового</string>
+    <string name="update_open_changelog">Полный список изменений</string>
+    <string name="update_install">Скачать и установить</string>
+    <string name="update_install_note">Перед установкой пакет проверяется: это должен быть именно этот модуль, и в нём должен быть бинарник для этого устройства. Конфиг и настройки сохранятся.</string>
+    <string name="update_downloading">Скачиваю…</string>
+    <string name="update_downloading_percent">Скачиваю… %1$d%%</string>
+    <string name="update_installing">Устанавливаю…</string>
+    <string name="update_installed">Версия %1$s установлена</string>
+    <string name="update_reboot_hint">Новая версия заработает после перезагрузки. До этого работает текущая.</string>
+    <string name="update_reboot">Перезагрузить</string>
+    <string name="update_later">Позже</string>
+    <string name="update_error_unknown">Что-то пошло не так.</string>
+    <string name="update_error_network">Нет связи с GitHub. Проверьте сеть и повторите.</string>
+    <string name="update_error_http">Сервер ответил HTTP %1$d.</string>
+    <string name="update_error_json">Не удалось прочитать update.json.</string>
+    <string name="update_error_not_installed">Модуль не установлен, обновлять нечего.</string>
+    <string name="update_error_package">Скачанный файл не является пакетом модуля.</string>
+    <string name="update_error_wrong_module">В пакете модуль «%1$s», а не «%2$s». Ничего не установлено.</string>
+    <string name="update_error_arch">В пакете нет бинарника dnscrypt-proxy для этого устройства (%1$s). Ничего не установлено.</string>
+    <string name="update_error_manager">Не найден Magisk, KernelSU или APatch для установки модуля.</string>
+    <string name="update_error_install">Установщик завершился с кодом %1$d. Его вывод ниже.</string>
+
+    <!-- Boxy-style page headers and cards -->
+    <string name="page_status_sub">Статус и проверка</string>
+    <string name="page_settings_sub">Модуль и приложение</string>
+    <string name="status_service">Статус сервиса</string>
+    <string name="status_details">Подробности</string>
+    <string name="hero_port">Порт</string>
+    <string name="hero_module">Модуль</string>
+    <string name="hero_on">Вкл.</string>
+    <string name="hero_off">Выкл.</string>
+    <string name="hero_ipv6_redirected">Прокси</string>
+    <string name="hero_ipv6_blocked">Блок</string>
+    <string name="hero_ipv6_bypass">Мимо</string>
+    <string name="hero_uptime">Работает · %1$s</string>
+    <string name="update_card_title">Обновление модуля</string>
+    <string name="update_card_hint">Нажмите, чтобы посмотреть изменения и установить</string>
+    <string name="update_badge_new">НОВОЕ</string>
+    <string name="update_badge_latest">АКТУАЛЬНО</string>
+    <string name="update_badge_reboot">ПЕРЕЗАГРУЗКА</string>
+    <string name="update_installed_version">Установлена</string>
+    <string name="update_latest_version">Последняя</string>
+    <string name="update_install_log">Вывод установщика</string>
+    <string name="update_error_title">Обновление не удалось</string>
+
+    <!-- Sub-pages, Settings rows, dialogs -->
+    <string name="action_back">Назад</string>
+    <string name="action_ok">ОК</string>
+    <string name="config_size_kb">%1$d КБ</string>
+    <string name="config_error_title">Проблема с конфигом</string>
+    <string name="servers_title">Серверы DNSCrypt</string>
+    <string name="servers_now">Сейчас: %1$s</string>
+    <string name="servers_rtt_short">%1$d мс</string>
+    <plurals name="servers_chosen_count">
+        <item quantity="one">Выбран %1$d сервер</item>
+        <item quantity="few">Выбрано %1$d сервера</item>
+        <item quantity="many">Выбрано %1$d серверов</item>
+        <item quantity="other">Выбрано %1$d сервера</item>
+    </plurals>
+    <string name="settings_error_title">Не удалось прочитать настройки</string>
+    <string name="settings_proxy_header">Прокси</string>
+    <string name="settings_proxy_sub">Серверы и конфиг dnscrypt-proxy</string>
+    <string name="settings_config_row">Файл конфигурации</string>
+    <string name="settings_needs_module">Нужен модуль %1$s или новее</string>
+    <string name="settings_module_sub">Перехват, IPv6 и автозапуск</string>
+    <string name="settings_advanced_sub">Только если Box перехватывает DNS и пересылает его в этот прокси. При переключении между модулями не нужно.</string>
+    <string name="settings_app_sub">Тема, язык и обновление</string>
+    <string name="settings_about_sub">Версия модуля и обновления</string>
+    <string name="setting_autostart_short">Запускать прокси после перезагрузки</string>
+    <string name="setting_redirect_ipv4_short">Отправлять IPv4 DNS через прокси</string>
+    <string name="setting_tether_short">Также для устройств на точке доступа</string>
+    <string name="setting_private_dns_short">Частный DNS (DoT) обходит перехват порта 53</string>
+    <string name="ipv6_redirect_desc">Всегда перенаправлять IPv6 DNS, даже если ядро вроде бы не умеет.</string>
+    <string name="ipv6_off_desc">Не трогать IPv6 DNS.</string>
+    <string name="run_gid_default_desc">Прокси работает от root со своей обычной группой. Подходит, когда активен только один из модулей.</string>
+
+    <!-- Logs, Status tiles, update sheet -->
+    <string name="logs_live">Live</string>
+    <string name="logs_copy_all">Копировать всё</string>
+    <string name="logs_save">Сохранить в Загрузки</string>
+    <string name="logs_wrap">Переносить строки</string>
+    <string name="logs_only_matches">Только совпадения</string>
+    <string name="logs_chip_module">Модуль</string>
+    <string name="logs_chip_proxy">Прокси</string>
+    <string name="logs_last_n">Последние %1$d</string>
+    <string name="logs_latest">↓ К последним</string>
+    <string name="logs_error_title">Не удалось прочитать журнал</string>
+    <string name="logs_empty_title">Пока пусто</string>
+    <string name="logs_filtered_out">Ни одна строка не подходит под фильтр уровня или поиска.</string>
+    <string name="logs_empty_module">module.log пуст: модуль пишет в него при загрузке и при каждом старте, остановке и перезапуске.</string>
+    <string name="logs_empty_proxy">dnscrypt-proxy.log пуст: прокси ещё не запускался или журнал выключен в конфиге.</string>
+    <string name="logs_level_all">Все уровни</string>
+    <string name="logs_level_info">Info и выше</string>
+    <string name="logs_level_warning">Предупреждения и ошибки</string>
+    <string name="logs_level_error">Только ошибки</string>
+    <string name="logs_saved">Сохранено в Загрузки: %1$s</string>
+    <string name="logs_save_failed">Не удалось сохранить файл</string>
+    <string name="hero_server">Сервер</string>
+    <string name="hero_tap_start">Нажмите «Старт»</string>
+    <string name="dns_check_self_test">Самопроверка</string>
+    <string name="status_more_details">Подробнее</string>
+    <string name="status_less_details">Свернуть</string>
+    <string name="update_badge_newer">НОВЕЕ</string>
+    <string name="update_newer_than_release">%1$s новее опубликованной %2$s.</string>
+    <string name="update_checked_now">Проверено только что · установлена %1$s</string>
+    <string name="update_open_release">Открыть страницу релиза</string>
+    <string name="update_cannot_install_here">Этот пакет нельзя установить на это устройство, повтор не поможет.</string>
+    <string name="setting_language">Язык</string>
+    <string name="language_system">Как в системе</string>
+    <string name="status_manual_stop_hint">Остановлен вручную — не запустится при загрузке, пока вы его не запустите.</string>
+    <!-- DNS check sheet -->
+    <string name="dnscheck_title">Проверка DNS</string>
+    <string name="dnscheck_running">Проверяю, куда идут запросы…</string>
+    <string name="dnscheck_verdict_proxy_title">Запросы идут через DNSCrypt</string>
+    <string name="dnscheck_verdict_proxy_body">Резолверы, которые спрашивали от вашего имени, не принадлежат провайдеру. Ответы приходят от одного из: %1$s.</string>
+    <string name="dnscheck_verdict_active_title">Прокси перехватывает DNS</string>
+    <string name="dnscheck_verdict_active_body">Запросы уходят на один из серверов ниже. Запустите тест на утечку, чтобы увидеть, какие резолверы видит интернет.</string>
+    <string name="dnscheck_verdict_leak_title">Утечка: провайдер видит запросы</string>
+    <string name="dnscheck_verdict_leak_body">Часть имён резолвилась мимо прокси, через %1$s.</string>
+    <string name="dnscheck_verdict_stopped_title">Прокси не обрабатывает DNS</string>
+    <string name="dnscheck_verdict_stopped_body">Запросы идут на DNS сети: %1$s. Резолверы в тесте на утечку — это вышестоящие серверы этой сети.</string>
+    <string name="dnscheck_verdict_box_body">Сейчас DNS обрабатывает box_for_magisk.</string>
+    <string name="dnscheck_servers_title">Серверы прокси</string>
+    <string name="dnscheck_strategy">lb_strategy %1$s: запросы идут на %2$d самых быстрых из %3$d живых серверов.</string>
+    <string name="dnscheck_strategy_random">lb_strategy random: запросы идут на любой из %1$d живых серверов.</string>
+    <string name="dnscheck_in_use">ИСПОЛЬЗУЕТСЯ</string>
+    <string name="dnscheck_show_fastest">Показать самые быстрые</string>
+    <string name="dnscheck_no_servers">Списка серверов пока нет: прокси остановлен или ещё запускается.</string>
+    <string name="dnscheck_network_title">DNS сети</string>
+    <string name="dnscheck_network_none">Сеть не сообщает DNS-серверов.</string>
+    <string name="dnscheck_private_dns_off">Частный DNS: выключен</string>
+    <string name="dnscheck_private_dns_auto">Частный DNS: автоматически (по умолчанию)</string>
+    <string name="dnscheck_private_dns_active"> · используется, идёт мимо порта 53</string>
+    <string name="dnscheck_private_dns_inactive"> · в этой сети не используется</string>
+    <string name="dnscheck_private_dns_host">Частный DNS: %1$s</string>
+    <string name="dnscheck_leak_title">Что видит интернет</string>
+    <string name="dnscheck_leak_note">Резолвит 10 тестовых имён и спрашивает у bash.ws, какие резолверы за ними приходили. bash.ws при этом узнаёт ваш внешний IP.</string>
+    <string name="dnscheck_leak_run">Тест на утечку</string>
+    <string name="dnscheck_leak_running">Резолвлю тестовые имена…</string>
+    <string name="dnscheck_leak_public">Ваш адрес</string>
+    <string name="dnscheck_leak_none">bash.ws не увидел ни одного резолвера. Попробуйте ещё раз.</string>
+    <string name="dnscheck_leak_error">Тест не удался: %1$s</string>
+    <string name="dnscheck_close">Закрыть</string>
+    <!-- Status metric cards -->
+    <string name="dnscard_badge_leak">УТЕЧКА</string>
+    <string name="dnscard_badge_system">СИСТЕМА</string>
+    <string name="dnscard_value_system">DNS сети</string>
+    <string name="dnscard_tap_to_check">Нажмите, чтобы проверить</string>
+    <string name="dnscard_checked_now">Проверено только что</string>
+    <string name="dnscard_server_stopped">Прокси остановлен</string>
+    <plurals name="dnscard_checked_ago">
+        <item quantity="one">Проверено %1$d мин назад</item>
+        <item quantity="few">Проверено %1$d мин назад</item>
+        <item quantity="many">Проверено %1$d мин назад</item>
+        <item quantity="other">Проверено %1$d мин назад</item>
+    </plurals>
+    <string name="saved_for_next_start">Сохранено. Применится при запуске прокси.</string>
+    <!-- Server exclusions -->
+    <string name="exclusions_tag">Исключён</string>
+    <string name="exclusions_include">Вернуть</string>
+    <string name="exclusions_exclude">Исключить</string>
+    <string name="exclusions_title">Исключения</string>
+    <string name="exclusions_sub">Прокси пропускает их даже в автоматическом режиме</string>
+    <string name="exclusions_countries">Исключить страны</string>
+    <string name="exclusions_countries_loading">Определяю страны серверов…</string>
+    <string name="exclusions_none">Нет</string>
+    <string name="exclusions_servers">Исключённые серверы</string>
+    <string name="exclusions_restart_title">Перезапустите, чтобы применить</string>
+    <string name="exclusions_restart_body">Прокси использует прежние серверы до перезапуска.</string>
+    <string name="exclusions_restart_now">Перезапустить сейчас</string>
+    <string name="exclusions_unknown_country">Страна не определена</string>
+    <string name="settings_apply_short">Применить</string>
+    <string name="geoip_attribution">Геолокация IP: DB-IP.com (CC BY 4.0)</string>
+    <plurals name="exclusions_count">
+        <item quantity="one">Исключён %1$d сервер</item>
+        <item quantity="few">Исключено %1$d сервера</item>
+        <item quantity="many">Исключено %1$d серверов</item>
+        <item quantity="other">Исключено %1$d серверов</item>
+    </plurals>
+    <string name="run_gid_box">Совместимость с Box (net_admin)</string>
+    <string name="run_gid_custom_desc">Любой числовой идентификатор группы.</string>
+    <string name="run_gid_value">GID %1$s</string>
+    <string name="run_gid_effective">Работает с GID %1$d</string>
+    <string name="run_gid_mismatch_title">Группа не применена</string>
+    <string name="run_gid_mismatch_body">Прокси работает с GID %1$d вместо %2$d. Примените настройку или перезапустите прокси.</string>
+    <string name="run_gid_unsupported_body">Прокси работает с GID %1$d вместо %2$d: su на этом устройстве не умеет менять группу, поэтому модуль запустил его обычным способом.</string>
+    <string name="experimental_badge">Экспериментально</string>
+    <string name="run_gid_experimental_note">Экспериментальная настройка: может не работать с некоторыми root-менеджерами и прошивками.</string>
+    <string name="blocklists_title">Блок-листы</string>
+    <string name="blocklists_summary">Включено: %1$d · доменов: %2$s</string>
+    <string name="blocklists_none_enabled">Ни один список не включён</string>
+    <string name="blocklists_total">Доменов в blocked-names.txt: %1$s</string>
+    <string name="blocklists_lists_header">Списки</string>
+    <string name="blocklists_lists_sub">Собираются в отдельный раздел blocked-names.txt; ваши записи остаются как есть</string>
+    <string name="blocklists_entries">Доменов: %1$s · обновлено %2$s</string>
+    <string name="blocklists_never">Ещё не загружен</string>
+    <string name="blocklists_failed">Последнее обновление не удалось: %1$s</string>
+    <string name="blocklists_remove">Удалить %1$s</string>
+    <string name="blocklists_remove_confirm">Удалить</string>
+    <string name="blocklists_add">Добавить список по ссылке</string>
+    <string name="blocklists_add_sub">Домены построчно, формат hosts или adblock</string>
+    <string name="blocklists_add_name">Название</string>
+    <string name="blocklists_add_url">Адрес https://</string>
+    <string name="blocklists_add_invalid">Нужен адрес https://</string>
+    <string name="blocklists_add_confirm">Добавить</string>
+    <string name="blocklists_updates_header">Обновления</string>
+    <string name="blocklists_updates_sub">Загрузка никогда не запускает прокси; остановленный получит списки при следующем запуске</string>
+    <string name="blocklists_update_now">Обновить сейчас</string>
+    <string name="blocklists_updating">Обновляю…</string>
+    <string name="blocklists_auto">Обновлять ежедневно</string>
+    <string name="blocklists_auto_sub">В фоне; работающий прокси перезапускается, чтобы их загрузить</string>
+    <string name="blocklists_unmetered">Только по безлимитной сети</string>
+    <string name="blocklists_charging">Только во время зарядки</string>
+    <string name="blocklists_restart_body">Прокси читает списки блокировки и разрешения при запуске. Перезапустите его, чтобы применить.</string>
+    <string name="logs_domain_title">Домены в этой строке</string>
+    <string name="logs_no_domain">В этой строке нет доменных имён.</string>
+    <string name="logs_copy_line">Копировать строку</string>
+    <string name="logs_block">Заблокировать</string>
+    <string name="logs_allow">Разрешить</string>
+    <string name="logs_added_blocked">%1$s добавлен в заблокированные</string>
+    <string name="logs_added_allowed">%1$s добавлен в разрешённые</string>
+    <string name="logs_already">%1$s уже есть в списке</string>
+    <string name="exclusions_unknown_sub">Отметьте сервер, чтобы исключить его, или укажите страну, чтобы перенести его в её группу.</string>
+    <string name="exclusions_unknown_none">У всех серверов определена страна.</string>
+    <string name="exclusions_set_country">Указать страну</string>
+    <string name="exclusions_pick_country">Страна сервера</string>
+    <string name="exclusions_search_country">Найти страну</string>
+    <string name="private_dns_off">Выключен</string>
+    <string name="private_dns_auto">Автоматически</string>
+    <string name="private_dns_hostname">Свой провайдер</string>
+    <string name="private_dns_default">Как в системе</string>
+    <string name="private_dns_warning_title">Включён частный DNS</string>
+    <string name="private_dns_warning_body">Android отправляет DNS через TLS мимо прокси. Нажмите, чтобы выключить его в настройках сети.</string>
+    <string name="settings_display_header">Отображение</string>
+    <string name="settings_display_sub">Тема, цвета и размер</string>
+    <string name="setting_ui_scale">Масштаб интерфейса (%1$d%%)</string>
+    <string name="setting_ui_scale_desc">Масштаб всего интерфейса (%1$d–%2$d%%)</string>
+    <string name="setting_ui_scale_reset">Сбросить</string>
+    <string name="version_update_available">Доступно обновление: %1$s</string>
+    <string name="rules_missing_title">DNS не перехватывается</string>
+    <string name="rules_missing_body">Прокси работает, но правил IPv4 нет, и запросы идут мимо него. Перезапустите прокси.</string>
+    <string name="migration_notice">Настройки перенесены из DNSCrypt Manager — старое приложение можно удалить.</string>
+    <string name="migration_action">О приложении</string>
+    <string name="dnscard_value_shieldy">Через Shieldy</string>
+    <string name="dnscard_value_bypass">Мимо прокси</string>
+    <string name="dnscard_value_unchecked">Не проверено</string>
+    <string name="dnscard_value_unknown">Не подтверждено</string>
+    <string name="dnscard_server_in_use">Используются: %1$d из %2$d</string>
+    <string name="version_banner_update_body">Нажмите, чтобы посмотреть изменения и установить.</string>
+    <string name="version_banner_reboot_title">Перезагрузите, чтобы завершить обновление</string>
+</resources>

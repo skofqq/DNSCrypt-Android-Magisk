@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="?android:attr/colorControlNormal">
+    <!-- Proxy off: a thinner empty shield, struck through. -->
+    <group android:pivotX="54" android:pivotY="54.5" android:scaleX="1.6" android:scaleY="1.6">
+        <path
+            android:pathData="M54,26 L76,34 V52 C76,67 66,78 54,83 C42,78 32,67 32,52 V34 Z"
+            android:strokeColor="@android:color/white"
+            android:strokeWidth="2.6"
+            android:strokeLineJoin="round" />
+    </group>
+    <path
+        android:pathData="M14,98 L94,10"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
+</vector>
