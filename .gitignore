@@ -18,3 +18,7 @@ local.properties
 /keystore/
 /keystore.properties
 /release.jks
+
+# Local artefacts
+/dist/
+/screenshots-test/
