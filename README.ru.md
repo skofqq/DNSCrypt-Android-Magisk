@@ -53,9 +53,23 @@
 ```
 
 Для упаковки используется `zip`. Если его нет, используются Python `zipfile`, `7z` или `jar` из JDK.
+
+Репозиторий - одна сборка Gradle: модуль в корне, Shieldy в `shieldy/` (included build).
+Android Studio открывает корневую папку.
+
+```sh
+./gradlew release   # подписанный APK Shieldy и zip модуля в out/release/, с SHA256SUMS
+```
+
+`release` останавливается, если APK не подписан или подписан не релизным ключом,
+если в нём есть x86-библиотеки или если его `versionCode` не больше, чем у APK
+в последнем релизе на GitHub (последнюю проверку отключает `-Pshieldy.skipVersionCheck=true`).
+Подпись берётся из `shieldy/keystore.properties`, которого в репозитории нет.
+
 CI ([.github/workflows/build.yml](.github/workflows/build.yml)) проверяет скрипты
-`shellcheck`, собирает zip, проверяет наличие бинарников arm64 и arm и при push тега
-прикладывает zip к релизу.
+`shellcheck`, собирает и проверяет zip, запускает тесты, lint и release-сборку Shieldy.
+По тегу прикладывает к релизу zip и `Shieldy-<версия>.apk` отдельными ассетами;
+APK должен быть подписан ключом из secrets репозитория.
 
 ## Структура папок
 

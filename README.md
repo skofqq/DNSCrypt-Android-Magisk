@@ -52,9 +52,23 @@ Module updates are delivered through Magisk (`updateJson` in `module.prop`).
 ```
 
 Packing uses `zip`; if it is missing, Python `zipfile`, `7z` or `jar` from a JDK is used.
+
+The repository is a single Gradle build: the module in the root, Shieldy in `shieldy/`
+(an included build). Android Studio opens the root folder.
+
+```sh
+./gradlew release   # signed Shieldy APK + module zip in out/release/, with SHA256SUMS
+```
+
+`release` fails if the APK is unsigned or signed with a key other than the release one,
+if it contains x86 libraries, or if its `versionCode` is not greater than that of the APK
+in the latest GitHub release (`-Pshieldy.skipVersionCheck=true` skips the last check).
+Signing reads `shieldy/keystore.properties`, which is not in the repository.
+
 CI ([.github/workflows/build.yml](.github/workflows/build.yml)) runs `shellcheck` on the
-scripts, builds the zip, checks that the arm64 and arm binaries are present, and attaches
-the zip to the release when a tag is pushed.
+scripts, builds and checks the zip, and runs the Shieldy tests, lint and release build.
+On a tag it attaches the zip and `Shieldy-<version>.apk` to the release as separate
+assets; the APK must be signed with the key from the repository secrets.
 
 ## Folder structure
 

@@ -5,3 +5,12 @@ binary/dnscrypt-proxy-arm
 binary/dnscrypt-proxy-i386
 binary/dnscrypt-proxy-x86_64
 .dl.*/
+
+# Root Gradle build (Shieldy is in shieldy/)
+/.gradle/
+/.kotlin/
+/build/
+/out/
+/.idea/
+/local.properties
+*.iml
