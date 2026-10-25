@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Themed icon (Android 13+): shield outline and the resolver network, one colour. -->
+    <path
+        android:pathData="M54,26 L76,34 V52 C76,67 66,78 54,83 C42,78 32,67 32,52 V34 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M54,45 L45,62 L63,62 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path android:pathData="M54,41 a4,4 0 1,0 0.01,0 Z" android:fillColor="#FFFFFFFF" />
+    <path android:pathData="M45,58 a4,4 0 1,0 0.01,0 Z" android:fillColor="#FFFFFFFF" />
+    <path android:pathData="M63,58 a4,4 0 1,0 0.01,0 Z" android:fillColor="#FFFFFFFF" />
+</vector>
