@@ -325,13 +325,10 @@
     <!-- Status metric cards -->
     <string name="dnscard_badge_leak">FUGA</string>
     <string name="dnscard_badge_system">SISTEMA</string>
-    <string name="dnscard_value_proxy">Via DNSCrypt</string>
-    <string name="dnscard_value_leak">Fornecedor</string>
     <string name="dnscard_value_system">DNS da rede</string>
     <string name="dnscard_tap_to_check">Toque para verificar</string>
     <string name="dnscard_checked_now">Verificado agora</string>
     <string name="dnscard_server_stopped">Proxy parado</string>
-    <string name="dnscard_server_sub">%1$d de %2$d · %3$s</string>
     <plurals name="dnscard_checked_ago">
         <item quantity="one">Verificado há %1$d min</item>
         <item quantity="many">Verificado há %1$d min</item>
@@ -418,15 +415,16 @@
     <string name="setting_ui_scale">Escala da interface (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Tamanho de toda a interface (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Repor</string>
-    <string name="version_card_title">Versão</string>
-    <string name="version_badge_update">Atualização</string>
     <string name="version_update_available">Atualização disponível: %1$s</string>
-    <string name="version_checking">A verificar…</string>
-    <string name="version_up_to_date">Atualizado</string>
-    <string name="version_check_failed">Não foi possível verificar</string>
-    <string name="version_tap_to_check">Toque para procurar atualizações</string>
     <string name="rules_missing_title">O DNS não é intercetado</string>
     <string name="rules_missing_body">O proxy está a correr, mas faltam as regras IPv4 e as consultas passam ao lado. Reinicie o proxy.</string>
     <string name="migration_notice">Definições trazidas do DNSCrypt Manager. A app antiga pode ser removida.</string>
     <string name="migration_action">Info da app</string>
+    <string name="dnscard_value_shieldy">Via Shieldy</string>
+    <string name="dnscard_value_bypass">Fora do proxy</string>
+    <string name="dnscard_value_unchecked">Não verificado</string>
+    <string name="dnscard_value_unknown">Não confirmado</string>
+    <string name="dnscard_server_in_use">Em uso: %1$d de %2$d</string>
+    <string name="version_banner_update_body">Toque para ver as novidades e instalar.</string>
+    <string name="version_banner_reboot_title">Reinicie para concluir a atualização</string>
 </resources>

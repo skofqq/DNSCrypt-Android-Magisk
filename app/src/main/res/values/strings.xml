@@ -381,11 +381,9 @@
     <string name="dnscheck_close">Close</string>
     <!-- Status metric cards -->
     <string name="common_dash" translatable="false">—</string>
-    <string name="dnscard_badge_dnscrypt" translatable="false">DNSCrypt</string>
     <string name="dnscard_badge_leak">LEAK</string>
     <string name="dnscard_badge_system">SYSTEM</string>
-    <string name="dnscard_value_proxy">Via DNSCrypt</string>
-    <string name="dnscard_value_leak">Provider</string>
+    <string name="dnscard_badge_ok" translatable="false">OK</string>
     <string name="dnscard_value_box" translatable="false">box_for_magisk</string>
     <string name="dnscard_value_system">Network DNS</string>
     <string name="dnscard_tap_to_check">Tap to check</string>
@@ -395,7 +393,6 @@
         <item quantity="other">Checked %1$d min ago</item>
     </plurals>
     <string name="dnscard_server_stopped">Proxy stopped</string>
-    <string name="dnscard_server_sub">%1$d of %2$d · %3$s</string>
     <string name="saved_for_next_start">Saved. Applies when the proxy starts.</string>
     <!-- Server exclusions -->
     <string name="exclusions_tag">Excluded</string>
@@ -476,15 +473,16 @@
     <string name="setting_ui_scale">Interface scale (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Size of the whole interface (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Reset</string>
-    <string name="version_card_title">Version</string>
-    <string name="version_badge_update">Update</string>
     <string name="version_update_available">Update available: %1$s</string>
-    <string name="version_checking">Checking…</string>
-    <string name="version_up_to_date">Up to date</string>
-    <string name="version_check_failed">Couldn\'t check for updates</string>
-    <string name="version_tap_to_check">Tap to check for updates</string>
     <string name="rules_missing_title">DNS is not intercepted</string>
     <string name="rules_missing_body">The proxy runs, but its IPv4 rules are missing, so queries go past it. Restart the proxy.</string>
     <string name="migration_notice">Settings moved over from DNSCrypt Manager. The old app can be removed.</string>
     <string name="migration_action">App info</string>
+    <string name="dnscard_value_shieldy">Through Shieldy</string>
+    <string name="dnscard_value_bypass">Bypassing the proxy</string>
+    <string name="dnscard_value_unchecked">Not checked</string>
+    <string name="dnscard_value_unknown">Not confirmed</string>
+    <string name="dnscard_server_in_use">In use: %1$d of %2$d</string>
+    <string name="version_banner_update_body">Tap to see what\'s new and install it.</string>
+    <string name="version_banner_reboot_title">Reboot to finish the update</string>
 </resources>

@@ -321,13 +321,10 @@
     <!-- Status metric cards -->
     <string name="dnscard_badge_leak">АҒЫП КЕТУ</string>
     <string name="dnscard_badge_system">ЖҮЙЕ</string>
-    <string name="dnscard_value_proxy">DNSCrypt арқылы</string>
-    <string name="dnscard_value_leak">Провайдер</string>
     <string name="dnscard_value_system">Желі DNS-і</string>
     <string name="dnscard_tap_to_check">Тексеру үшін түртіңіз</string>
     <string name="dnscard_checked_now">Жаңа ғана тексерілді</string>
     <string name="dnscard_server_stopped">Прокси тоқтатылған</string>
-    <string name="dnscard_server_sub">%2$d ішінен %1$d · %3$s</string>
     <plurals name="dnscard_checked_ago">
         <item quantity="one">%1$d мин бұрын тексерілді</item>
         <item quantity="other">%1$d мин бұрын тексерілді</item>
@@ -412,15 +409,16 @@
     <string name="setting_ui_scale">Интерфейс масштабы (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Бүкіл интерфейс масштабы (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Қалпына келтіру</string>
-    <string name="version_card_title">Нұсқа</string>
-    <string name="version_badge_update">Жаңарту</string>
     <string name="version_update_available">Жаңарту бар: %1$s</string>
-    <string name="version_checking">Тексерілуде…</string>
-    <string name="version_up_to_date">Соңғы нұсқа</string>
-    <string name="version_check_failed">Жаңартуларды тексеру мүмкін болмады</string>
-    <string name="version_tap_to_check">Жаңартуларды тексеру үшін түртіңіз</string>
     <string name="rules_missing_title">DNS ұсталмайды</string>
     <string name="rules_missing_body">Прокси жұмыс істеп тұр, бірақ IPv4 ережелері жоқ, сұраулар оны айналып өтеді. Проксиді қайта қосыңыз.</string>
     <string name="migration_notice">Баптаулар DNSCrypt Manager-ден көшірілді — ескі қолданбаны жоюға болады.</string>
     <string name="migration_action">Қолданба туралы</string>
+    <string name="dnscard_value_shieldy">Shieldy арқылы</string>
+    <string name="dnscard_value_bypass">Проксиді айналып өтеді</string>
+    <string name="dnscard_value_unchecked">Тексерілмеген</string>
+    <string name="dnscard_value_unknown">Расталмаған</string>
+    <string name="dnscard_server_in_use">Қолданыста: %1$d / %2$d</string>
+    <string name="version_banner_update_body">Өзгерістерді көріп, орнату үшін түртіңіз.</string>
+    <string name="version_banner_reboot_title">Жаңартуды аяқтау үшін қайта іске қосыңыз</string>
 </resources>

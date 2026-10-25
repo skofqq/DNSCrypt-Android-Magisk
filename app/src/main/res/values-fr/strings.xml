@@ -325,13 +325,10 @@
     <!-- Status metric cards -->
     <string name="dnscard_badge_leak">FUITE</string>
     <string name="dnscard_badge_system">SYSTÈME</string>
-    <string name="dnscard_value_proxy">Via DNSCrypt</string>
-    <string name="dnscard_value_leak">Fournisseur</string>
     <string name="dnscard_value_system">DNS du réseau</string>
     <string name="dnscard_tap_to_check">Touchez pour tester</string>
     <string name="dnscard_checked_now">Vérifié à l\'instant</string>
     <string name="dnscard_server_stopped">Proxy arrêté</string>
-    <string name="dnscard_server_sub">%1$d sur %2$d · %3$s</string>
     <plurals name="dnscard_checked_ago">
         <item quantity="one">Vérifié il y a %1$d min</item>
         <item quantity="many">Vérifié il y a %1$d min</item>
@@ -418,15 +415,16 @@
     <string name="setting_ui_scale">Échelle de l\'interface (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Taille de toute l\'interface (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Réinitialiser</string>
-    <string name="version_card_title">Version</string>
-    <string name="version_badge_update">Mise à jour</string>
     <string name="version_update_available">Mise à jour disponible : %1$s</string>
-    <string name="version_checking">Vérification…</string>
-    <string name="version_up_to_date">À jour</string>
-    <string name="version_check_failed">Vérification impossible</string>
-    <string name="version_tap_to_check">Touchez pour chercher une mise à jour</string>
     <string name="rules_missing_title">Le DNS n\'est pas intercepté</string>
     <string name="rules_missing_body">Le proxy tourne, mais ses règles IPv4 manquent et les requêtes le contournent. Redémarrez le proxy.</string>
     <string name="migration_notice">Réglages repris de DNSCrypt Manager. L\'ancienne app peut être supprimée.</string>
     <string name="migration_action">Infos sur l\'app</string>
+    <string name="dnscard_value_shieldy">Via Shieldy</string>
+    <string name="dnscard_value_bypass">Contourne le proxy</string>
+    <string name="dnscard_value_unchecked">Non vérifié</string>
+    <string name="dnscard_value_unknown">Non confirmé</string>
+    <string name="dnscard_server_in_use">Utilisés : %1$d sur %2$d</string>
+    <string name="version_banner_update_body">Touchez pour voir les changements et l\'installer.</string>
+    <string name="version_banner_reboot_title">Redémarrez pour terminer la mise à jour</string>
 </resources>

@@ -20,33 +20,24 @@ import com.skofqq.shieldy.ui.components.NoticeCard
 import com.skofqq.shieldy.ui.theme.Tints
 
 /**
- * The module version and where it stands against the latest release; opens the update
- * sheet. A badge marks an update to install or a reboot it is waiting for.
+ * Only while there is something to do about the module: a newer release to install, or
+ * an installed one waiting for a reboot. Opens the update sheet; the version itself
+ * lives in Settings.
  */
 @Composable
-fun VersionCard(status: ModuleStatus, update: ModuleUpdateUiState, onClick: () -> Unit) {
+fun UpdateBanner(update: ModuleUpdateUiState, onClick: () -> Unit) {
     val rebootPending = update.phase == UpdatePhase.INSTALLED
-    val (badge, tint) = when {
-        rebootPending -> stringResource(R.string.update_badge_reboot) to Tints.amber
-        update.updateAvailable -> stringResource(R.string.version_badge_update) to Tints.green
-        else -> null to null
-    }
-    MetricCard(
-        title = stringResource(R.string.version_card_title),
-        badge = badge,
-        tint = tint,
-        value = status.versionOrNull ?: stringResource(R.string.common_dash),
-        subtitle = when {
-            rebootPending -> stringResource(R.string.update_reboot_hint)
-            update.updateAvailable -> stringResource(R.string.version_update_available, update.release?.version.orEmpty())
-            update.phase == UpdatePhase.CHECKING -> stringResource(R.string.version_checking)
-            update.phase == UpdatePhase.UP_TO_DATE -> stringResource(R.string.version_up_to_date)
-            update.error != null -> stringResource(R.string.version_check_failed)
-            else -> stringResource(R.string.version_tap_to_check)
+    if (!rebootPending && !update.updateAvailable) return
+    NoticeCard(
+        title = if (rebootPending) {
+            stringResource(R.string.version_banner_reboot_title)
+        } else {
+            stringResource(R.string.version_update_available, update.release?.version.orEmpty())
         },
-        subtitleMaxLines = 1,
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
+        body = stringResource(if (rebootPending) R.string.update_reboot_hint else R.string.version_banner_update_body),
+        tint = if (rebootPending) Tints.amber else Tints.green,
+        icon = painterResource(R.drawable.ic_system_update),
+        modifier = Modifier.clip(RoundedCornerShape(22.dp)).clickable(onClick = onClick),
     )
 }
 

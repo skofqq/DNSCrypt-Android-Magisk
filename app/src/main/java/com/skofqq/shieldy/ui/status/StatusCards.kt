@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.skofqq.shieldy.R
 import com.skofqq.shieldy.data.DnsVerdict
 import com.skofqq.shieldy.data.ModuleStatus
+import com.skofqq.shieldy.dns.ProbeResult
 import com.skofqq.shieldy.ui.components.BoxyCard
 import com.skofqq.shieldy.ui.components.CardTitle
 import com.skofqq.shieldy.ui.servers.rttTint
@@ -65,27 +66,43 @@ fun DnsCardsRow(
     // One under the other at full width, like the Version card: the titles keep their
     // badges on one line and long server names fit.
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        DnsCheckCard(dnsCheck, Modifier.fillMaxWidth(), onCheck)
+        DnsCheckCard(dnsCheck, status, Modifier.fillMaxWidth(), onCheck)
         ServerCard(status, uiState, Modifier.fillMaxWidth(), onOpenServers)
     }
 }
 
 @Composable
-private fun DnsCheckCard(state: DnsCheckState, modifier: Modifier, onClick: () -> Unit) {
-    val checked = state.checkedAt != null && !state.running
+private fun DnsCheckCard(state: DnsCheckState, status: ModuleStatus, modifier: Modifier, onClick: () -> Unit) {
+    // A verdict from before a start or stop no longer describes where queries go.
+    val proxyActiveNow = status.running && status.rulesV4 && status.boxDns != true
+    val checked = state.checkedAt != null && !state.running && state.proxyActive == proxyActiveNow
+    // The value is the verdict and the badge its colour; who answered goes in the subtitle.
     val (badge, tint, value) = when {
-        !checked -> Triple(null, null, stringResource(R.string.common_dash))
+        !checked -> Triple(null, null, stringResource(R.string.dnscard_value_unchecked))
         else -> when (state.verdict) {
-            DnsVerdict.THROUGH_PROXY -> Triple(stringResource(R.string.dnscard_badge_dnscrypt), Tints.green, stringResource(R.string.dnscard_value_proxy))
-            DnsVerdict.LEAK -> Triple(stringResource(R.string.dnscard_badge_leak), Tints.red, state.leak?.publicIp?.org?.ifBlank { null } ?: stringResource(R.string.dnscard_value_leak))
+            DnsVerdict.THROUGH_PROXY -> Triple(stringResource(R.string.dnscard_badge_ok), Tints.green, stringResource(R.string.dnscard_value_shieldy))
+            DnsVerdict.LEAK -> Triple(stringResource(R.string.dnscard_badge_leak), Tints.red, stringResource(R.string.dnscard_value_bypass))
             DnsVerdict.PROXY_STOPPED -> if (state.boxDns) {
                 Triple("Box", Tints.gray, stringResource(R.string.dnscard_value_box))
             } else {
-                Triple(stringResource(R.string.dnscard_badge_system), Tints.gray, state.network?.servers?.firstOrNull() ?: stringResource(R.string.dnscard_value_system))
+                Triple(stringResource(R.string.dnscard_badge_system), Tints.gray, stringResource(R.string.dnscard_value_system))
             }
-            DnsVerdict.UNKNOWN -> Triple(stringResource(R.string.dnscard_badge_dnscrypt), Tints.blue, stringResource(R.string.dnscard_value_proxy))
+            // No leak test yet: the local probe alone says the proxy answers, but not who
+            // the internet saw, so no OK badge until the leak test runs.
+            DnsVerdict.UNKNOWN -> Triple(
+                null,
+                null,
+                stringResource(
+                    if ((state.probe as? ProbeResult.Answered)?.isResolved == true) R.string.dnscard_value_shieldy
+                    else R.string.dnscard_value_unknown
+                ),
+            )
         }
     }
+    // The resolver the internet saw (bash.ws), else the network's own DNS when the proxy is off.
+    val resolver = state.leak?.resolvers?.firstOrNull()?.let { r ->
+        listOf(r.flag, r.org.ifBlank { r.ip }).filter { it.isNotBlank() }.joinToString(" ")
+    } ?: state.network?.servers?.firstOrNull()?.takeIf { state.verdict == DnsVerdict.PROXY_STOPPED }
     // Re-render the "N min ago" line once a minute.
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(state.checkedAt) {
@@ -96,11 +113,12 @@ private fun DnsCheckCard(state: DnsCheckState, modifier: Modifier, onClick: () -
     }
     val subtitle = when {
         state.running -> stringResource(R.string.dnscheck_running)
-        state.checkedAt == null -> stringResource(R.string.dnscard_tap_to_check)
+        !checked || state.checkedAt == null -> stringResource(R.string.dnscard_tap_to_check)
         else -> {
             val minutes = ((now - state.checkedAt) / 60_000).toInt().coerceAtLeast(0)
-            if (minutes == 0) stringResource(R.string.dnscard_checked_now)
+            val ago = if (minutes == 0) stringResource(R.string.dnscard_checked_now)
             else pluralStringResource(R.plurals.dnscard_checked_ago, minutes, minutes)
+            if (resolver != null) "$resolver · $ago" else ago
         }
     }
     MetricCard(
@@ -118,12 +136,16 @@ private fun DnsCheckCard(state: DnsCheckState, modifier: Modifier, onClick: () -
 private fun ServerCard(status: ModuleStatus, uiState: StatusUiState, modifier: Modifier, onClick: () -> Unit) {
     val active = uiState.activeServer.takeIf { status.running }
     val live = uiState.live.takeIf { status.running }
-    val protocol = live?.servers?.firstOrNull { it.name == active?.name }?.protocol
+    // The protocol only tells servers apart when the set mixes DNSCrypt with DoH / ODoH.
+    val mixed = live?.servers?.map { it.protocol }?.distinct()?.size?.let { it > 1 } == true
+    val protocol = if (!mixed) null else live?.servers?.firstOrNull { it.name == active?.name }?.protocol
         ?: live?.servers?.firstOrNull()?.protocol
     val subtitle = when {
         !status.running -> stringResource(R.string.dnscard_server_stopped)
+        // The strategy behind "in use" is spelled out in the DNS check sheet.
         live != null && live.servers.isNotEmpty() ->
-            stringResource(R.string.dnscard_server_sub, live.inUseCount, live.liveCount, live.strategy)
+            // Right after a start the proxy has not logged its "live servers" count yet.
+            stringResource(R.string.dnscard_server_in_use, live.inUseCount, maxOf(live.liveCount, live.servers.size))
         else -> stringResource(R.string.servers_mode_auto)
     }
     val rtt = active?.rttMs

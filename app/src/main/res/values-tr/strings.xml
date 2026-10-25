@@ -321,13 +321,10 @@
     <!-- Status metric cards -->
     <string name="dnscard_badge_leak">SIZINTI</string>
     <string name="dnscard_badge_system">SİSTEM</string>
-    <string name="dnscard_value_proxy">DNSCrypt üzerinden</string>
-    <string name="dnscard_value_leak">Sağlayıcı</string>
     <string name="dnscard_value_system">Ağ DNS\'i</string>
     <string name="dnscard_tap_to_check">Denetlemek için dokunun</string>
     <string name="dnscard_checked_now">Az önce denetlendi</string>
     <string name="dnscard_server_stopped">Proxy durduruldu</string>
-    <string name="dnscard_server_sub">%1$d / %2$d · %3$s</string>
     <plurals name="dnscard_checked_ago">
         <item quantity="one">%1$d dk önce denetlendi</item>
         <item quantity="other">%1$d dk önce denetlendi</item>
@@ -412,15 +409,16 @@
     <string name="setting_ui_scale">Arayüz ölçeği (%%%1$d)</string>
     <string name="setting_ui_scale_desc">Tüm arayüzün ölçeği (%%%1$d–%2$d)</string>
     <string name="setting_ui_scale_reset">Sıfırla</string>
-    <string name="version_card_title">Sürüm</string>
-    <string name="version_badge_update">Güncelleme</string>
     <string name="version_update_available">Güncelleme var: %1$s</string>
-    <string name="version_checking">Denetleniyor…</string>
-    <string name="version_up_to_date">Güncel</string>
-    <string name="version_check_failed">Denetlenemedi</string>
-    <string name="version_tap_to_check">Güncellemeleri denetlemek için dokunun</string>
     <string name="rules_missing_title">DNS yakalanmıyor</string>
     <string name="rules_missing_body">Proxy çalışıyor ama IPv4 kuralları yok, sorgular onu atlıyor. Proxy\'yi yeniden başlatın.</string>
     <string name="migration_notice">Ayarlar DNSCrypt Manager\'dan taşındı. Eski uygulama kaldırılabilir.</string>
     <string name="migration_action">Uygulama bilgisi</string>
+    <string name="dnscard_value_shieldy">Shieldy üzerinden</string>
+    <string name="dnscard_value_bypass">Proxy atlanıyor</string>
+    <string name="dnscard_value_unchecked">Kontrol edilmedi</string>
+    <string name="dnscard_value_unknown">Doğrulanmadı</string>
+    <string name="dnscard_server_in_use">Kullanımda: %1$d / %2$d</string>
+    <string name="version_banner_update_body">Değişiklikleri görmek ve yüklemek için dokunun.</string>
+    <string name="version_banner_reboot_title">Güncellemeyi tamamlamak için yeniden başlatın</string>
 </resources>

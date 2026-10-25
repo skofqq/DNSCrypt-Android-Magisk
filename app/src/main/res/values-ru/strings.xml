@@ -372,13 +372,10 @@
     <!-- Status metric cards -->
     <string name="dnscard_badge_leak">УТЕЧКА</string>
     <string name="dnscard_badge_system">СИСТЕМА</string>
-    <string name="dnscard_value_proxy">Через DNSCrypt</string>
-    <string name="dnscard_value_leak">Провайдер</string>
     <string name="dnscard_value_system">DNS сети</string>
     <string name="dnscard_tap_to_check">Нажмите, чтобы проверить</string>
     <string name="dnscard_checked_now">Проверено только что</string>
     <string name="dnscard_server_stopped">Прокси остановлен</string>
-    <string name="dnscard_server_sub">%1$d из %2$d · %3$s</string>
     <plurals name="dnscard_checked_ago">
         <item quantity="one">Проверено %1$d мин назад</item>
         <item quantity="few">Проверено %1$d мин назад</item>
@@ -467,15 +464,16 @@
     <string name="setting_ui_scale">Масштаб интерфейса (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Масштаб всего интерфейса (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Сбросить</string>
-    <string name="version_card_title">Версия</string>
-    <string name="version_badge_update">Обновление</string>
     <string name="version_update_available">Доступно обновление: %1$s</string>
-    <string name="version_checking">Проверяю…</string>
-    <string name="version_up_to_date">Последняя версия</string>
-    <string name="version_check_failed">Не удалось проверить обновления</string>
-    <string name="version_tap_to_check">Нажмите, чтобы проверить обновления</string>
     <string name="rules_missing_title">DNS не перехватывается</string>
     <string name="rules_missing_body">Прокси работает, но правил IPv4 нет, и запросы идут мимо него. Перезапустите прокси.</string>
     <string name="migration_notice">Настройки перенесены из DNSCrypt Manager — старое приложение можно удалить.</string>
     <string name="migration_action">О приложении</string>
+    <string name="dnscard_value_shieldy">Через Shieldy</string>
+    <string name="dnscard_value_bypass">Мимо прокси</string>
+    <string name="dnscard_value_unchecked">Не проверено</string>
+    <string name="dnscard_value_unknown">Не подтверждено</string>
+    <string name="dnscard_server_in_use">Используются: %1$d из %2$d</string>
+    <string name="version_banner_update_body">Нажмите, чтобы посмотреть изменения и установить.</string>
+    <string name="version_banner_reboot_title">Перезагрузите, чтобы завершить обновление</string>
 </resources>

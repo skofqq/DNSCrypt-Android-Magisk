@@ -4,6 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -121,7 +125,7 @@ fun StatusScreen(
                 onOpenServers = onOpenServers,
             )
 
-            VersionCard(status = status, update = updateState, onClick = onOpenUpdate)
+            UpdateBanner(update = updateState, onClick = onOpenUpdate)
 
             // Warnings appear only when something is wrong; a healthy proxy shows none.
             if (status.running && !status.rulesV4 && !boxCapturesDns) {
@@ -172,7 +176,7 @@ fun StatusScreen(
 
 /**
  * Boxy's hero card: big coloured state on the left, the key facts in a side panel,
- * soft Start / Stop / Restart pills underneath.
+ * a Start / Stop toggle with a Restart button beside it underneath.
  */
 @Composable
 private fun HeroCard(
@@ -213,15 +217,16 @@ private fun HeroCard(
                     phase == ProxyPhase.STOPPED -> stringResource(R.string.hero_tap_start)
                     else -> stringResource(R.string.label_pid) + " " + (status.pid?.toString() ?: "—")
                 }
-                Text(
+                // Shrinks rather than cuts: "Tap Start to run" at 120% scale is wider than the column.
+                BasicText(
                     chip,
                     Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .background(colors.surface2)
                         .padding(horizontal = 14.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = colors.text,
+                    style = MaterialTheme.typography.labelLarge.copy(color = colors.text),
                     maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = MaterialTheme.typography.labelLarge.fontSize),
                 )
             }
             Column(
@@ -253,7 +258,8 @@ private fun HeroCard(
             }
         }
 
-        if (!status.ipv6Bypass) {
+        // Healthy and running needs no words; the line is for a stop or a restart.
+        if (!status.ipv6Bypass && phase != ProxyPhase.RUNNING) {
             Spacer(Modifier.height(12.dp))
             Text(
                 stringResource(if (phase == ProxyPhase.STOPPED && status.manualStop) R.string.status_manual_stop_hint else phase.hintRes()),
@@ -279,9 +285,29 @@ private fun HeroCard(
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            ActionPill(stringResource(R.string.action_start), Tints.green, !busy && !running, Modifier.weight(1f), onStart)
-            ActionPill(stringResource(R.string.action_stop), Tints.red, !busy && running, Modifier.weight(1f), onStop)
-            ActionPill(stringResource(R.string.action_restart), Tints.amber, !busy, Modifier.weight(1f), onRestart)
+            // One toggle instead of a Start that is greyed out whenever Stop is not.
+            if (running) {
+                ActionPill(stringResource(R.string.action_stop), Tints.red, !busy, Modifier.weight(1f), onStop)
+            } else {
+                ActionPill(stringResource(R.string.action_start), Tints.green, !busy, Modifier.weight(1f), onStart)
+            }
+            if (phase == ProxyPhase.RUNNING) {
+                val tint = Tints.amber
+                Box(
+                    Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(tint.bg.copy(alpha = if (busy) tint.bg.alpha * 0.5f else tint.bg.alpha))
+                        .clickable(enabled = !busy, onClickLabel = stringResource(R.string.action_restart), onClick = onRestart),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_refresh),
+                        contentDescription = stringResource(R.string.action_restart),
+                        tint = tint.fg.copy(alpha = if (busy) 0.45f else 1f),
+                    )
+                }
+            }
         }
 
         AnimatedVisibility(visible = busy) {

@@ -329,13 +329,10 @@
     <!-- Status metric cards -->
     <string name="dnscard_badge_leak">ВИТІК</string>
     <string name="dnscard_badge_system">СИСТЕМА</string>
-    <string name="dnscard_value_proxy">Через DNSCrypt</string>
-    <string name="dnscard_value_leak">Провайдер</string>
     <string name="dnscard_value_system">DNS мережі</string>
     <string name="dnscard_tap_to_check">Торкніться, щоб перевірити</string>
     <string name="dnscard_checked_now">Перевірено щойно</string>
     <string name="dnscard_server_stopped">Проксі зупинено</string>
-    <string name="dnscard_server_sub">%1$d з %2$d · %3$s</string>
     <plurals name="dnscard_checked_ago">
         <item quantity="one">Перевірено %1$d хв тому</item>
         <item quantity="few">Перевірено %1$d хв тому</item>
@@ -424,15 +421,16 @@
     <string name="setting_ui_scale">Масштаб інтерфейсу (%1$d%%)</string>
     <string name="setting_ui_scale_desc">Масштаб усього інтерфейсу (%1$d–%2$d%%)</string>
     <string name="setting_ui_scale_reset">Скинути</string>
-    <string name="version_card_title">Версія</string>
-    <string name="version_badge_update">Оновлення</string>
     <string name="version_update_available">Доступне оновлення: %1$s</string>
-    <string name="version_checking">Перевіряю…</string>
-    <string name="version_up_to_date">Остання версія</string>
-    <string name="version_check_failed">Не вдалося перевірити оновлення</string>
-    <string name="version_tap_to_check">Натисніть, щоб перевірити оновлення</string>
     <string name="rules_missing_title">DNS не перехоплюється</string>
     <string name="rules_missing_body">Проксі працює, але правил IPv4 немає, і запити йдуть повз нього. Перезапустіть проксі.</string>
     <string name="migration_notice">Налаштування перенесено з DNSCrypt Manager — старий застосунок можна видалити.</string>
     <string name="migration_action">Про застосунок</string>
+    <string name="dnscard_value_shieldy">Через Shieldy</string>
+    <string name="dnscard_value_bypass">Повз проксі</string>
+    <string name="dnscard_value_unchecked">Не перевірено</string>
+    <string name="dnscard_value_unknown">Не підтверджено</string>
+    <string name="dnscard_server_in_use">Використовуються: %1$d з %2$d</string>
+    <string name="version_banner_update_body">Натисніть, щоб переглянути зміни й установити.</string>
+    <string name="version_banner_reboot_title">Перезавантажте, щоб завершити оновлення</string>
 </resources>
