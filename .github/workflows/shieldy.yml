@@ -1,14 +1,21 @@
-name: Build
+# Shieldy, the manager app in shieldy/: unit tests, lint and the release APK.
+# Runs only when the app or this workflow changes; the module has build.yml.
+name: Shieldy
 
 on:
   push:
     branches: [main]
-    tags: ["v*"]
+    paths: ['shieldy/**', '.github/workflows/shieldy.yml']
   pull_request:
+    paths: ['shieldy/**', '.github/workflows/shieldy.yml']
   workflow_dispatch:
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    working-directory: shieldy
 
 jobs:
   build:
@@ -23,6 +30,8 @@ jobs:
           java-version: "17"
 
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: shieldy
 
       # Release signing from repository secrets. Without them the APK is still built,
       # unsigned, so forks and pull requests get a working check.
@@ -55,8 +64,8 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: DNSCryptManager-release
-          path: app/build/outputs/apk/release/*.apk
+          name: Shieldy-release
+          path: shieldy/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
@@ -64,5 +73,5 @@ jobs:
         with:
           name: reports
           path: |
-            app/build/reports/tests/
-            app/build/reports/lint-results-release.html
+            shieldy/app/build/reports/tests/
+            shieldy/app/build/reports/lint-results-release.html
