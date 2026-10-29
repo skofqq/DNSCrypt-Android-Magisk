@@ -84,6 +84,16 @@ fun ConfigScreen(
     var showBackups by remember { mutableStateOf(false) }
     var pendingRestore by remember { mutableStateOf<ConfigBackup?>(null) }
 
+    val tomlColors = TomlColors(
+        comment = Boxy.colors.text2.copy(alpha = 0.7f),
+        header = Boxy.colors.accent,
+        key = Tints.purple.fg,
+        string = Tints.green.fg,
+        number = Tints.amber.fg,
+        bool = Tints.amber.fg,
+    )
+    val highlighter = remember(tomlColors) { TomlVisualTransformation(tomlColors) }
+
     val matches = remember(field.text, query) {
         if (query.length < 2) emptyList() else findMatches(field.text, query)
     }
@@ -212,6 +222,7 @@ fun ConfigScreen(
                 onTextChanged(it.text)
             },
             textStyle = MonospaceTextStyle.copy(color = Boxy.colors.text),
+            visualTransformation = highlighter,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
