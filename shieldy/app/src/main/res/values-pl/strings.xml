@@ -20,7 +20,7 @@
     <string name="gate_no_root_title">Brak dostępu root</string>
     <string name="gate_no_root_body">Aplikacja komunikuje się z modułem przez powłokę root. Zezwól na żądanie w menedżerze root i spróbuj ponownie.</string>
     <string name="gate_missing_title">Moduł nie jest zainstalowany</string>
-    <string name="gate_missing_body">Nie znaleziono dnscrypt-ctl. Zainstaluj moduł Magisk DNSCrypt-Proxy 2 i uruchom ponownie.</string>
+    <string name="gate_missing_body">Nie znaleziono dnscrypt-ctl. Zainstaluj moduł Magisk Shieldy (DNSCrypt) i uruchom ponownie.</string>
     <string name="gate_disabled_title">Moduł jest wyłączony</string>
     <string name="gate_disabled_body">Moduł jest zainstalowany, ale wyłączony w Magisku, więc nic nie jest zamontowane. Włącz go w Magisku i uruchom ponownie.</string>
     <string name="gate_outdated_title">Moduł jest za stary</string>
@@ -183,7 +183,7 @@
     <string name="update_row_title">Wersja modułu</string>
     <string name="update_row_available">%1$s → %2$s, dostępna aktualizacja</string>
     <string name="update_row_reboot_pending">%1$s zainstalowano, uruchom ponownie</string>
-    <string name="update_sheet_title">Moduł DNSCrypt-Proxy 2</string>
+    <string name="update_sheet_title">Moduł Shieldy (DNSCrypt)</string>
     <string name="update_current_version">Zainstalowana wersja: %1$s</string>
     <string name="update_checking">Sprawdzanie aktualizacji…</string>
     <string name="update_latest">Masz najnowszą wersję</string>

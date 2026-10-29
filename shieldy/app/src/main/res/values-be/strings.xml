@@ -20,7 +20,7 @@
     <string name="gate_no_root_title">Няма root-доступу</string>
     <string name="gate_no_root_body">Праграма працуе з модулем праз root-абалонку. Дазвольце запыт у root-мэнэджары і паспрабуйце зноў.</string>
     <string name="gate_missing_title">Модуль не ўсталяваны</string>
-    <string name="gate_missing_body">dnscrypt-ctl не знойдзены. Усталюйце Magisk-модуль DNSCrypt-Proxy 2 і перазагрузіце прыладу.</string>
+    <string name="gate_missing_body">dnscrypt-ctl не знойдзены. Усталюйце Magisk-модуль Shieldy (DNSCrypt) і перазагрузіце прыладу.</string>
     <string name="gate_disabled_title">Модуль выключаны</string>
     <string name="gate_disabled_body">Модуль усталяваны, але выключаны ў Magisk, таму нічога не падключана. Уключыце яго ў Magisk і перазагрузіцеся.</string>
     <string name="gate_outdated_title">Модуль састарэў</string>
@@ -183,7 +183,7 @@
     <string name="update_row_title">Версія модуля</string>
     <string name="update_row_available">%1$s → %2$s, ёсць абнаўленне</string>
     <string name="update_row_reboot_pending">%1$s усталявана, перазагрузіцеся</string>
-    <string name="update_sheet_title">Модуль DNSCrypt-Proxy 2</string>
+    <string name="update_sheet_title">Модуль Shieldy (DNSCrypt)</string>
     <string name="update_current_version">Усталяваная версія: %1$s</string>
     <string name="update_checking">Правяраю абнаўленні…</string>
     <string name="update_latest">У вас апошняя версія</string>

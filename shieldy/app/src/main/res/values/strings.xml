@@ -28,7 +28,7 @@
     <string name="gate_no_root_title">No root access</string>
     <string name="gate_no_root_body">The app talks to the module through a root shell. Grant the request in your root manager, then try again.</string>
     <string name="gate_missing_title">Module not installed</string>
-    <string name="gate_missing_body">dnscrypt-ctl was not found. Install the DNSCrypt-Proxy 2 Magisk module and reboot.</string>
+    <string name="gate_missing_body">dnscrypt-ctl was not found. Install the Shieldy (DNSCrypt) Magisk module and reboot.</string>
     <string name="gate_disabled_title">Module is switched off</string>
     <string name="gate_disabled_body">The module is installed but disabled in Magisk, so nothing is mounted. Enable it in Magisk and reboot.</string>
     <string name="gate_outdated_title">Module is too old</string>
@@ -228,7 +228,7 @@
     <string name="update_row_title">Module version</string>
     <string name="update_row_available">%1$s → %2$s, update available</string>
     <string name="update_row_reboot_pending">%1$s installed, reboot to finish</string>
-    <string name="update_sheet_title">DNSCrypt-Proxy 2 module</string>
+    <string name="update_sheet_title">Shieldy (DNSCrypt) Module</string>
     <string name="update_current_version">Installed version: %1$s</string>
     <string name="update_checking">Checking for updates…</string>
     <string name="update_latest">You have the latest version</string>
