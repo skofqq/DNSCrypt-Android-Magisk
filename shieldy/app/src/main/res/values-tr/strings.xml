@@ -357,7 +357,7 @@
     <string name="run_gid_mismatch_title">Grup uygulanmadı</string>
     <string name="run_gid_mismatch_body">Proxy %2$d yerine GID %1$d ile çalışıyor. Ayarı uygulayın veya proxy\'yi yeniden başlatın.</string>
     <string name="run_gid_unsupported_body">Proxy %2$d yerine GID %1$d ile çalışıyor: bu cihazdaki su grubu değiştiremiyor, bu yüzden modül onu normal şekilde başlattı.</string>
-    <string name="experimental_badge">Deneysel</string>
+    <string name="experimental_badge">Deney</string>
     <string name="run_gid_experimental_note">Deneysel ayar: bazı root yöneticileri ve ROM\'larla çalışmayabilir.</string>
     <string name="blocklists_title">Engel listeleri</string>
     <string name="blocklists_summary">Açık: %1$d · %2$s alan adı</string>

@@ -421,7 +421,7 @@
     <string name="run_gid_mismatch_title">Group not applied</string>
     <string name="run_gid_mismatch_body">The proxy runs with GID %1$d instead of %2$d. Apply the setting or restart the proxy.</string>
     <string name="run_gid_unsupported_body">The proxy runs with GID %1$d instead of %2$d: su on this device cannot change the group, so the module started it normally.</string>
-    <string name="experimental_badge">Experimental</string>
+    <string name="experimental_badge">Exp</string>
     <string name="run_gid_experimental_note">Experimental setting: it may not work with some root managers and ROMs.</string>
     <string name="blocklists_title">Blocklists</string>
     <string name="blocklists_summary">Lists on: %1$d · %2$s domains</string>

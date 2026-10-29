@@ -412,7 +412,7 @@
     <string name="run_gid_mismatch_title">Группа не применена</string>
     <string name="run_gid_mismatch_body">Прокси работает с GID %1$d вместо %2$d. Примените настройку или перезапустите прокси.</string>
     <string name="run_gid_unsupported_body">Прокси работает с GID %1$d вместо %2$d: su на этом устройстве не умеет менять группу, поэтому модуль запустил его обычным способом.</string>
-    <string name="experimental_badge">Экспериментально</string>
+    <string name="experimental_badge">Эксп</string>
     <string name="run_gid_experimental_note">Экспериментальная настройка: может не работать с некоторыми root-менеджерами и прошивками.</string>
     <string name="blocklists_title">Блок-листы</string>
     <string name="blocklists_summary">Включено: %1$d · доменов: %2$s</string>

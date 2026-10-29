@@ -369,7 +369,7 @@
     <string name="run_gid_mismatch_title">Grupa nie została zastosowana</string>
     <string name="run_gid_mismatch_body">Proxy działa z GID %1$d zamiast %2$d. Zastosuj ustawienie lub uruchom proxy ponownie.</string>
     <string name="run_gid_unsupported_body">Proxy działa z GID %1$d zamiast %2$d: su na tym urządzeniu nie potrafi zmienić grupy, więc moduł uruchomił je zwyczajnie.</string>
-    <string name="experimental_badge">Eksperymentalne</string>
+    <string name="experimental_badge">Eksp</string>
     <string name="run_gid_experimental_note">Ustawienie eksperymentalne: może nie działać z niektórymi menedżerami root i ROM-ami.</string>
     <string name="blocklists_title">Listy blokowania</string>
     <string name="blocklists_summary">Włączone: %1$d · domen: %2$s</string>

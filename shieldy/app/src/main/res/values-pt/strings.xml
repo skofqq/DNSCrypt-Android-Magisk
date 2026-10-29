@@ -363,7 +363,7 @@
     <string name="run_gid_mismatch_title">Grupo não aplicado</string>
     <string name="run_gid_mismatch_body">O proxy corre com GID %1$d em vez de %2$d. Aplique a definição ou reinicie o proxy.</string>
     <string name="run_gid_unsupported_body">O proxy corre com GID %1$d em vez de %2$d: o su neste dispositivo não consegue mudar o grupo, por isso o módulo iniciou-o normalmente.</string>
-    <string name="experimental_badge">Experimental</string>
+    <string name="experimental_badge">Exp</string>
     <string name="run_gid_experimental_note">Definição experimental: pode não funcionar com alguns gestores root e ROMs.</string>
     <string name="blocklists_title">Listas de bloqueio</string>
     <string name="blocklists_summary">Ativas: %1$d · %2$s domínios</string>
