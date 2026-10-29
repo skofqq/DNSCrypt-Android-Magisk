@@ -2,8 +2,8 @@ SKIPUNZIP=0
 
 ui_print " "
 ui_print "******************************"
-ui_print "*   dnscrypt-proxy-android   *"
-ui_print "*           2.4.1            *"
+ui_print "*    Shieldy for Magisk      *"
+ui_print "*            2.5             *"
 ui_print "******************************"
 ui_print " "
 

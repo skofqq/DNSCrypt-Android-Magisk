@@ -168,7 +168,7 @@ tasks.register("release") {
         logger.lifecycle(run(args).trim())
 
         val version = file("module.prop").readLines().first { it.startsWith("version=") }.substringAfter('=')
-        val zip = file("dnscrypt-proxy-android-$version.zip")
+        val zip = file("Shieldy-Magisk-$version.zip")
         outDir.mkdirs()
         outDir.listFiles()?.forEach { it.delete() }
         val apkOut = File(outDir, "Shieldy-${info.name}.apk")

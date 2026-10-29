@@ -35,7 +35,7 @@ One zip covers both architectures.
 
 ## Installation
 
-1. Download `dnscrypt-proxy-android-<version>.zip` from the [releases page](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest).
+1. Download `Shieldy-Magisk-<version>.zip` from the [releases page](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest).
 2. Magisk → Modules → Install from storage → select the zip.
 3. Reboot the device.
 4. Verify: `su -c dnscrypt-ctl test`.
@@ -67,8 +67,9 @@ Signing reads `shieldy/keystore.properties`, which is not in the repository.
 
 CI ([.github/workflows/build.yml](.github/workflows/build.yml)) runs `shellcheck` on the
 scripts, builds and checks the zip, and runs the Shieldy tests, lint and release build.
-On a tag it attaches the zip and `Shieldy-<version>.apk` to the release as separate
-assets; the APK must be signed with the key from the repository secrets.
+On a tag it creates a draft release named `Shieldy <version>` and attaches
+`Shieldy-Magisk-<version>.zip` and `Shieldy-<version>.apk` as separate assets; the draft is
+published by hand. The APK must be signed with the key from the repository secrets.
 
 ## Folder structure
 
