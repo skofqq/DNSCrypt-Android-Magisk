@@ -62,8 +62,11 @@ object ModuleContract {
      * The one stable line the app looks for in `dnscrypt-ctl conflicts`. Everything else
      * in that output is shown verbatim and never parsed.
      */
-    /** Logged by the supervisor when `su -g` is refused and it starts without run_gid. */
-    const val RUN_GID_FALLBACK_MARKER = "смена первичной группы"
+    /**
+     * Logged by the supervisor when `su -g` is refused and it starts without run_gid.
+     * Before 2.5.3 the module log was in Russian, so the old wording is matched too.
+     */
+    val RUN_GID_FALLBACK_MARKERS = listOf("primary group change", "смена первичной группы")
 
     const val BOX_MARKER = "box_for_magisk: обнаружен"
 

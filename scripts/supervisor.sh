@@ -15,7 +15,7 @@ acquire_lock() {
   if [ -f "$LOCKFILE" ]; then
     old=$(cat "$LOCKFILE" 2>/dev/null)
     if [ -n "$old" ] && kill -0 "$old" 2>/dev/null && [ "$old" != "$$" ]; then
-      log "supervisor уже запущен (pid $old), выхожу"
+      log "supervisor already running (pid $old), exiting"
       exit 0
     fi
   fi
@@ -28,7 +28,7 @@ prepare_data() {
   # Первая установка или пользователь удалил конфиг - разворачиваем дефолтный.
   if [ ! -f "$CONFIG" ] && [ -f "$MODDIR/config/dnscrypt-proxy.toml" ]; then
     cp -af "$MODDIR"/config/. "$DATADIR"/
-    log "развёрнут конфиг по умолчанию"
+    log "default config installed"
   fi
   [ -f "$SETTINGS" ] || cp -af "$MODDIR/config/module.conf" "$SETTINGS" 2>/dev/null
   chmod 0600 "$CONFIG" 2>/dev/null
@@ -41,7 +41,7 @@ wait_netfilter() {
     i=$((i + 1))
     sleep 1
   done
-  log "iptables не отвечает, правила перехвата не поставлены"
+  log "iptables not responding, interception rules not installed"
   return 1
 }
 
@@ -65,7 +65,7 @@ disable_private_dns() {
   [ -f "$PRIVDNS_SAVE" ] || echo "${current:-null}" >"$PRIVDNS_SAVE"
   settings put global private_dns_mode off 2>/dev/null \
     || cmd settings put global private_dns_mode off 2>/dev/null
-  log "Private DNS переключён в off (было: ${current:-неизвестно})"
+  log "Private DNS switched off (was: ${current:-unknown})"
 }
 
 trim_logs() {
@@ -78,12 +78,12 @@ trim_logs() {
 }
 
 acquire_lock
-log "--- старт модуля ($(getprop ro.build.version.release 2>/dev/null), Magisk $(magisk -V 2>/dev/null)) ---"
+log "--- module start ($(getprop ro.build.version.release 2>/dev/null), Magisk $(magisk -V 2>/dev/null)) ---"
 prepare_data
 
 if wait_netfilter; then
   nf_start
-  log "правила перехвата DNS поставлены (порт $(listen_port))"
+  log "DNS interception rules installed (port $(listen_port))"
 fi
 
 # Всё, что требует поднятой системы, не должно задерживать запуск прокси.
@@ -94,7 +94,7 @@ fi
 delay=5
 while :; do
   if [ ! -f "$CONFIG" ]; then
-    log "конфиг $CONFIG отсутствует, жду"
+    log "config $CONFIG missing, waiting"
     sleep 10
     prepare_data
     continue
@@ -104,13 +104,13 @@ while :; do
   cd "$DATADIR" || exit 1
   if port_busy "$(listen_port)"; then
     # Иначе прокси молча падает на bind и уходит в цикл перезапусков.
-    log "порт $(listen_port) уже занят другим процессом (box_for_magisk?)," \
-        "смените listen_addresses в $CONFIG; dnscrypt-ctl conflicts покажет подробности"
+    log "port $(listen_port) is already used by another process (box_for_magisk?)," \
+        "change listen_addresses in $CONFIG; dnscrypt-ctl conflicts shows details"
   fi
   gid=$(run_gid_numeric)
   # Проверяем смену группы заранее: настройка не должна ронять резолвинг.
   if [ -n "$gid" ] && ! su -g "$gid" 0 -c 'exit 0' >/dev/null 2>&1; then
-    log "смена первичной группы на $gid недоступна, запускаю без неё"
+    log "primary group change to $gid unavailable, starting without it"
     gid=""
   fi
   if [ -n "$gid" ]; then
@@ -136,12 +136,12 @@ while :; do
     pid=$!
   fi
   echo "$pid" >"$PIDFILE"
-  log "dnscrypt-proxy запущен, pid $pid"
+  log "dnscrypt-proxy started, pid $pid"
 
   while kill -0 "$pid" 2>/dev/null; do
     sleep 30
     if ! nf_check; then
-      log "правила перехвата пропали (netd?), ставлю заново"
+      log "interception rules gone (netd?), reinstalling"
       nf_start
     fi
     nf_guard6
@@ -155,7 +155,7 @@ while :; do
   if [ "$lived" -gt 120 ]; then
     delay=5
   fi
-  log "dnscrypt-proxy завершился (код $rc, прожил ${lived}с), перезапуск через ${delay}с"
+  log "dnscrypt-proxy exited (code $rc, ran ${lived}s), restarting in ${delay}s"
   sleep "$delay"
   delay=$((delay * 2))
   [ "$delay" -gt "$restart_delay_max" ] && delay="$restart_delay_max"

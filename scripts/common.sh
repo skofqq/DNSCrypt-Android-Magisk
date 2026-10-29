@@ -38,7 +38,7 @@ run_gid_numeric() {
     net_admin) echo 3005 ;;
     inet) echo 3003 ;;
     net_raw) echo 3004 ;;
-    *[!0-9]*) log "run_gid='$run_gid': не число и не известная группа, игнорирую" ;;
+    *[!0-9]*) log "run_gid='$run_gid': not a number or a known group, ignored" ;;
     *) echo "$run_gid" ;;
   esac
 }
@@ -127,7 +127,7 @@ restore_private_dns() {
     *) settings put global private_dns_mode "$saved" >/dev/null 2>&1 ;;
   esac
   rm -f "$PRIVDNS_SAVE"
-  log "Private DNS возвращён в исходный режим (${saved})"
+  log "Private DNS restored to its previous mode (${saved})"
 }
 
 # pid нашего dnscrypt-proxy: первый аргумент командной строки - наш $BIN.
@@ -181,7 +181,7 @@ servers_set() {
   for n in $(echo "$names" | tr ',' ' '); do
     [ -n "$n" ] || continue
     case "$n" in
-      *[!A-Za-z0-9._-]*) log "servers: недопустимое имя пропущено: $n"; continue ;;
+      *[!A-Za-z0-9._-]*) log "servers: invalid name skipped: $n"; continue ;;
     esac
     if [ -z "$val" ]; then val="'$n'"; else val="$val, '$n'"; fi
   done
@@ -218,7 +218,7 @@ excluded_set() {
   val=""
   for n in $(echo "$1" | tr ',' ' '); do
     case "$n" in
-      *[!A-Za-z0-9._-]*) log "excluded: недопустимое имя пропущено: $n"; continue ;;
+      *[!A-Za-z0-9._-]*) log "excluded: invalid name skipped: $n"; continue ;;
     esac
     if [ -z "$val" ]; then val="'$n'"; else val="$val, '$n'"; fi
   done

@@ -1,7 +1,7 @@
 id=dnscrypt-proxy-android
 name=Shieldy (DNSCrypt)
-version=2.5.2
-versionCode=250200
+version=2.5.3
+versionCode=250300
 author=skofqq
 description=Шифрованный DNS системного уровня: DNSCrypt v2, DoH, Anonymized DNSCrypt, ODoH. Внутри dnscrypt-proxy 2.1.18. Конфиг в /data/adb/dnscrypt-proxy, управление командой dnscrypt-ctl или приложением Shieldy (APK в релизе).
 updateJson=https://raw.githubusercontent.com/skofqq/DNSCrypt-Android-Magisk/main/update.json

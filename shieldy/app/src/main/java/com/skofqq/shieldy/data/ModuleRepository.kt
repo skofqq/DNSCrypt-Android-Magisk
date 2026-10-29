@@ -173,7 +173,8 @@ class ModuleRepository(
         val pid = status.pid?.takeIf { status.running } ?: return null
         val out = shell.execLine(
             "grep '^Gid:' /proc/$pid/status; " +
-                "tail -n 200 ${RootShell.quote(ModuleContract.MODULE_LOG)} | grep -c '${ModuleContract.RUN_GID_FALLBACK_MARKER}'"
+                "tail -n 200 ${RootShell.quote(ModuleContract.MODULE_LOG)} | grep -c " +
+                ModuleContract.RUN_GID_FALLBACK_MARKERS.joinToString(" ") { "-e '$it'" }
         ).getOrNull() ?: return null
         val gid = out.stdout.firstOrNull { it.startsWith("Gid:") }
             ?.trim()?.split(Regex("\\s+"))?.getOrNull(1)?.toIntOrNull() ?: return null

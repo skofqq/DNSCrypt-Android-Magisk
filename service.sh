@@ -10,7 +10,7 @@ load_settings
 # загрузке ничего не поднимает и правил не ставит. Ручной запуск идёт
 # мимо этого файла (start_supervisor), поэтому работает как обычно.
 if ! is_true "$autostart"; then
-  log "автозапуск выключен, при загрузке ничего не поднимаю"
+  log "autostart off, nothing started at boot"
   exit 0
 fi
 
@@ -18,7 +18,7 @@ fi
 # перезагрузки. Это позволяет держать включёнными в Magisk и этот модуль,
 # и box_for_magisk, а переключаться между ними кнопками в приложениях.
 if [ -f "$MANUAL_STOP" ]; then
-  log "остановлен вручную (dnscrypt-ctl stop), при загрузке не поднимаю"
+  log "stopped manually (dnscrypt-ctl stop), not started at boot"
   exit 0
 fi
 
