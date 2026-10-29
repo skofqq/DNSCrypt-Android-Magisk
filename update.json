@@ -1,6 +1,6 @@
 {
-    "version": "2.5.1",
-    "versionCode": 250100,
-    "zipUrl": "https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/download/2.5.1/Shieldy-Magisk-2.5.1.zip",
+    "version": "2.5.2",
+    "versionCode": 250200,
+    "zipUrl": "https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/download/2.5.2/Shieldy-Magisk-2.5.2.zip",
     "changelog": "https://raw.githubusercontent.com/skofqq/DNSCrypt-Android-Magisk/main/CHANGELOG.md"
 }
