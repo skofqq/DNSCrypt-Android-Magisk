@@ -20,7 +20,7 @@
     <string name="gate_no_root_title">Root рұқсаты жоқ</string>
     <string name="gate_no_root_body">Қолданба модульмен root-қабық арқылы жұмыс істейді. Root-менеджерде сұрауға рұқсат беріп, қайталап көріңіз.</string>
     <string name="gate_missing_title">Модуль орнатылмаған</string>
-    <string name="gate_missing_body">dnscrypt-ctl табылмады. DNSCrypt-Proxy 2 Magisk модулін орнатып, құрылғыны қайта жүктеңіз.</string>
+    <string name="gate_missing_body">dnscrypt-ctl табылмады. Shieldy (DNSCrypt) Magisk модулін орнатып, құрылғыны қайта жүктеңіз.</string>
     <string name="gate_disabled_title">Модуль өшірулі</string>
     <string name="gate_disabled_body">Модуль орнатылған, бірақ Magisk-те өшірілген, сондықтан ештеңе қосылмаған. Оны Magisk-те қосып, қайта жүктеңіз.</string>
     <string name="gate_outdated_title">Модуль ескірген</string>
@@ -177,7 +177,7 @@
     <string name="update_row_title">Модуль нұсқасы</string>
     <string name="update_row_available">%1$s → %2$s, жаңарту бар</string>
     <string name="update_row_reboot_pending">%1$s орнатылды, қайта жүктеңіз</string>
-    <string name="update_sheet_title">DNSCrypt-Proxy 2 модулі</string>
+    <string name="update_sheet_title">Shieldy (DNSCrypt) модулі</string>
     <string name="update_current_version">Орнатылған нұсқа: %1$s</string>
     <string name="update_checking">Жаңартулар тексерілуде…</string>
     <string name="update_latest">Сізде соңғы нұсқа</string>

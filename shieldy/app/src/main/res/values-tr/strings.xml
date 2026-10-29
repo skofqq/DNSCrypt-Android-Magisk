@@ -20,7 +20,7 @@
     <string name="gate_no_root_title">Root erişimi yok</string>
     <string name="gate_no_root_body">Uygulama modülle bir root kabuğu üzerinden konuşur. Root yöneticinizde isteğe izin verin ve tekrar deneyin.</string>
     <string name="gate_missing_title">Modül yüklü değil</string>
-    <string name="gate_missing_body">dnscrypt-ctl bulunamadı. DNSCrypt-Proxy 2 Magisk modülünü yükleyip yeniden başlatın.</string>
+    <string name="gate_missing_body">dnscrypt-ctl bulunamadı. Shieldy (DNSCrypt) Magisk modülünü yükleyip yeniden başlatın.</string>
     <string name="gate_disabled_title">Modül kapalı</string>
     <string name="gate_disabled_body">Modül yüklü ama Magisk\'te devre dışı, bu yüzden hiçbir şey bağlanmadı. Magisk\'te etkinleştirip yeniden başlatın.</string>
     <string name="gate_outdated_title">Modül çok eski</string>
@@ -177,7 +177,7 @@
     <string name="update_row_title">Modül sürümü</string>
     <string name="update_row_available">%1$s → %2$s, güncelleme var</string>
     <string name="update_row_reboot_pending">%1$s yüklendi, bitirmek için yeniden başlatın</string>
-    <string name="update_sheet_title">DNSCrypt-Proxy 2 modülü</string>
+    <string name="update_sheet_title">Shieldy (DNSCrypt) modülü</string>
     <string name="update_current_version">Yüklü sürüm: %1$s</string>
     <string name="update_checking">Güncellemeler denetleniyor…</string>
     <string name="update_latest">En son sürüm sizde</string>
