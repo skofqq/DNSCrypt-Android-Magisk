@@ -369,7 +369,7 @@
     <string name="run_gid_mismatch_title">Групу не застосовано</string>
     <string name="run_gid_mismatch_body">Проксі працює з GID %1$d замість %2$d. Застосуйте налаштування або перезапустіть проксі.</string>
     <string name="run_gid_unsupported_body">Проксі працює з GID %1$d замість %2$d: su на цьому пристрої не вміє змінювати групу, тому модуль запустив його звичайним способом.</string>
-    <string name="experimental_badge">Експериментально</string>
+    <string name="experimental_badge">Експ</string>
     <string name="run_gid_experimental_note">Експериментальне налаштування: може не працювати з деякими root-менеджерами та прошивками.</string>
     <string name="blocklists_title">Блок-листи</string>
     <string name="blocklists_summary">Увімкнено: %1$d · доменів: %2$s</string>

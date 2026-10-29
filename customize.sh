@@ -2,7 +2,7 @@ SKIPUNZIP=0
 
 ui_print " "
 ui_print "******************************"
-ui_print "*    Shieldy for Magisk      *"
+ui_print "*     Shieldy (DNSCrypt)     *"
 ui_print "*            2.5             *"
 ui_print "******************************"
 ui_print " "

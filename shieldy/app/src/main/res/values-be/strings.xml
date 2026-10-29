@@ -369,7 +369,7 @@
     <string name="run_gid_mismatch_title">Група не ўжыта</string>
     <string name="run_gid_mismatch_body">Проксі працуе з GID %1$d замест %2$d. Ужыйце наладу або перазапусціце проксі.</string>
     <string name="run_gid_unsupported_body">Проксі працуе з GID %1$d замест %2$d: su на гэтай прыладзе не ўмее мяняць групу, таму модуль запусціў яго звычайным спосабам.</string>
-    <string name="experimental_badge">Эксперыментальна</string>
+    <string name="experimental_badge">Эксп</string>
     <string name="run_gid_experimental_note">Эксперыментальная налада: можа не працаваць з некаторымі root-менеджарамі і прашыўкамі.</string>
     <string name="blocklists_title">Блок-лісты</string>
     <string name="blocklists_summary">Уключана: %1$d · даменаў: %2$s</string>
