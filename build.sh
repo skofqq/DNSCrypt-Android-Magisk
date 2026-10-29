@@ -10,7 +10,7 @@ VERSION=$(sed -n 's/^version=//p' module.prop)
 # С 2.2 у модуля своя нумерация, версию dnscrypt-proxy берём отдельно:
 # раньше она вычислялась из module.prop, и --all качал несуществующий 2.4.
 UPSTREAM=2.1.18
-OUT="dnscrypt-proxy-android-${VERSION}.zip"
+OUT="Shieldy-Magisk-${VERSION}.zip"
 ITEMS="module.prop customize.sh service.sh post-fs-data.sh uninstall.sh scripts config binary tools META-INF LICENSE.md README.md CHANGELOG.md"
 
 ARCHES="arm:android-arm"

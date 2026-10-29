@@ -36,7 +36,7 @@
 
 ## Установка
 
-1. Скачать `dnscrypt-proxy-android-<версия>.zip` со [страницы релизов](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest).
+1. Скачать `Shieldy-Magisk-<версия>.zip` со [страницы релизов](https://github.com/skofqq/DNSCrypt-Android-Magisk/releases/latest).
 2. Magisk → Модули → Установить из хранилища → выбрать zip.
 3. Перезагрузить устройство.
 4. Проверить работу: `su -c dnscrypt-ctl test`.
@@ -68,8 +68,9 @@ Android Studio открывает корневую папку.
 
 CI ([.github/workflows/build.yml](.github/workflows/build.yml)) проверяет скрипты
 `shellcheck`, собирает и проверяет zip, запускает тесты, lint и release-сборку Shieldy.
-По тегу прикладывает к релизу zip и `Shieldy-<версия>.apk` отдельными ассетами;
-APK должен быть подписан ключом из secrets репозитория.
+По тегу создаёт черновик релиза `Shieldy <версия>` и прикладывает к нему
+`Shieldy-Magisk-<версия>.zip` и `Shieldy-<версия>.apk` отдельными ассетами; черновик
+публикуется вручную. APK должен быть подписан ключом из secrets репозитория.
 
 ## Структура папок
 

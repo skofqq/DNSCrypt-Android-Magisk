@@ -1,8 +1,8 @@
 # Один workflow на модуль и приложение.
 # module  - shellcheck, сборка zip для arm64-v8a и armeabi-v7a, проверка содержимого.
 # shieldy - тесты, lint и release APK из shieldy/.
-# На тег вида 2.5 оба файла прикладываются к релизу отдельными ассетами: zip модуля
-# и Shieldy-<версия>.apk. APK для релиза обязан быть подписан ключом из secrets
+# На тег вида 2.5 создаётся черновик релиза «Shieldy <версия>», к нему прикладываются
+# Shieldy-Magisk-<версия>.zip и Shieldy-<версия>.apk. Черновик публикуется вручную. APK для релиза обязан быть подписан ключом из secrets
 # репозитория, неподписанный в релиз не попадает.
 name: build
 
@@ -37,7 +37,7 @@ jobs:
         run: |
           bash build.sh
           # в репозитории лежит старый zip 2.1.18-r1, поэтому имя берём по версии
-          echo "ZIP=dnscrypt-proxy-android-$(sed -n 's/^version=//p' module.prop).zip" >> "$GITHUB_ENV"
+          echo "ZIP=Shieldy-Magisk-$(sed -n 's/^version=//p' module.prop).zip" >> "$GITHUB_ENV"
 
       - name: Проверка содержимого
         run: |
@@ -160,5 +160,5 @@ jobs:
           ls -l dist
           if ls dist/*-unsigned.apk >/dev/null 2>&1; then echo "неподписанный APK"; exit 1; fi
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
-            || gh release create "$GITHUB_REF_NAME" --title "DNSCrypt-Proxy 2 — $GITHUB_REF_NAME" --notes "См. CHANGELOG.md"
+            || gh release create "$GITHUB_REF_NAME" --draft --title "Shieldy $GITHUB_REF_NAME" --notes "См. CHANGELOG.md"
           gh release upload "$GITHUB_REF_NAME" dist/*.zip dist/Shieldy-*.apk --clobber
