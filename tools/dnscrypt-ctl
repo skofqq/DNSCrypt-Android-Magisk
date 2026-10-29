@@ -85,7 +85,7 @@ ctl_caller() {
   pp=$(cat /proc/$PPID/cmdline 2>/dev/null | tr '\0' ' ' | cut -c1-80)
   echo "${pp:-pid $PPID}"
 }
-case "$1" in start|stop|restart) log "dnscrypt-ctl $1 (вызвал: $(ctl_caller))" ;; esac
+case "$1" in start|stop|restart) log "dnscrypt-ctl $1 (caller: $(ctl_caller))" ;; esac
 
 case "$1" in
   status)

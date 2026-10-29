@@ -145,11 +145,11 @@ nf_guard6() {
   $IPT6 -t nat -C OUTPUT -p udp --dport 53 -j $NAT_CHAIN 2>/dev/null && return 0
   if [ "$redirect_ipv6" = redirect ] || nf_have_ipv4; then
     if ! nf_block6_active; then
-      nf_block6_on && log "IPv6: nat недоступен, DNS на IPv6-адреса блокируется (резолвер уйдёт на IPv4)"
+      nf_block6_on && log "IPv6: nat unavailable, DNS to IPv6 addresses is blocked (the resolver falls back to IPv4)"
     fi
   elif nf_block6_active; then
     nf_block6_off
-    log "IPv6: нет IPv4-маршрута, блокировка IPv6-DNS снята, чтобы не остаться без DNS"
+    log "IPv6: no IPv4 route, IPv6 DNS block lifted so DNS keeps working"
   fi
 }
 
@@ -189,12 +189,12 @@ nf_start() {
       if nf_build_chain6; then
         nf_link "$IPT6" OUTPUT udp
         nf_link "$IPT6" OUTPUT tcp
-        log "IPv6: перехват DNS включён"
+        log "IPv6: DNS interception on"
       else
-        log "IPv6: перехват недоступен (нет ip6tables nat)"
+        log "IPv6: interception unavailable (no ip6tables nat)"
       fi
       ;;
-    *) log "IPv6: перехват отключён настройкой" ;;
+    *) log "IPv6: interception turned off in settings" ;;
   esac
   nf_guard6
 }
