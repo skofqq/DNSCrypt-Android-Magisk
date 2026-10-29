@@ -1,4 +1,4 @@
-# Shieldy for Magisk (DNSCrypt Magisk Module)
+# Shieldy (DNSCrypt Magisk Module)
 
 🇬🇧 **English** · [🇷🇺 Русский](README.ru.md)
 
