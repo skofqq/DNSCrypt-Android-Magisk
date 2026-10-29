@@ -1,3 +1,10 @@
+# 2.5.2
+
+* Shieldy 2.5.2 (`versionCode` 13): окно обновления модуля называется
+  «Shieldy (DNSCrypt) Module», в сообщении об отсутствии `dnscrypt-ctl` тоже
+  новое имя модуля вместо «DNSCrypt-Proxy 2», во всех языках
+* модуль без изменений, кроме номера версии
+
 # 2.5.1
 
 * в Magisk модуль называется «Shieldy (DNSCrypt)» (было «Shieldy for Magisk
