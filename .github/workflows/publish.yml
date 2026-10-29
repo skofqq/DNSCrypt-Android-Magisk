@@ -1,0 +1,42 @@
+# Публикация черновика релиза, который собрал build.yml по тегу.
+# Запуск вручную: Actions → publish → Run workflow, версия как в теге (например 2.5).
+# Перед публикацией проверяет, что в черновике есть zip модуля и подписанный APK,
+# и подставляет заметки из раздела этой версии в CHANGELOG.md.
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Версия релиза (тег), например 2.5
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      V: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+
+      - name: Проверка черновика
+        run: |
+          assets=$(gh release view "$V" --json isDraft,assets -q '.assets[].name')
+          echo "$assets"
+          echo "$assets" | grep -qx "Shieldy-Magisk-$V.zip" || { echo "нет Shieldy-Magisk-$V.zip"; exit 1; }
+          echo "$assets" | grep -qx "Shieldy-$V.apk" || { echo "нет Shieldy-$V.apk"; exit 1; }
+          ! echo "$assets" | grep -q unsigned || { echo "неподписанный APK"; exit 1; }
+
+      - name: Заметки и публикация
+        run: |
+          awk -v h="# $V" '$0==h{f=1;next} f&&/^# /{exit} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "в CHANGELOG.md нет раздела # $V"; exit 1; }
+          gh release edit "$V" --title "Shieldy $V" --notes-file notes.md --draft=false --latest
+          gh release view "$V" --json url -q .url
