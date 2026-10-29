@@ -357,7 +357,7 @@
     <string name="run_gid_mismatch_title">Топ қолданылмады</string>
     <string name="run_gid_mismatch_body">Прокси %2$d орнына GID %1$d арқылы жұмыс істейді. Баптауды қолданыңыз немесе проксиді қайта қосыңыз.</string>
     <string name="run_gid_unsupported_body">Прокси %2$d орнына GID %1$d арқылы жұмыс істейді: бұл құрылғыдағы su топты өзгерте алмайды, сондықтан модуль оны қалыпты түрде іске қосты.</string>
-    <string name="experimental_badge">Эксперименттік</string>
+    <string name="experimental_badge">Эксп</string>
     <string name="run_gid_experimental_note">Эксперименттік баптау: кейбір root-менеджерлер мен микробағдарламаларда жұмыс істемеуі мүмкін.</string>
     <string name="blocklists_title">Блок-тізімдер</string>
     <string name="blocklists_summary">Қосулы: %1$d · домендер: %2$s</string>
