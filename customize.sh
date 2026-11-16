@@ -3,7 +3,10 @@ SKIPUNZIP=0
 ui_print " "
 ui_print "******************************"
 ui_print "*     Shieldy (DNSCrypt)     *"
-ui_print "*           2.5.3            *"
+# Версия из module.prop этого пакета: раньше она была вписана сюда руками и отставала.
+VER=$(sed -n 's/^version=//p' "$MODPATH/module.prop" 2>/dev/null)
+[ -n "$VER" ] || VER=$(unzip -p "$ZIPFILE" module.prop 2>/dev/null | sed -n 's/^version=//p')
+ui_print "$(printf '*%*s%*s*' $(( (28 + ${#VER}) / 2 )) "$VER" $(( 28 - (28 + ${#VER}) / 2 )) "")"
 ui_print "******************************"
 ui_print " "
 
