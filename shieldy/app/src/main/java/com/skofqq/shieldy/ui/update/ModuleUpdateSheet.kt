@@ -116,6 +116,7 @@ fun ModuleUpdateSheet(
     onInstall: () -> Unit,
     onReboot: () -> Unit,
     onOpenUrl: (String) -> Unit,
+    onInstallApp: () -> Unit = {},
 ) {
     // A half-finished install must not be swiped away by accident. Gestures and back are
     // switched off instead of vetoing state changes: a veto also blocked the sheet from
@@ -277,6 +278,8 @@ fun ModuleUpdateSheet(
                     )
                 }
             }
+
+            AppUpdateGroup(state.app, onInstallApp, onOpenUrl)
         }
     }
 }
@@ -447,7 +450,7 @@ private fun ErrorNotice(error: UpdateError?, hint: String? = null) {
 }
 
 @Composable
-private fun errorMessage(error: UpdateError?): String = when (error) {
+internal fun errorMessage(error: UpdateError?): String = when (error) {
     null -> stringResource(R.string.update_error_unknown)
     UpdateError.NoNetwork -> stringResource(R.string.update_error_network)
     is UpdateError.Http -> stringResource(R.string.update_error_http, error.code)
@@ -460,7 +463,147 @@ private fun errorMessage(error: UpdateError?): String = when (error) {
     UpdateError.NoRootManager -> stringResource(R.string.update_error_manager)
     is UpdateError.InstallFailed -> stringResource(R.string.update_error_install, error.code)
     UpdateError.Timeout -> stringResource(R.string.error_timeout)
+    UpdateError.NotNewer -> stringResource(R.string.app_update_error_not_newer)
+    UpdateError.WrongSignature -> stringResource(R.string.app_update_error_signature)
     is UpdateError.Other -> error.message
 }
 
 private const val CHANGELOG_PREVIEW_LINES = 12
+
+/** Settings row for Shieldy's own version, next to the module's. */
+@Composable
+fun AppVersionRow(state: AppUpdateUiState, onClick: () -> Unit) {
+    val available = state.updateAvailable
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconTile(
+            painterResource(R.drawable.ic_shield),
+            tint = if (available) Boxy.colors.accent else Boxy.colors.text,
+        )
+        Spacer(Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.app_update_row_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = Boxy.colors.text,
+            )
+            Text(
+                text = if (available) {
+                    stringResource(R.string.update_row_available, state.installed, state.release?.version.orEmpty())
+                } else {
+                    state.installed.ifEmpty { stringResource(R.string.value_unknown) }
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (available) Boxy.colors.accent else Boxy.colors.text2,
+            )
+        }
+        if (available) {
+            Badge(stringResource(R.string.update_badge_new), Tints.green)
+        } else {
+            Icon(
+                painter = painterResource(R.drawable.ic_chevron_right),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = Boxy.colors.text2.copy(alpha = 0.75f),
+            )
+        }
+    }
+}
+
+/** Shieldy's own update inside the update sheet: versions, progress, one button. */
+@Composable
+private fun AppUpdateGroup(state: AppUpdateUiState, onInstall: () -> Unit, onOpenUrl: (String) -> Unit) {
+    SheetGroup {
+        Text(
+            stringResource(R.string.app_update_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = Boxy.colors.text,
+        )
+        Spacer(Modifier.height(6.dp))
+        InfoRow(
+            label = stringResource(R.string.update_installed_version),
+            value = state.installed.ifEmpty { stringResource(R.string.value_unknown) },
+        )
+        state.release?.let { release ->
+            InfoRow(label = stringResource(R.string.update_latest_version), value = release.version)
+        }
+        when (state.phase) {
+            AppUpdatePhase.IDLE, AppUpdatePhase.CHECKING -> {
+                Spacer(Modifier.height(6.dp))
+                LinearWavyProgressIndicator(Modifier.fillMaxWidth())
+            }
+            AppUpdatePhase.UP_TO_DATE -> Text(
+                stringResource(R.string.app_update_latest),
+                style = MaterialTheme.typography.bodySmall,
+                color = Boxy.colors.text2,
+            )
+            AppUpdatePhase.CHECK_FAILED -> Text(
+                errorMessage(state.error),
+                style = MaterialTheme.typography.bodySmall,
+                color = Tints.red.fg,
+            )
+            AppUpdatePhase.DOWNLOADING -> {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(R.string.update_downloading),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Boxy.colors.text2,
+                )
+                Spacer(Modifier.height(6.dp))
+                if (state.progress >= 0f) {
+                    LinearWavyProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
+                } else {
+                    LinearWavyProgressIndicator(Modifier.fillMaxWidth())
+                }
+            }
+            AppUpdatePhase.INSTALLING -> {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(R.string.app_update_installing),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Boxy.colors.text2,
+                )
+                Spacer(Modifier.height(6.dp))
+                LinearWavyProgressIndicator(Modifier.fillMaxWidth())
+            }
+            AppUpdatePhase.AVAILABLE, AppUpdatePhase.INSTALL_FAILED -> {
+                if (state.phase == AppUpdatePhase.INSTALL_FAILED) {
+                    Text(
+                        errorMessage(state.error),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Tints.red.fg,
+                    )
+                }
+                Text(
+                    stringResource(R.string.app_update_restart_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Boxy.colors.text2,
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.release?.let { release ->
+                        ActionPill(
+                            stringResource(R.string.app_update_release_page),
+                            Tints.blue,
+                            enabled = true,
+                            modifier = Modifier.weight(1f),
+                            onClick = { onOpenUrl(release.pageUrl) },
+                        )
+                    }
+                    ActionPill(
+                        stringResource(if (state.phase == AppUpdatePhase.INSTALL_FAILED) R.string.update_retry else R.string.app_update_install),
+                        Tints.green,
+                        enabled = true,
+                        modifier = Modifier.weight(1f),
+                        onClick = onInstall,
+                    )
+                }
+            }
+        }
+    }
+}

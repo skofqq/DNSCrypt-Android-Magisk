@@ -149,6 +149,7 @@ CI ([.github/workflows/build.yml](.github/workflows/build.yml)) проверяе
 ```
 dnscrypt-ctl status            # состояние процесса, порт, правила IPv4/IPv6, Private DNS
 dnscrypt-ctl json              # то же в JSON (используется приложением)
+dnscrypt-ctl status --full     # JSON, аптайм и текущие серверы одним вызовом (опрос приложением)
 dnscrypt-ctl start | stop | restart
 dnscrypt-ctl test              # резолвит уникальное имя системным резолвером и проверяет счётчики DNAT
 dnscrypt-ctl rules             # цепочки nat/DNSCRYPT для IPv4 и IPv6
@@ -157,6 +158,8 @@ dnscrypt-ctl log [N]           # журнал модуля
 dnscrypt-ctl proxylog [N]      # журнал dnscrypt-proxy
 dnscrypt-ctl set <ключ> <значение>
 dnscrypt-ctl reset             # module.conf к значениям по умолчанию, с резервной копией
+dnscrypt-ctl profile [safe|fast|custom]   # профиль прокси; свой конфиг хранится, пока активен другой
+dnscrypt-ctl querylog on|off|clear|N      # журнал запросов dnscrypt-proxy (query.log, обрезается на 1 МБ)
 
 dnscrypt-ctl servers info      # кэш резолверов, количество, текущий выбор
 dnscrypt-ctl servers list      # имена серверов из кэша
