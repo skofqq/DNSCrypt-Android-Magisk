@@ -18,6 +18,9 @@ object ModuleContract {
     const val MODULE_LOG = "$DATA_DIR/module.log"
     const val PROXY_LOG = "$DATA_DIR/dnscrypt-proxy.log"
     const val STDOUT_LOG = "$DATA_DIR/stdout.log"
+
+    /** dnscrypt-proxy's query log, written while `[query_log] file` is set (module 2.6+). */
+    const val QUERY_LOG = "$DATA_DIR/query.log"
     const val MIRROR_DIR = "/storage/emulated/0/dnscrypt-proxy"
 
     const val RESOLVERS_CACHE = "$DATA_DIR/public-resolvers.md"
@@ -59,6 +62,18 @@ object ModuleContract {
     const val MIN_AUTOSTART_VERSION = "2.4"
 
     /**
+     * From 2.6: `status --full` (one call per poll), `querylog` and `profile`, and the
+     * `query_log` and `profile` fields of `json`.
+     */
+    const val MIN_PROFILES_VERSION = "2.6"
+
+    /** Values of `dnscrypt-ctl profile`. */
+    const val PROFILE_SAFE = "safe"
+    const val PROFILE_FAST = "fast"
+    const val PROFILE_CUSTOM = "custom"
+    val PROFILES = listOf(PROFILE_SAFE, PROFILE_FAST, PROFILE_CUSTOM)
+
+    /**
      * The one stable line the app looks for in `dnscrypt-ctl conflicts`. Everything else
      * in that output is shown verbatim and never parsed.
      */
@@ -73,12 +88,15 @@ object ModuleContract {
     /** A resolver cache older than this is worth a gentle note. */
     const val CACHE_STALE_SECONDS = 7L * 24 * 60 * 60
 
-    const val PROJECT_URL = "https://github.com/skofqq/DNSCrypt-2-Magisk-Module"
+    const val PROJECT_URL = "https://github.com/skofqq/DNSCrypt-Android-Magisk"
     const val RELEASES_URL = "$PROJECT_URL/releases"
+
+    /** GitHub's description of the newest release: tag and assets, Shieldy-<version>.apk among them. */
+    const val LATEST_RELEASE_API = "https://api.github.com/repos/skofqq/DNSCrypt-Android-Magisk/releases/latest"
 
     /** Used when module.prop has no updateJson line; the module points at the same file. */
     const val UPDATE_JSON_URL =
-        "https://raw.githubusercontent.com/skofqq/DNSCrypt-2-Magisk-Module/main/update.json"
+        "https://raw.githubusercontent.com/skofqq/DNSCrypt-Android-Magisk/main/update.json"
 
     const val CTL = "dnscrypt-ctl"
 

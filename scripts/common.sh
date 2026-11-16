@@ -238,3 +238,102 @@ servers_list() {
   [ -f "$RESOLVERS_CACHE" ] || return 1
   grep '^## ' "$RESOLVERS_CACHE" | sed 's/^## //'
 }
+
+# --- правка ключей TOML --------------------------------------------------
+# toml_edit <секция> <ключ> set <значение>  - поставить ключ (раскомментировать
+#   или дописать в конец секции); значение передаётся готовым литералом TOML.
+# toml_edit <секция> <ключ> comment         - закомментировать активный ключ.
+# Пустая секция - ключи верхнего уровня, до первой таблицы [...]. Меняется только
+# первое вхождение ключа в своей секции: одноимённые ключи других секций
+# (file в [query_log] и [nx_log]) не задеваются.
+toml_edit() {
+  [ -f "$CONFIG" ] || return 1
+  tmp="$CONFIG.tmp.$$"
+  awk -v sec="$1" -v key="$2" -v mode="$3" -v val="$4" '
+    BEGIN { cur = ""; done = 0 }
+    /^[[:space:]]*\[/ {
+      if (!done && cur == sec && mode == "set") { print key " = " val; print ""; done = 1 }
+      cur = $0
+      sub(/^[[:space:]]*\[+[[:space:]]*/, "", cur)
+      sub(/[[:space:]]*\].*$/, "", cur)
+    }
+    !done && cur == sec && $0 ~ ("^[[:space:]]*#?[[:space:]]*" key "[[:space:]]*=") {
+      if (mode == "set") { print key " = " val; done = 1; next }
+      if ($0 ~ ("^[[:space:]]*" key "[[:space:]]*=")) { print "# " $0; done = 1; next }
+    }
+    { print }
+    END { if (!done && cur == sec && mode == "set") print key " = " val }
+  ' "$CONFIG" >"$tmp" || { rm -f "$tmp"; return 1; }
+  # cat, а не mv: у файла остаются прежние владелец и права.
+  cat "$tmp" >"$CONFIG" && rm -f "$tmp"
+}
+
+# Есть ли в секции активный (незакомментированный) ключ.
+toml_active() {
+  awk -v sec="$1" -v key="$2" '
+    BEGIN { cur = "" }
+    /^[[:space:]]*\[/ {
+      cur = $0
+      sub(/^[[:space:]]*\[+[[:space:]]*/, "", cur)
+      sub(/[[:space:]]*\].*$/, "", cur)
+    }
+    cur == sec && $0 ~ ("^[[:space:]]*" key "[[:space:]]*=") { found = 1; exit }
+    END { exit !found }
+  ' "$CONFIG" 2>/dev/null
+}
+
+# --- журнал запросов -----------------------------------------------------
+QUERY_LOG="$DATADIR/query.log"
+
+query_log_enabled() { toml_active query_log file; }
+
+# --- профили -------------------------------------------------------------
+# safe   - DNSSEC, no-log, без фильтрующих серверов, блок-листы включены;
+# fast   - без требований DNSSEC и no-log, случайный из трёх самых быстрых,
+#          блок-листы выключены;
+# custom - конфиг пользователя как есть. Перед уходом с custom конфиг
+#          сохраняется в PROFILE_CUSTOM и возвращается при возврате на custom.
+PROFILE_FILE="$DATADIR/.profile"
+PROFILE_CUSTOM="$DATADIR/profile-custom.toml"
+
+profile_get() {
+  p=$(cat "$PROFILE_FILE" 2>/dev/null)
+  case "$p" in safe|fast) echo "$p" ;; *) echo custom ;; esac
+}
+
+profile_apply() {
+  cur=$(profile_get)
+  [ "$1" = "$cur" ] && return 0
+  case "$1" in
+    safe|fast)
+      if [ "$cur" = custom ]; then
+        cp -f "$CONFIG" "$PROFILE_CUSTOM" || return 1
+      fi
+      config_backup || return 1
+      servers_auto || return 1
+      if [ "$1" = safe ]; then
+        toml_edit "" require_dnssec set true &&
+          toml_edit "" require_nolog set true &&
+          toml_edit "" require_nofilter set true &&
+          toml_edit "" lb_strategy comment &&
+          toml_edit blocked_names blocked_names_file set "'blocked-names.txt'" || return 1
+      else
+        toml_edit "" require_dnssec set false &&
+          toml_edit "" require_nolog set false &&
+          toml_edit "" require_nofilter set true &&
+          toml_edit "" lb_strategy set "'p3'" &&
+          toml_edit blocked_names blocked_names_file comment || return 1
+      fi
+      ;;
+    custom)
+      if [ -f "$PROFILE_CUSTOM" ]; then
+        config_backup || return 1
+        cat "$PROFILE_CUSTOM" >"$CONFIG" || return 1
+        rm -f "$PROFILE_CUSTOM"
+      fi
+      ;;
+    *) return 1 ;;
+  esac
+  echo "$1" >"$PROFILE_FILE"
+  log "profile: $cur -> $1"
+}

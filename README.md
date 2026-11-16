@@ -148,6 +148,7 @@ Requires root (`su -c dnscrypt-ctl …`).
 ```
 dnscrypt-ctl status            # process state, port, IPv4/IPv6 rules, Private DNS
 dnscrypt-ctl json              # the same as JSON (used by the app)
+dnscrypt-ctl status --full     # JSON plus uptime and current servers in one call (app polling)
 dnscrypt-ctl start | stop | restart
 dnscrypt-ctl test              # resolves a unique name via the system resolver and checks the DNAT counters
 dnscrypt-ctl rules             # nat/DNSCRYPT chains for IPv4 and IPv6
@@ -156,6 +157,8 @@ dnscrypt-ctl log [N]           # module log
 dnscrypt-ctl proxylog [N]      # dnscrypt-proxy log
 dnscrypt-ctl set <key> <value>
 dnscrypt-ctl reset             # module.conf back to defaults, with a backup
+dnscrypt-ctl profile [safe|fast|custom]   # proxy profile; custom config is kept while another is active
+dnscrypt-ctl querylog on|off|clear|N      # dnscrypt-proxy query log (query.log, trimmed at 1 MB)
 
 dnscrypt-ctl servers info      # resolver cache, count, current selection
 dnscrypt-ctl servers list      # server names from the cache

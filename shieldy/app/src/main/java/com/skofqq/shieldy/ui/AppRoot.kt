@@ -196,6 +196,7 @@ fun AppRoot() {
             onInstall = updateViewModel::install,
             onReboot = updateViewModel::reboot,
             onOpenUrl = { context.openUrl(it) },
+            onInstallApp = updateViewModel::installApp,
         )
     }
 
@@ -400,6 +401,50 @@ fun AppRoot() {
                                         notifyMessage(it)
                                     }
                                 }
+                                val profileNames = mapOf(
+                                    ModuleContract.PROFILE_SAFE to stringResource(R.string.profile_safe),
+                                    ModuleContract.PROFILE_FAST to stringResource(R.string.profile_fast),
+                                    ModuleContract.PROFILE_CUSTOM to stringResource(R.string.profile_custom),
+                                )
+                                val profileAppliedText = stringResource(R.string.profile_applied, PLACEHOLDER)
+                                val exportedText = stringResource(R.string.backup_exported)
+                                val importedText = stringResource(R.string.backup_imported)
+                                val notBackupText = stringResource(R.string.backup_error_not_backup)
+                                val newerText = stringResource(R.string.backup_error_newer)
+                                val badConfigText = stringResource(R.string.backup_error_config)
+                                val tooLargeText = stringResource(R.string.backup_error_large)
+                                val failedText = stringResource(R.string.backup_error_failed)
+                                LaunchedEffect(settingsViewModel) {
+                                    settingsViewModel.events.collect { event ->
+                                        when (event) {
+                                            is com.skofqq.shieldy.ui.settings.SettingsEvent.ProfileApplied -> {
+                                                val text = profileAppliedText.format(profileNames[event.profile] ?: event.profile)
+                                                if (event.restarted) {
+                                                    snackbarHostState.notify(text, NoticeKind.SUCCESS)
+                                                } else {
+                                                    notifyMessage(UiMessage.SavedForNextStart)
+                                                }
+                                            }
+                                            is com.skofqq.shieldy.ui.settings.SettingsEvent.Exported ->
+                                                snackbarHostState.notify(exportedText, NoticeKind.SUCCESS)
+                                            is com.skofqq.shieldy.ui.settings.SettingsEvent.Imported -> {
+                                                snackbarHostState.notify(importedText, NoticeKind.SUCCESS)
+                                                if (event.result.files > 0 && !event.restarted) notifyMessage(UiMessage.SavedForNextStart)
+                                            }
+                                            is com.skofqq.shieldy.ui.settings.SettingsEvent.BackupFailed -> {
+                                                val text = when (event.reason) {
+                                                    com.skofqq.shieldy.data.BackupException.Reason.NOT_A_BACKUP -> notBackupText
+                                                    com.skofqq.shieldy.data.BackupException.Reason.NEWER_FORMAT -> newerText
+                                                    com.skofqq.shieldy.data.BackupException.Reason.BAD_CONFIG -> badConfigText
+                                                    com.skofqq.shieldy.data.BackupException.Reason.TOO_LARGE -> tooLargeText
+                                                    else -> failedText + (event.message?.let { ": $it" } ?: "")
+                                                }
+                                                snackbarHostState.notify(text, NoticeKind.ERROR)
+                                            }
+                                        }
+                                        statusViewModel.refresh()
+                                    }
+                                }
 
                                 val chosen = readyStatus?.serverSelection.orEmpty()
                                 val blocklistSettings by context.appContainer.blocklists.settings.collectAsStateWithLifecycle()
@@ -419,8 +464,8 @@ fun AppRoot() {
                                         HeaderAction(
                                             icon = painterResource(R.drawable.ic_system_update),
                                             contentDescription = stringResource(R.string.update_row_title),
-                                            tint = if (updateState.updateAvailable) Boxy.colors.accent else Boxy.colors.text,
-                                            dot = updateState.updateAvailable,
+                                            tint = if (updateState.anyUpdate) Boxy.colors.accent else Boxy.colors.text,
+                                            dot = updateState.anyUpdate,
                                             onClick = { updateSheet = true },
                                         )
                                     },
@@ -464,6 +509,20 @@ fun AppRoot() {
                                         updateState = updateState,
                                         onOpenUpdate = { updateSheet = true },
                                         onShown = settingsViewModel::refreshGroup,
+                                        profilesSupported = readyStatus?.supportsProfiles == true,
+                                        profile = readyStatus?.profile,
+                                        onProfile = settingsViewModel::setProfile,
+                                        onExport = { uri -> settingsViewModel.exportBackup(uri, readyStatus?.version.orEmpty()) },
+                                        onImport = { uri ->
+                                            settingsViewModel.importBackup(uri) {
+                                                val blocklists = context.appContainer.blocklists
+                                                com.skofqq.shieldy.work.BlocklistWorker.schedule(context, blocklists.settings.value)
+                                                scope.launch { blocklists.updateAll(restart = true) }
+                                            }
+                                        },
+                                        appUpdateRow = {
+                                            com.skofqq.shieldy.ui.update.AppVersionRow(updateState.app) { updateSheet = true }
+                                        },
                                     )
                                 }
                             }
@@ -475,6 +534,9 @@ fun AppRoot() {
                                 val savedFormat = stringResource(R.string.logs_saved, PLACEHOLDER)
                                 val saveFailed = stringResource(R.string.logs_save_failed)
                                 val shareTitle = stringResource(R.string.logs_share_title)
+
+                                val queryLog = readyStatus?.queryLog
+                                LaunchedEffect(queryLog) { logsViewModel.setQueryLogEnabled(queryLog) }
 
                                 LaunchedEffect(pendingLogTab) {
                                     pendingLogTab?.let {
@@ -505,6 +567,12 @@ fun AppRoot() {
                                         statusViewModel.refresh()
                                     },
                                     onDismissNameResult = logsViewModel::dismissNameResult,
+                                    queryLogSupported = readyStatus?.supportsProfiles == true,
+                                    onToggleQueryLog = { enabled ->
+                                        logsViewModel.toggleQueryLog(enabled)
+                                        statusViewModel.refresh()
+                                    },
+                                    onClearQueryLog = logsViewModel::clearQueryLog,
                                     onCopy = {
                                         context.copyToClipboard(logsViewModel.currentText())
                                         scope.launch { snackbarHostState.notify(copiedMessage, NoticeKind.SUCCESS) }

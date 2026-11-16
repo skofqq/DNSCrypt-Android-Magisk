@@ -56,3 +56,36 @@ data class LogLine(
         }
     }
 }
+
+/**
+ * A line of dnscrypt-proxy's query log in its tsv format:
+ * `[time] <tab> client <tab> name <tab> type <tab> result <tab> duration <tab> server`.
+ * The client (always the loopback here) is dropped; the result decides the colour:
+ * blocked answers as warnings, failures as errors. Anything else parses as a plain line.
+ */
+object QueryLogLine {
+
+    private val BLOCKED = setOf("REJECT", "DROP", "SYNTH", "CLOAK")
+    private val FAILED = setOf("PARSE_ERROR", "NXDOMAIN", "RESPONSE_ERROR", "SERVER_ERROR", "SERVER_TIMEOUT", "NOT_READY")
+
+    fun parse(raw: String): LogLine {
+        val fields = raw.split('\t')
+        if (fields.size < 6) return LogLine.parse(raw)
+        val time = fields[0].trim().removePrefix("[").removeSuffix("]")
+        val name = fields[2].trim()
+        val type = fields[3].trim()
+        val result = fields[4].trim()
+        val duration = fields[5].trim()
+        val server = fields.getOrNull(6)?.trim().orEmpty()
+        val level = when (result.uppercase()) {
+            in BLOCKED -> LogLevel.WARNING
+            in FAILED -> LogLevel.ERROR
+            else -> LogLevel.INFO
+        }
+        val message = buildString {
+            append(name).append("  ").append(type).append("  ").append(duration)
+            if (server.isNotEmpty() && server != "-") append("  ").append(server)
+        }
+        return LogLine(raw = raw, timestamp = time, level = level, levelText = result, message = message)
+    }
+}

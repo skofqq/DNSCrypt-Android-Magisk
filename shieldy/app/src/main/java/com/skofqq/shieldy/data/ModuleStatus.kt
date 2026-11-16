@@ -41,6 +41,10 @@ data class ModuleStatus(
     @SerialName("box_dns") val boxDns: Boolean? = null,
     /** Stopped with `dnscrypt-ctl stop`: the proxy stays down across reboots until started. */
     @SerialName("manual_stop") val manualStop: Boolean = false,
+    /** dnscrypt-proxy writes query.log; null before module 2.6. */
+    @SerialName("query_log") val queryLog: Boolean? = null,
+    /** `safe`, `fast` or `custom`; null before module 2.6. */
+    val profile: String? = null,
 ) {
     /** Empty when the proxy picks servers itself. */
     val serverSelection: List<String> get() = ServerSelection.parseSelection(servers)
@@ -66,6 +70,10 @@ data class ModuleStatus(
     /** Before 2.3 the module mirrored its files to /storage/emulated/0. */
     val supportsMirror: Boolean
         get() = !versionAtLeast(ModuleContract.MIRROR_REMOVED_VERSION)
+
+    /** Profiles and the query log need module 2.6. */
+    val supportsProfiles: Boolean
+        get() = versionAtLeast(ModuleContract.MIN_PROFILES_VERSION)
 
     /** `run_gid` is only offered where it actually works; see MIN_RUN_GID_VERSION. */
     val supportsRunGid: Boolean

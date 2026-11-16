@@ -46,6 +46,10 @@ sealed interface UpdateError {
     data object NoRootManager : UpdateError
     data class InstallFailed(val code: Int) : UpdateError
     data object Timeout : UpdateError
+    /** An app update that is not newer than the installed build. */
+    data object NotNewer : UpdateError
+    /** An app update signed with a key other than the installed app's. */
+    data object WrongSignature : UpdateError
     data class Other(val message: String) : UpdateError
 }
 

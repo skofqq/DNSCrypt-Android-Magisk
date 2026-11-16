@@ -81,7 +81,7 @@ import com.skofqq.shieldy.ui.update.ModuleVersionRow
 import kotlin.math.roundToInt
 
 /** Which of the value dialogs is open; one at a time. */
-private enum class SettingDialog { IPV6, RESTART_DELAY, RUN_GID, RUN_GID_CUSTOM, THEME, LANGUAGE, POLL, RESET }
+private enum class SettingDialog { PROFILE, IPV6, RESTART_DELAY, RUN_GID, RUN_GID_CUSTOM, THEME, LANGUAGE, POLL, RESET, IMPORT }
 
 /**
  * Settings in Boxy's layout: titled cards with icon rows. Choices open a dialog instead
@@ -114,7 +114,19 @@ fun SettingsScreen(
     onOpenUpdate: () -> Unit,
     modifier: Modifier = Modifier,
     onShown: () -> Unit = {},
+    profilesSupported: Boolean = false,
+    profile: String? = null,
+    onProfile: (String) -> Unit = {},
+    onExport: (android.net.Uri) -> Unit = {},
+    onImport: (android.net.Uri) -> Unit = {},
+    appUpdateRow: @Composable () -> Unit = {},
 ) {
+    val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/zip"),
+    ) { uri -> uri?.let(onExport) }
+    val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri -> uri?.let(onImport) }
     var dialog by remember { mutableStateOf<SettingDialog?>(null) }
     LaunchedEffect(Unit) { onShown() }
     val barPadding = LocalBarPadding.current
@@ -182,6 +194,15 @@ fun SettingsScreen(
                         enabled = serversSupported,
                         onClick = onOpenServers,
                     )
+                    if (profilesSupported) {
+                        NavRow(
+                            icon = painterResource(R.drawable.ic_shield),
+                            title = stringResource(R.string.profile_row),
+                            subtitle = stringResource(profileLabel(profile)),
+                            enabled = !uiState.working,
+                            onClick = { dialog = SettingDialog.PROFILE },
+                        )
+                    }
                     NavRow(
                         icon = painterResource(R.drawable.ic_article),
                         title = stringResource(R.string.settings_config_row),
@@ -351,8 +372,25 @@ fun SettingsScreen(
                         icon = painterResource(R.drawable.ic_schedule),
                         title = stringResource(R.string.setting_poll),
                         subtitle = stringResource(R.string.value_seconds, appSettings.pollIntervalSeconds),
-                        showDivider = false,
                         onClick = { dialog = SettingDialog.POLL },
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_upload),
+                        title = stringResource(R.string.backup_export),
+                        subtitle = stringResource(R.string.backup_export_sub),
+                        enabled = !uiState.working,
+                        onClick = {
+                            val stamp = java.text.SimpleDateFormat("yyyyMMdd-HHmm", java.util.Locale.US).format(java.util.Date())
+                            runCatching { exportLauncher.launch(com.skofqq.shieldy.data.SettingsBackup.fileName(stamp)) }
+                        },
+                    )
+                    NavRow(
+                        icon = painterResource(R.drawable.ic_download),
+                        title = stringResource(R.string.backup_import),
+                        subtitle = stringResource(R.string.backup_import_sub),
+                        enabled = !uiState.working,
+                        showDivider = false,
+                        onClick = { dialog = SettingDialog.IMPORT },
                     )
                 }
             }
@@ -363,6 +401,7 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_about_sub),
                 ) {
                     ModuleVersionRow(state = updateState, onClick = onOpenUpdate)
+                    appUpdateRow()
                     val uriHandler = LocalUriHandler.current
                     NavRow(
                         icon = painterResource(R.drawable.ic_globe),
@@ -399,6 +438,31 @@ fun SettingsScreen(
     }
 
     when (dialog) {
+        SettingDialog.PROFILE -> ChoiceDialog(
+            title = stringResource(R.string.profile_row),
+            text = stringResource(R.string.profile_dialog_text),
+            choices = listOf(
+                Choice(ModuleContract.PROFILE_SAFE, stringResource(R.string.profile_safe), stringResource(R.string.profile_safe_desc)),
+                Choice(ModuleContract.PROFILE_FAST, stringResource(R.string.profile_fast), stringResource(R.string.profile_fast_desc)),
+                Choice(ModuleContract.PROFILE_CUSTOM, stringResource(R.string.profile_custom), stringResource(R.string.profile_custom_desc)),
+            ),
+            selected = profile ?: ModuleContract.PROFILE_CUSTOM,
+            onSelect = { if (it != (profile ?: ModuleContract.PROFILE_CUSTOM)) onProfile(it) },
+            onDismiss = { dialog = null },
+        )
+
+        SettingDialog.IMPORT -> BoxyDialog(
+            title = stringResource(R.string.backup_import),
+            text = stringResource(R.string.backup_import_confirm),
+            onDismiss = { dialog = null },
+            dismissText = stringResource(R.string.action_cancel),
+            confirmText = stringResource(R.string.backup_import_choose),
+            onConfirm = {
+                dialog = null
+                runCatching { importLauncher.launch(arrayOf("application/zip", "application/octet-stream")) }
+            },
+        )
+
         SettingDialog.IPV6 -> ChoiceDialog(
             title = stringResource(R.string.setting_redirect_ipv6),
             choices = listOf(
@@ -621,6 +685,12 @@ private fun themeLabel(mode: ThemeMode) = when (mode) {
     ThemeMode.LIGHT -> R.string.theme_light
     ThemeMode.DARK -> R.string.theme_dark
     ThemeMode.SYSTEM -> R.string.theme_system
+}
+
+private fun profileLabel(profile: String?) = when (profile) {
+    ModuleContract.PROFILE_SAFE -> R.string.profile_safe
+    ModuleContract.PROFILE_FAST -> R.string.profile_fast
+    else -> R.string.profile_custom
 }
 
 private fun ipv6ModeLabel(mode: String) = when (mode) {
