@@ -141,6 +141,23 @@ class BlocklistRepository(
         save { s -> s.copy(lists = s.lists.filterNot { it.id == id }) }
     }
 
+    /** The lists and their schedule as JSON, for a settings backup. */
+    fun exportJson(): String = json.encodeToString(BlocklistSettings.serializer(), _settings.value)
+
+    /**
+     * Takes lists and schedule from a backup. Download state (counts, errors) is not
+     * carried over: the lists have to be fetched again on this device. Null on bad JSON.
+     */
+    fun importJson(text: String): BlocklistSettings? {
+        val imported = runCatching { json.decodeFromString(BlocklistSettings.serializer(), text) }.getOrNull()
+            ?: return null
+        val lists = imported.lists
+            .filter { it.url.startsWith("https://") && it.id.isNotBlank() }
+            .map { it.copy(entries = null, updatedAt = null, error = null) }
+        save { imported.copy(lists = lists, mergedEntries = null) }
+        return _settings.value
+    }
+
     fun setAutoUpdate(enabled: Boolean) = save { it.copy(autoUpdate = enabled) }
     fun setUnmeteredOnly(enabled: Boolean) = save { it.copy(unmeteredOnly = enabled) }
     fun setChargingOnly(enabled: Boolean) = save { it.copy(chargingOnly = enabled) }

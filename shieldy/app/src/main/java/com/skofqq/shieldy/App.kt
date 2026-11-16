@@ -4,6 +4,8 @@ import com.skofqq.shieldy.work.BlocklistWorker
 import android.app.Application
 import android.content.Context
 import com.skofqq.shieldy.data.AppPreferences
+import com.skofqq.shieldy.data.AppUpdater
+import com.skofqq.shieldy.data.SettingsBackup
 import com.skofqq.shieldy.data.BlocklistRepository
 import com.skofqq.shieldy.data.ModuleRepository
 import com.skofqq.shieldy.data.ModuleUpdater
@@ -20,6 +22,8 @@ class AppContainer(context: Context) {
     val repository: ModuleRepository = ModuleRepository(rootShell, context.cacheDir)
     val updater: ModuleUpdater = ModuleUpdater(rootShell, context.cacheDir)
     val blocklists: BlocklistRepository = BlocklistRepository(context, repository)
+    val appUpdater: AppUpdater = AppUpdater(context.applicationContext, rootShell)
+    val backup: SettingsBackup = SettingsBackup(context.applicationContext, rootShell, repository, blocklists)
 }
 
 class App : Application() {

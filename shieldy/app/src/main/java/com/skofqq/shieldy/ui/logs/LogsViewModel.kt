@@ -3,6 +3,8 @@ package com.skofqq.shieldy.ui.logs
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skofqq.shieldy.data.LevelFilter
+import com.skofqq.shieldy.data.LogFile
+import com.skofqq.shieldy.data.QueryLogLine
 import com.skofqq.shieldy.data.LogLine
 import com.skofqq.shieldy.data.ModuleRepository
 import com.skofqq.shieldy.data.ModuleState
@@ -15,7 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-enum class LogTab { MODULE, PROXY, RULES, CONFLICTS }
+enum class LogTab { MODULE, PROXY, QUERIES, RULES, CONFLICTS }
 
 /** A name added from a log line: whether it was new, and whether the proxy runs to restart it. */
 data class NameResult(val name: String, val allowed: Boolean, val added: Boolean, val running: Boolean)
@@ -34,9 +36,13 @@ data class LogsUiState(
     val lineCount: Int = DEFAULT_LINES,
     val wrap: Boolean = true,
     val nameResult: NameResult? = null,
+    /** Whether dnscrypt-proxy writes query.log; null while unknown or before module 2.6. */
+    val queryLogEnabled: Boolean? = null,
+    /** The query log setting is being changed. */
+    val queryLogBusy: Boolean = false,
 ) {
     /** Rules and conflicts are command output, not logs: no levels, no tail length. */
-    val isLog: Boolean get() = tab == LogTab.MODULE || tab == LogTab.PROXY
+    val isLog: Boolean get() = tab == LogTab.MODULE || tab == LogTab.PROXY || tab == LogTab.QUERIES
 
     val visibleLines: List<LogLine>
         get() = lines.filter { line ->
@@ -67,6 +73,42 @@ class LogsViewModel(
 
     init {
         refresh()
+    }
+
+    /** The query log state as the last status poll saw it. */
+    fun setQueryLogEnabled(enabled: Boolean?) {
+        if (_uiState.value.queryLogBusy) return
+        _uiState.update { it.copy(queryLogEnabled = enabled) }
+    }
+
+    /**
+     * Turns the query log on or off and restarts a running proxy so it takes effect;
+     * a stopped proxy is left stopped and picks it up at its next start.
+     */
+    fun toggleQueryLog(enabled: Boolean) {
+        if (_uiState.value.queryLogBusy) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(queryLogBusy = true) }
+            val result = repository.setQueryLog(enabled)
+            val ok = result.getOrNull()?.isSuccess == true
+            if (ok) repository.restartIfRunning()
+            _uiState.update {
+                it.copy(
+                    queryLogBusy = false,
+                    queryLogEnabled = if (ok) enabled else it.queryLogEnabled,
+                    error = if (ok) null else (result.getOrNull()?.message ?: result.exceptionOrNull()?.message),
+                )
+            }
+            if (ok && _uiState.value.tab == LogTab.QUERIES) refresh()
+        }
+    }
+
+    fun clearQueryLog() {
+        viewModelScope.launch {
+            repository.clearQueryLog()
+            offsets.remove(LogTab.QUERIES)
+            if (_uiState.value.tab == LogTab.QUERIES) refresh()
+        }
     }
 
     fun selectTab(tab: LogTab) {
@@ -109,12 +151,12 @@ class LogsViewModel(
             return
         }
         viewModelScope.launch {
-            val chunk = repository.logChunk(state.tab == LogTab.PROXY, from, state.lineCount).getOrNull()
+            val chunk = repository.logChunk(state.tab.file(), from, state.lineCount).getOrNull()
                 ?: return@launch refresh(silent = true)
             if (_uiState.value.tab != state.tab) return@launch
             offsets[state.tab] = chunk.size
             if (!chunk.reset && chunk.lines.isEmpty()) return@launch
-            val added = chunk.lines.map(LogLine::parse)
+            val added = chunk.lines.map(state.tab.parser())
             _uiState.update {
                 val lines = if (chunk.reset) added else (it.lines + added).takeLast(it.lineCount)
                 it.copy(lines = lines, error = null)
@@ -129,20 +171,26 @@ class LogsViewModel(
             if (!silent) _uiState.update { it.copy(loading = true, error = null) }
             if (state.isLog) {
                 // Straight from the file, so the size it ended at is known for Live.
-                val chunk = repository.logChunk(state.tab == LogTab.PROXY, null, state.lineCount).getOrNull()
+                val chunk = repository.logChunk(state.tab.file(), null, state.lineCount).getOrNull()
                 if (chunk != null) {
                     if (_uiState.value.tab != state.tab) return@launch
                     offsets[state.tab] = chunk.size
                     _uiState.update {
-                        it.copy(loading = false, lines = chunk.lines.map(LogLine::parse), error = null)
+                        it.copy(loading = false, lines = chunk.lines.map(state.tab.parser()), error = null)
                     }
                     return@launch
                 }
                 offsets.remove(state.tab)
+                // No query.log yet: the log is off or nothing has been asked since it was
+                // turned on. The screen explains that instead of an error.
+                if (state.tab == LogTab.QUERIES) {
+                    _uiState.update { it.copy(loading = false, lines = emptyList(), error = null) }
+                    return@launch
+                }
             }
             val result = when (state.tab) {
                 LogTab.MODULE -> repository.moduleLog(state.lineCount)
-                LogTab.PROXY -> repository.proxyLog(state.lineCount)
+                LogTab.PROXY, LogTab.QUERIES -> repository.proxyLog(state.lineCount)
                 LogTab.RULES -> repository.rules()
                 LogTab.CONFLICTS -> repository.conflicts()
             }
@@ -198,9 +246,19 @@ class LogsViewModel(
         val base = when (_uiState.value.tab) {
             LogTab.MODULE -> "module"
             LogTab.PROXY -> "dnscrypt-proxy"
+            LogTab.QUERIES -> "queries"
             LogTab.RULES -> "rules"
             LogTab.CONFLICTS -> "conflicts"
         }
         return "$base-$stamp.txt"
     }
 }
+
+private fun LogTab.file(): LogFile = when (this) {
+    LogTab.PROXY -> LogFile.PROXY
+    LogTab.QUERIES -> LogFile.QUERIES
+    else -> LogFile.MODULE
+}
+
+private fun LogTab.parser(): (String) -> LogLine =
+    if (this == LogTab.QUERIES) QueryLogLine::parse else LogLine::parse

@@ -476,6 +476,9 @@ fun AppRoot() {
                                 val saveFailed = stringResource(R.string.logs_save_failed)
                                 val shareTitle = stringResource(R.string.logs_share_title)
 
+                                val queryLog = readyStatus?.queryLog
+                                LaunchedEffect(queryLog) { logsViewModel.setQueryLogEnabled(queryLog) }
+
                                 LaunchedEffect(pendingLogTab) {
                                     pendingLogTab?.let {
                                         logsViewModel.selectTab(it)
@@ -505,6 +508,12 @@ fun AppRoot() {
                                         statusViewModel.refresh()
                                     },
                                     onDismissNameResult = logsViewModel::dismissNameResult,
+                                    queryLogSupported = readyStatus?.supportsProfiles == true,
+                                    onToggleQueryLog = { enabled ->
+                                        logsViewModel.toggleQueryLog(enabled)
+                                        statusViewModel.refresh()
+                                    },
+                                    onClearQueryLog = logsViewModel::clearQueryLog,
                                     onCopy = {
                                         context.copyToClipboard(logsViewModel.currentText())
                                         scope.launch { snackbarHostState.notify(copiedMessage, NoticeKind.SUCCESS) }

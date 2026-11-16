@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skofqq.shieldy.data.AppPreferences
 import com.skofqq.shieldy.data.AppSettings
+import com.skofqq.shieldy.data.BackupException
+import com.skofqq.shieldy.data.ImportResult
+import com.skofqq.shieldy.data.SettingsBackup
+import android.net.Uri
 import com.skofqq.shieldy.data.ModuleRepository
 import com.skofqq.shieldy.data.ModuleSettings
 import com.skofqq.shieldy.data.ProxyGroup
@@ -29,6 +33,8 @@ data class ModuleSettingsUiState(
     val error: String? = null,
     /** Group of the running proxy as /proc reports it; null while it is stopped. */
     val group: ProxyGroup? = null,
+    /** A profile switch or a backup export/import is running. */
+    val working: Boolean = false,
 ) {
     val pendingKeys: Set<String>
         get() = draft.filter { (key, value) -> saved[key] != value }.keys
@@ -41,10 +47,78 @@ data class ModuleSettingsUiState(
     fun number(key: String, fallback: Int): Int = draft[key]?.toIntOrNull() ?: fallback
 }
 
+/** Outcomes of profile switches and backups, turned into notices by the screen. */
+sealed interface SettingsEvent {
+    data class ProfileApplied(val profile: String, val restarted: Boolean) : SettingsEvent
+    data class Exported(val files: Int) : SettingsEvent
+    data class Imported(val result: ImportResult, val restarted: Boolean) : SettingsEvent
+    data class BackupFailed(val reason: BackupException.Reason?, val message: String?) : SettingsEvent
+}
+
 class SettingsViewModel(
     private val repository: ModuleRepository,
     private val preferences: AppPreferences,
+    private val backup: SettingsBackup,
 ) : ViewModel() {
+
+    private val _events = MutableSharedFlow<SettingsEvent>(extraBufferCapacity = 4)
+    val events: SharedFlow<SettingsEvent> = _events
+
+    /** Switches the proxy profile and restarts a running proxy so it takes effect. */
+    fun setProfile(profile: String) {
+        if (_uiState.value.working) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(working = true)
+            val failure = UiMessage.ofFailure(repository.setProfile(profile))
+            if (failure != null) {
+                _uiState.value = _uiState.value.copy(working = false)
+                _messages.emit(failure)
+                return@launch
+            }
+            val restart = repository.restartIfRunning()
+            _uiState.value = _uiState.value.copy(working = false)
+            val restartFailure = restart?.let(UiMessage::ofFailure)
+            if (restartFailure != null) _messages.emit(restartFailure) else _events.emit(SettingsEvent.ProfileApplied(profile, restart != null))
+        }
+    }
+
+    fun exportBackup(target: Uri, moduleVersion: String) {
+        if (_uiState.value.working) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(working = true)
+            val result = backup.export(target, moduleVersion)
+            _uiState.value = _uiState.value.copy(working = false)
+            _events.emit(
+                result.fold(
+                    onSuccess = { SettingsEvent.Exported(it) },
+                    onFailure = { SettingsEvent.BackupFailed((it as? BackupException)?.reason, it.message) },
+                )
+            )
+        }
+    }
+
+    /**
+     * Restores a backup, then restarts a running proxy. Blocklists come back as
+     * subscriptions; [onBlocklists] fetches them again when some are enabled.
+     */
+    fun importBackup(source: Uri, onBlocklists: () -> Unit) {
+        if (_uiState.value.working) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(working = true)
+            val result = backup.import(source)
+            val imported = result.getOrNull()
+            val restart = if (imported != null && imported.files > 0) repository.restartIfRunning() else null
+            _uiState.value = _uiState.value.copy(working = false)
+            if (imported == null) {
+                val error = result.exceptionOrNull()
+                _events.emit(SettingsEvent.BackupFailed((error as? BackupException)?.reason, error?.message))
+                return@launch
+            }
+            _events.emit(SettingsEvent.Imported(imported, restart != null))
+            if (imported.enabledBlocklists > 0) onBlocklists()
+            reload()
+        }
+    }
 
     private val _uiState = MutableStateFlow(ModuleSettingsUiState())
     val uiState: StateFlow<ModuleSettingsUiState> = _uiState.asStateFlow()

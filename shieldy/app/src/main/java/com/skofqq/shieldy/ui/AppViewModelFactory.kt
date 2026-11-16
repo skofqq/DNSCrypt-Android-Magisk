@@ -20,7 +20,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 StatusViewModel(container.repository, container.preferences)
 
             modelClass.isAssignableFrom(SettingsViewModel::class.java) ->
-                SettingsViewModel(container.repository, container.preferences)
+                SettingsViewModel(container.repository, container.preferences, container.backup)
 
             modelClass.isAssignableFrom(ConfigViewModel::class.java) ->
                 ConfigViewModel(container.repository)
@@ -38,7 +38,7 @@ class AppViewModelFactory(private val container: AppContainer) : ViewModelProvid
                 com.skofqq.shieldy.ui.blocklists.BlocklistsViewModel(container.blocklists, container.repository, container.appContext)
 
             modelClass.isAssignableFrom(ModuleUpdateViewModel::class.java) ->
-                ModuleUpdateViewModel(container.updater)
+                ModuleUpdateViewModel(container.updater, container.appUpdater)
 
             else -> throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
         }

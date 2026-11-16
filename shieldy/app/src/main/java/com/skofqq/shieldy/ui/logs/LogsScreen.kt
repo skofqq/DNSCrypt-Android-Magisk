@@ -110,6 +110,9 @@ fun LogsScreen(
     onCopyLine: (String) -> Unit = {},
     onRestartNow: () -> Unit = {},
     onDismissNameResult: () -> Unit = {},
+    queryLogSupported: Boolean = false,
+    onToggleQueryLog: (Boolean) -> Unit = {},
+    onClearQueryLog: () -> Unit = {},
 ) {
     var domainLine by remember { mutableStateOf<LogLine?>(null) }
     val listState = rememberLazyListState()
@@ -203,13 +206,30 @@ fun LogsScreen(
                         checked = uiState.onlyMatches,
                         enabled = uiState.query.isNotBlank(),
                     ) { onOnlyMatches(!uiState.onlyMatches) }
+                    if (uiState.tab == LogTab.QUERIES && uiState.queryLogEnabled != null) {
+                        MenuItem(
+                            null,
+                            stringResource(R.string.queries_log_switch),
+                            checked = uiState.queryLogEnabled,
+                            enabled = !uiState.queryLogBusy,
+                        ) {
+                            menuOpen = false
+                            onToggleQueryLog(!uiState.queryLogEnabled)
+                        }
+                        MenuItem(R.drawable.ic_restore, stringResource(R.string.queries_clear), enabled = lines.isNotEmpty()) {
+                            menuOpen = false
+                            onClearQueryLog()
+                        }
+                    }
                 }
             }
         }
 
         // The conflicts tab only exists from module 2.1.18-r3 on.
-        val tabs = remember(conflictsSupported) {
-            LogTab.entries.filter { it != LogTab.CONFLICTS || conflictsSupported }
+        val tabs = remember(conflictsSupported, queryLogSupported) {
+            LogTab.entries.filter {
+                (it != LogTab.CONFLICTS || conflictsSupported) && (it != LogTab.QUERIES || queryLogSupported)
+            }
         }
         ChipRow {
             tabs.forEach { tab ->
@@ -278,6 +298,22 @@ fun LogsScreen(
                     modifier = Modifier.padding(horizontal = PageInset),
                 ) {
                     ActionPill(stringResource(R.string.action_refresh), Tints.red, true, Modifier.fillMaxWidth(), onRefresh)
+                }
+
+                // The query log is off: say what it is and offer to turn it on here.
+                uiState.tab == LogTab.QUERIES && uiState.queryLogEnabled == false && lines.isEmpty() -> NoticeCard(
+                    title = stringResource(R.string.queries_off_title),
+                    body = stringResource(R.string.queries_off_body),
+                    tint = Tints.blue,
+                    icon = painterResource(R.drawable.ic_article),
+                    modifier = Modifier.padding(horizontal = PageInset),
+                ) {
+                    ActionPill(
+                        stringResource(R.string.queries_enable),
+                        Tints.blue,
+                        !uiState.queryLogBusy,
+                        Modifier.fillMaxWidth(),
+                    ) { onToggleQueryLog(true) }
                 }
 
                 lines.isEmpty() && !uiState.loading -> NoticeCard(
@@ -626,6 +662,7 @@ private fun JumpButton(icon: Int, description: Int, enabled: Boolean, onClick: (
 private fun LogTab.labelRes() = when (this) {
     LogTab.MODULE -> R.string.logs_tab_module
     LogTab.PROXY -> R.string.logs_tab_proxy
+    LogTab.QUERIES -> R.string.logs_tab_queries
     LogTab.RULES -> R.string.logs_tab_rules
     LogTab.CONFLICTS -> R.string.logs_tab_conflicts
 }
@@ -634,6 +671,7 @@ private fun LogTab.labelRes() = when (this) {
 private fun LogTab.chipRes() = when (this) {
     LogTab.MODULE -> R.string.logs_chip_module
     LogTab.PROXY -> R.string.logs_chip_proxy
+    LogTab.QUERIES -> R.string.logs_tab_queries
     LogTab.RULES -> R.string.logs_tab_rules
     LogTab.CONFLICTS -> R.string.logs_tab_conflicts
 }
@@ -641,6 +679,7 @@ private fun LogTab.chipRes() = when (this) {
 private fun LogTab.emptyRes() = when (this) {
     LogTab.MODULE -> R.string.logs_empty_module
     LogTab.PROXY -> R.string.logs_empty_proxy
+    LogTab.QUERIES -> R.string.queries_empty
     LogTab.RULES, LogTab.CONFLICTS -> R.string.logs_empty
 }
 

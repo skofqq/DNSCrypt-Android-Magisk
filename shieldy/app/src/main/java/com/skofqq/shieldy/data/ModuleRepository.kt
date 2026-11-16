@@ -25,6 +25,9 @@ data class PolledStatus(val state: ModuleState, val activeServer: String?, val l
 /** Part of a log file and the file size it ends at; see [ModuleRepository.logChunk]. */
 data class LogChunk(val size: Long, val lines: List<String>, val reset: Boolean)
 
+/** The log files [ModuleRepository.logChunk] reads. */
+enum class LogFile { MODULE, PROXY, QUERIES }
+
 /** Effective group of the proxy process; see [ModuleRepository.proxyGroup]. */
 data class ProxyGroup(val gid: Int, val suRefusedGroup: Boolean)
 
@@ -32,6 +35,10 @@ class ModuleRepository(
     private val shell: RootShell,
     private val cacheDir: File,
 ) {
+
+    /** Whether the installed module answers `status --full`; learnt from each poll. */
+    @Volatile
+    private var fullStatus = true
 
     // ---------------------------------------------------------------- state
 
@@ -76,11 +83,14 @@ class ModuleRepository(
      * old build) falls back to [loadState].
      */
     suspend fun poll(withServers: Boolean = true): PolledStatus = withContext(Dispatchers.IO) {
-        val out = shell.execLine(pollScript(withServers)).getOrNull()
+        val out = shell.execLine(pollScript(withServers, fullStatus)).getOrNull()
             ?: return@withContext PolledStatus(loadState(), null, null)
         val sections = splitSections(out.stdout)
         val status = StatusParser.parse(sections[0].joinToString("\n")).getOrNull()
             ?: return@withContext PolledStatus(loadState(), null, null)
+        // An older module would answer `status --full` with its human-readable status
+        // first, a wasted call on every poll; ask it only of modules that know it.
+        fullStatus = status.supportsProfiles
         val proc = sections.getOrElse(1) { emptyList() }
         PolledStatus(
             state = readyState(status, status.pid?.let { uptimeFrom(proc.getOrNull(0), proc.getOrNull(1)) }),
@@ -233,11 +243,12 @@ class ModuleRepository(
      * bytes written since [from]. The proxy log falls back to stdout.log like `proxylog`.
      * Fails when the file is missing, so callers can show the module's own message.
      */
-    suspend fun logChunk(proxy: Boolean, from: Long?, lines: Int): Result<LogChunk> {
-        val path = if (proxy) {
-            "f=${RootShell.quote(ModuleContract.PROXY_LOG)}; [ -f \"\$f\" ] || f=${RootShell.quote(ModuleContract.STDOUT_LOG)}"
-        } else {
-            "f=${RootShell.quote(ModuleContract.MODULE_LOG)}"
+    suspend fun logChunk(file: LogFile, from: Long?, lines: Int): Result<LogChunk> {
+        val path = when (file) {
+            LogFile.PROXY ->
+                "f=${RootShell.quote(ModuleContract.PROXY_LOG)}; [ -f \"\$f\" ] || f=${RootShell.quote(ModuleContract.STDOUT_LOG)}"
+            LogFile.MODULE -> "f=${RootShell.quote(ModuleContract.MODULE_LOG)}"
+            LogFile.QUERIES -> "f=${RootShell.quote(ModuleContract.QUERY_LOG)}"
         }
         val off = from ?: -1L
         val out = shell.execLine(
@@ -248,6 +259,17 @@ class ModuleRepository(
         if (!out.isSuccess || out.stdout.size < 2) return Result.failure(ShellFailure(out))
         val size = out.stdout[0].trim().toLongOrNull() ?: return Result.failure(ShellFailure(out))
         return Result.success(LogChunk(size, out.stdout.drop(2), reset = out.stdout[1] == "R"))
+    }
+
+    /** Turns dnscrypt-proxy's query log on or off; takes effect with the next restart. */
+    suspend fun setQueryLog(enabled: Boolean): Result<ShellOutput> = ctl("querylog", if (enabled) "on" else "off")
+
+    suspend fun clearQueryLog(): Result<ShellOutput> = ctl("querylog", "clear")
+
+    /** Switches the proxy profile ([ModuleContract.PROFILES]); takes effect with the next restart. */
+    suspend fun setProfile(profile: String): Result<ShellOutput> {
+        if (profile !in ModuleContract.PROFILES) return Result.failure(IllegalArgumentException("Unknown profile: $profile"))
+        return ctl("profile", profile)
     }
 
     suspend fun exportConfig(): Result<ShellOutput> = ctl("export")
@@ -434,20 +456,33 @@ class ModuleRepository(
          * `read` builtin, so the only forks are the module's own scripts. The servers part
          * (`active` + `live`, about as costly as `json` itself) runs only when asked for.
          */
-        fun pollScript(withServers: Boolean): String {
+        fun pollScript(withServers: Boolean, fullStatus: Boolean): String {
             val servers = if (withServers) {
                 "echo $POLL_SEPARATOR; ${ModuleContract.CTL} servers active 2>/dev/null; " +
                     "echo $POLL_SEPARATOR; ${ModuleContract.CTL} servers live 2>/dev/null"
             } else {
                 ""
             }
+            val full = when {
+                !fullStatus -> "f="
+                withServers -> "f=$(${ModuleContract.CTL} status --full 2>/dev/null)"
+                else -> "f=$(${ModuleContract.CTL} status --full --no-servers 2>/dev/null)"
+            }
+            // Module 2.6 answers everything in one process with `status --full`; an older
+            // one prints its usage text instead, and then the separate calls run. No `exit`
+            // here: this runs in the shared root shell, which it would close.
             return """
+                $full
+                case "${'$'}f" in
+                '{'*) echo "${'$'}f" ;;
+                *)
                 j=$(${ModuleContract.CTL} json 2>/dev/null); echo "${'$'}j"; echo $POLL_SEPARATOR
                 case "${'$'}j" in *'"running":true'*)
                   p=${'$'}{j#*'"pid":'}; p=${'$'}{p%%[!0-9]*}
                   read u < /proc/uptime; echo "${'$'}u"
                   [ -n "${'$'}p" ] && read s < /proc/${'$'}p/stat 2>/dev/null && echo "${'$'}s"
                   $servers ;;
+                esac ;;
                 esac
             """.trimIndent()
         }

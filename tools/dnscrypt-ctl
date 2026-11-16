@@ -12,6 +12,7 @@ usage() {
 dnscrypt-ctl <команда>
 
   status    состояние прокси, порт, правила перехвата
+            (--full: всё для опроса приложением одним вызовом)
   json      то же одной строкой JSON (для внешних приложений)
   set K V   изменить настройку в module.conf
   reset     вернуть все настройки модуля к значениям по умолчанию
@@ -24,6 +25,8 @@ dnscrypt-ctl <команда>
   log       последние строки журнала модуля
   proxylog  последние строки журнала dnscrypt-proxy
   test      проверить резолвинг через локальный порт
+  querylog on|off|clear|N  журнал запросов: включить, выключить, очистить, последние N строк
+  profile [safe|fast|custom]  профиль настроек прокси; без аргумента - текущий
 
 Коды возврата: 0 - успех, 1 - ошибка аргументов или состояния.
 USAGE
@@ -79,6 +82,82 @@ valid_value() {
 }
 
 
+# Одна строка JSON о состоянии модуля - для приложения.
+status_json() {
+  pid=$(dnscrypt_pid) || pid=""
+  sup=$(cat "$LOCKFILE" 2>/dev/null)
+  kill -0 "$sup" 2>/dev/null || sup=""
+  nf_init_cmd
+  if nf_check; then rules=true; else rules=false; fi
+  if [ -n "$pid" ]; then running=true; else running=false; fi
+  p6=$(listen_port6)
+  # port6 - число или null, как port; раньше он отдавался строкой.
+  printf '{"running":%s,"pid":%s,"supervisor_pid":%s,"port":%s,"port6":%s,"rules_v4":%s,"redirect_ipv6":"%s","ipv6_dns":"%s","box_dns":%s,"tether_redirect":%s,"private_dns":"%s","config":"%s","version":"%s","servers":"%s","resolvers_cached":%s,"manual_stop":%s,"query_log":%s,"profile":"%s"}\n' \
+    "$running" "${pid:-null}" "${sup:-null}" "$(listen_port)" "${p6:-null}" \
+    "$rules" "$redirect_ipv6" "$(nf_ipv6_state)" "$(box_takes_dns && echo true || echo false)" "$tether_redirect" \
+    "$(settings get global private_dns_mode 2>/dev/null)" \
+    "$CONFIG" \
+    "$(sed -n 's/^version=//p' "$MODDIR/module.prop" 2>/dev/null)" \
+    "$(servers_get)" \
+    "$([ -f "$RESOLVERS_CACHE" ] && echo true || echo false)" \
+    "$([ -f "$MANUAL_STOP" ] && echo true || echo false)" \
+    "$(query_log_enabled && echo true || echo false)" \
+    "$(profile_get)"
+}
+
+# Строка, которую прокси пишет при старте про выбранный сервер.
+servers_active_line() {
+  grep -a 'lowest initial latency' "$DATADIR/dnscrypt-proxy.log" 2>/dev/null | tail -n 1
+}
+
+# Серверы, между которыми прокси сейчас распределяет запросы:
+# строки «[имя] OK (протокол) - rtt: Nms» после последнего старта.
+# Одна строка JSON для приложения: стратегия балансировки из конфига
+# (по умолчанию p2 - два самых быстрых), число живых серверов из строки
+# «live servers: N» и список, отсортированный по rtt. Код 1 - журнала нет.
+servers_live_json() {
+  LOGF="$DATADIR/dnscrypt-proxy.log"
+  strategy=$(grep -m1 '^[[:space:]]*lb_strategy' "$CONFIG" 2>/dev/null | sed "s/.*=[[:space:]]*//; s/[\"' ]//g")
+  [ -n "$strategy" ] || strategy=p2
+  if [ ! -f "$LOGF" ]; then
+    printf '{"strategy":"%s","live":0,"servers":[]}\n' "$strategy"
+    return 1
+  fi
+  start=$(grep -an 'dnscrypt-proxy [0-9]' "$LOGF" | tail -n 1 | cut -d: -f1)
+  run=$(tail -n +"${start:-1}" "$LOGF")
+  live=$(echo "$run" | grep -ao 'live servers: [0-9]*' | tail -n 1 | grep -o '[0-9]*$')
+  list=$(echo "$run" | grep -a '\] OK (' | sed -n \
+    's/.*\[\([^]]*\)\] OK (\([^)]*\)) - rtt: \([0-9]*\)ms.*/\3 \1 \2/p' \
+    | sort -n | awk '!seen[$2]++' | awk '
+      { printf "%s{\"name\":\"%s\",\"proto\":\"%s\",\"rtt\":%s}", (NR > 1 ? "," : ""), $2, $3, $1 }')
+  printf '{"strategy":"%s","live":%s,"servers":[%s]}\n' "$strategy" "${live:-0}" "$list"
+}
+
+# status --full: всё, что приложение опрашивает, одним процессом. Части
+# разделены строкой POLL_SEP: json; /proc/uptime и /proc/<pid>/stat (только
+# пока прокси работает); строка servers active; json servers live. С
+# --no-servers последние две части не печатаются.
+POLL_SEP=@@dnscm-poll@@
+status_full() {
+  j=$(status_json)
+  echo "$j"
+  echo "$POLL_SEP"
+  case "$j" in
+    *'"running":true'*)
+      p=${j#*'"pid":'}; p=${p%%[!0-9]*}
+      read -r u </proc/uptime && echo "$u"
+      [ -n "$p" ] && read -r s </proc/"$p"/stat 2>/dev/null && echo "$s"
+      if [ "$1" != --no-servers ]; then
+        echo "$POLL_SEP"
+        servers_active_line
+        echo "$POLL_SEP"
+        servers_live_json
+      fi
+      ;;
+  esac
+  return 0
+}
+
 # Кто дёрнул управляющую команду: при двух модулях и двух приложениях иначе
 # не понять, откуда взялся неожиданный старт или стоп.
 ctl_caller() {
@@ -89,6 +168,7 @@ case "$1" in start|stop|restart) log "dnscrypt-ctl $1 (caller: $(ctl_caller))" ;
 
 case "$1" in
   status)
+    if [ "$2" = --full ]; then status_full "$3"; exit 0; fi
     pid=$(dnscrypt_pid) && echo "dnscrypt-proxy: работает, pid $pid" || echo "dnscrypt-proxy: остановлен"
     sup=$(cat "$LOCKFILE" 2>/dev/null)
     if [ -n "$sup" ] && kill -0 "$sup" 2>/dev/null; then echo "supervisor: работает, pid $sup"; else echo "supervisor: остановлен"; fi
@@ -108,25 +188,7 @@ case "$1" in
     fi
     echo "Private DNS: $(settings get global private_dns_mode 2>/dev/null)"
     ;;
-  json)
-    pid=$(dnscrypt_pid) || pid=""
-    sup=$(cat "$LOCKFILE" 2>/dev/null)
-    kill -0 "$sup" 2>/dev/null || sup=""
-    nf_init_cmd
-    if nf_check; then rules=true; else rules=false; fi
-    if [ -n "$pid" ]; then running=true; else running=false; fi
-    p6=$(listen_port6)
-    # port6 - число или null, как port; раньше он отдавался строкой.
-    printf '{"running":%s,"pid":%s,"supervisor_pid":%s,"port":%s,"port6":%s,"rules_v4":%s,"redirect_ipv6":"%s","ipv6_dns":"%s","box_dns":%s,"tether_redirect":%s,"private_dns":"%s","config":"%s","version":"%s","servers":"%s","resolvers_cached":%s,"manual_stop":%s}\n' \
-      "$running" "${pid:-null}" "${sup:-null}" "$(listen_port)" "${p6:-null}" \
-      "$rules" "$redirect_ipv6" "$(nf_ipv6_state)" "$(box_takes_dns && echo true || echo false)" "$tether_redirect" \
-      "$(settings get global private_dns_mode 2>/dev/null)" \
-      "$CONFIG" \
-      "$(sed -n 's/^version=//p' "$MODDIR/module.prop" 2>/dev/null)" \
-      "$(servers_get)" \
-      "$([ -f "$RESOLVERS_CACHE" ] && echo true || echo false)" \
-      "$([ -f "$MANUAL_STOP" ] && echo true || echo false)"
-    ;;
+  json) status_json ;;
   set)
     # Значение обязано быть передано, но пустым быть может: для run_gid пустота
     # и есть "по умолчанию". Проверять -n "$3" здесь нельзя, иначе сбросить ключ
@@ -311,31 +373,10 @@ case "$1" in
         excluded_set "$new" || exit 1
         echo "исключены: $(excluded_get) (применится после restart)"
         ;;
-      live)
-        # Серверы, между которыми прокси сейчас распределяет запросы:
-        # строки «[имя] OK (протокол) - rtt: Nms» после последнего старта.
-        # Одна строка JSON для приложения: стратегия балансировки из конфига
-        # (по умолчанию p2 - два самых быстрых), число живых серверов из строки
-        # «live servers: N» и список, отсортированный по rtt.
-        LOGF="$DATADIR/dnscrypt-proxy.log"
-        strategy=$(grep -m1 '^[[:space:]]*lb_strategy' "$CONFIG" 2>/dev/null | sed "s/.*=[[:space:]]*//; s/[\"' ]//g")
-        [ -n "$strategy" ] || strategy=p2
-        if [ ! -f "$LOGF" ]; then
-          printf '{"strategy":"%s","live":0,"servers":[]}\n' "$strategy"
-          exit 1
-        fi
-        start=$(grep -an 'dnscrypt-proxy [0-9]' "$LOGF" | tail -n 1 | cut -d: -f1)
-        run=$(tail -n +"${start:-1}" "$LOGF")
-        live=$(echo "$run" | grep -ao 'live servers: [0-9]*' | tail -n 1 | grep -o '[0-9]*$')
-        list=$(echo "$run" | grep -a '\] OK (' | sed -n \
-          's/.*\[\([^]]*\)\] OK (\([^)]*\)) - rtt: \([0-9]*\)ms.*/\3 \1 \2/p' \
-          | sort -n | awk '!seen[$2]++' | awk '
-            { printf "%s{\"name\":\"%s\",\"proto\":\"%s\",\"rtt\":%s}", (NR > 1 ? "," : ""), $2, $3, $1 }')
-        printf '{"strategy":"%s","live":%s,"servers":[%s]}\n' "$strategy" "${live:-0}" "$list"
-        ;;
+      live) servers_live_json || exit 1 ;;
       active)
         # Строку про выбранный сервер пишет сам прокси при старте.
-        line=$(grep -a 'lowest initial latency' "$DATADIR/dnscrypt-proxy.log" 2>/dev/null | tail -n 1)
+        line=$(servers_active_line)
         if [ -n "$line" ]; then
           echo "$line"
         else
@@ -347,6 +388,36 @@ case "$1" in
         echo "dnscrypt-ctl servers list|raw|relays|info|get|set|add|remove|auto|active|live|excluded|exclude|include"
         exit 1
         ;;
+    esac
+    ;;
+  querylog)
+    # Журнал запросов dnscrypt-proxy: секция [query_log], file = 'query.log'.
+    case "$2" in
+      on)
+        query_log_enabled && { echo "журнал запросов уже включён"; exit 0; }
+        config_backup || exit 1
+        toml_edit query_log file set "'query.log'" || exit 1
+        echo "журнал запросов включён: $QUERY_LOG (применится после restart)"
+        ;;
+      off)
+        query_log_enabled || { echo "журнал запросов уже выключен"; exit 0; }
+        config_backup || exit 1
+        toml_edit query_log file comment || exit 1
+        echo "журнал запросов выключен (применится после restart)"
+        ;;
+      clear) : >"$QUERY_LOG" 2>/dev/null; echo "журнал запросов очищен" ;;
+      ""|status) if query_log_enabled; then echo on; else echo off; fi ;;
+      *) tail -n "$2" "$QUERY_LOG" 2>/dev/null || { echo "журнала запросов нет"; exit 1; } ;;
+    esac
+    ;;
+  profile)
+    case "$2" in
+      "") profile_get ;;
+      safe|fast|custom)
+        profile_apply "$2" || { echo "не удалось применить профиль $2"; exit 1; }
+        echo "профиль: $2 (применится после restart)"
+        ;;
+      *) echo "использование: dnscrypt-ctl profile [safe|fast|custom]"; exit 1 ;;
     esac
     ;;
   conflicts)

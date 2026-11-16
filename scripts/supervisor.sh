@@ -69,7 +69,7 @@ disable_private_dns() {
 }
 
 trim_logs() {
-  for f in "$DATADIR/stdout.log" "$DATADIR/dnscrypt-proxy.log"; do
+  for f in "$DATADIR/stdout.log" "$DATADIR/dnscrypt-proxy.log" "$DATADIR/query.log"; do
     [ -f "$f" ] || continue
     size=$(stat -c %s "$f" 2>/dev/null) || continue
     [ "$size" -gt 1048576 ] 2>/dev/null && : >"$f"

@@ -2,6 +2,8 @@ package com.skofqq.shieldy.ui.update
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skofqq.shieldy.data.AppRelease
+import com.skofqq.shieldy.data.AppUpdater
 import com.skofqq.shieldy.data.InstalledModule
 import com.skofqq.shieldy.data.ModuleRelease
 import com.skofqq.shieldy.data.ModuleUpdater
@@ -27,6 +29,24 @@ enum class UpdatePhase {
     INSTALL_FAILED,
 }
 
+enum class AppUpdatePhase { IDLE, CHECKING, UP_TO_DATE, AVAILABLE, CHECK_FAILED, DOWNLOADING, INSTALLING, INSTALL_FAILED }
+
+/** Shieldy's own update, from the APK attached to the latest GitHub release. */
+data class AppUpdateUiState(
+    val phase: AppUpdatePhase = AppUpdatePhase.IDLE,
+    val installed: String = "",
+    val release: AppRelease? = null,
+    /** 0..1, or -1 while the size is unknown. */
+    val progress: Float = -1f,
+    val error: UpdateError? = null,
+) {
+    val updateAvailable: Boolean
+        get() = phase == AppUpdatePhase.AVAILABLE || phase == AppUpdatePhase.INSTALL_FAILED ||
+            phase == AppUpdatePhase.DOWNLOADING || phase == AppUpdatePhase.INSTALLING
+
+    val busy: Boolean get() = phase == AppUpdatePhase.DOWNLOADING || phase == AppUpdatePhase.INSTALLING
+}
+
 data class ModuleUpdateUiState(
     val phase: UpdatePhase = UpdatePhase.IDLE,
     val installed: InstalledModule? = null,
@@ -39,14 +59,21 @@ data class ModuleUpdateUiState(
     val log: List<String> = emptyList(),
     val error: UpdateError? = null,
     val rebooting: Boolean = false,
+    val app: AppUpdateUiState = AppUpdateUiState(),
 ) {
     val updateAvailable: Boolean
         get() = release != null && installed != null && release.versionCode > installed.versionCode
 
-    val busy: Boolean get() = phase == UpdatePhase.DOWNLOADING || phase == UpdatePhase.INSTALLING
+    /** Module or app: what the dot on the update button stands for. */
+    val anyUpdate: Boolean get() = updateAvailable || app.updateAvailable
+
+    val busy: Boolean get() = phase == UpdatePhase.DOWNLOADING || phase == UpdatePhase.INSTALLING || app.busy
 }
 
-class ModuleUpdateViewModel(private val updater: ModuleUpdater) : ViewModel() {
+class ModuleUpdateViewModel(
+    private val updater: ModuleUpdater,
+    private val appUpdater: AppUpdater,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ModuleUpdateUiState())
     val uiState: StateFlow<ModuleUpdateUiState> = _uiState.asStateFlow()
@@ -56,7 +83,54 @@ class ModuleUpdateViewModel(private val updater: ModuleUpdater) : ViewModel() {
     }
 
     fun check() {
-        if (_uiState.value.busy || _uiState.value.phase == UpdatePhase.CHECKING) return
+        checkApp()
+        checkModule()
+    }
+
+    private fun updateApp(transform: (AppUpdateUiState) -> AppUpdateUiState) =
+        _uiState.update { it.copy(app = transform(it.app)) }
+
+    private fun checkApp() {
+        val app = _uiState.value.app
+        if (app.busy || app.phase == AppUpdatePhase.CHECKING) return
+        viewModelScope.launch {
+            updateApp { it.copy(phase = AppUpdatePhase.CHECKING, installed = appUpdater.installedVersion, error = null) }
+            appUpdater.latest().fold(
+                onSuccess = { release ->
+                    val phase = if (appUpdater.isNewer(release)) AppUpdatePhase.AVAILABLE else AppUpdatePhase.UP_TO_DATE
+                    updateApp { it.copy(phase = phase, release = release) }
+                },
+                onFailure = { error -> updateApp { it.copy(phase = AppUpdatePhase.CHECK_FAILED, error = error.toUpdateError()) } },
+            )
+        }
+    }
+
+    /** Downloads, checks and installs the new APK. Android restarts the app when it is done. */
+    fun installApp() {
+        val app = _uiState.value.app
+        val release = app.release ?: return
+        if (app.busy || !app.updateAvailable) return
+        viewModelScope.launch {
+            updateApp { it.copy(phase = AppUpdatePhase.DOWNLOADING, progress = -1f, error = null) }
+            val apk = appUpdater.download(release) { progress -> updateApp { it.copy(progress = progress) } }
+                .getOrElse { error -> updateApp { it.copy(phase = AppUpdatePhase.INSTALL_FAILED, error = error.toUpdateError()) }; return@launch }
+            appUpdater.verify(apk)
+                .getOrElse { error -> updateApp { it.copy(phase = AppUpdatePhase.INSTALL_FAILED, error = error.toUpdateError()) }; return@launch }
+            updateApp { it.copy(phase = AppUpdatePhase.INSTALLING) }
+            appUpdater.install(apk).fold(
+                // Normally the process is replaced before this runs.
+                onSuccess = { updateApp { it.copy(phase = AppUpdatePhase.UP_TO_DATE) } },
+                onFailure = { error -> updateApp { it.copy(phase = AppUpdatePhase.INSTALL_FAILED, error = error.toUpdateError()) } },
+            )
+        }
+    }
+
+    private fun Throwable.toUpdateError(): UpdateError =
+        (this as? UpdateException)?.error ?: UpdateError.Other(message ?: javaClass.simpleName)
+
+    private fun checkModule() {
+        val phase = _uiState.value.phase
+        if (phase == UpdatePhase.DOWNLOADING || phase == UpdatePhase.INSTALLING || phase == UpdatePhase.CHECKING) return
         // A finished install stays on screen: checking again would offer the same zip.
         if (_uiState.value.phase == UpdatePhase.INSTALLED) return
         viewModelScope.launch {
@@ -79,7 +153,7 @@ class ModuleUpdateViewModel(private val updater: ModuleUpdater) : ViewModel() {
     fun install() {
         val state = _uiState.value
         val release = state.release ?: return
-        if (state.busy || !state.updateAvailable) return
+        if (state.phase == UpdatePhase.DOWNLOADING || state.phase == UpdatePhase.INSTALLING || !state.updateAvailable) return
         viewModelScope.launch {
             _uiState.update {
                 it.copy(phase = UpdatePhase.DOWNLOADING, progress = -1f, log = emptyList(), error = null)
