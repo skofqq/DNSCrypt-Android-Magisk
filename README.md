@@ -2,7 +2,7 @@
 
 🇬🇧 **English** · [🇷🇺 Русский](README.ru.md)
 
-[![Support the project](https://img.shields.io/badge/Support-DonationAlerts-F57D07)](https://www.donationalerts.com/r/skofqq) [![Поддержать проект](https://img.shields.io/badge/Support-DonationAlerts-F57D07)](https://www.donationalerts.com/r/skofqq)
+[![Support the project](https://img.shields.io/badge/Support-DonationAlerts-F57D07)](https://www.donationalerts.com/r/skofqq)
 
 A Magisk module that routes all Android DNS traffic to a local
 [dnscrypt-proxy](https://github.com/DNSCrypt/dnscrypt-proxy) and sends queries
